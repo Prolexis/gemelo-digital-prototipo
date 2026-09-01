@@ -1,0 +1,7 @@
+{
+  "terminal.integrated.defaultProfile.windows": "Command Prompt",
+  "terminal.integrated.shellIntegration.enabled": false,
+  "terminal.integrated.sendKeybindingsToShell": true,
+  "terminal.integrated.persistentSessionRevive": "on",
+  "terminal.integrated.scrollback": 10000
+}

@@ -27,6 +27,7 @@ import { ReportsModule } from './components/reports/ReportsModule';
 import { EthicsConsentModule } from './components/ethics/EthicsConsentModule';
 import { UserRolesModule } from './components/rbac/UserRolesModule';
 import { ArchitectureDocsModule } from './components/docs/ArchitectureDocsModule';
+import { GeminiAssistantModal } from './components/xai/GeminiAssistantModal';
 
 // Icons
 import { 
@@ -53,6 +54,7 @@ import {
 export default function App() {
   // Navigation
   const [activeTab, setActiveTab] = useState<'3D_TWIN' | 'SCENARIOS' | 'ALERTS' | 'ANALYTICS' | 'REPORTS' | 'ETHICS' | 'RBAC' | 'ARCHITECTURE'>('3D_TWIN');
+  const [isGeminiModalOpen, setIsGeminiModalOpen] = useState<boolean>(false);
 
   // Application State
   const [equipments, setEquipments] = useState<Equipment[]>(INITIAL_EQUIPMENTS);
@@ -399,6 +401,16 @@ export default function App() {
                 <option value="AUDITOR">Auditor MSHA</option>
               </select>
             </div>
+
+            {/* Gemini FastAPI Engine Modal Toggle Button */}
+            <button
+              id="btn-open-gemini-ai"
+              onClick={() => setIsGeminiModalOpen(true)}
+              className="bg-indigo-600/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all shadow-md shadow-indigo-500/10 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+              <span>Gemini AI (FastAPI)</span>
+            </button>
           </div>
         </div>
 
@@ -663,6 +675,18 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Gemini AI Assistant Modal */}
+      <GeminiAssistantModal
+        isOpen={isGeminiModalOpen}
+        onClose={() => setIsGeminiModalOpen(false)}
+        currentEquipmentContext={{
+          equipmentsCount: equipments.length,
+          activeScenario: activeScenarioId,
+          activeAlerts: alerts.filter(a => a.status === 'ACTIVE').length,
+          weather: weatherCondition
+        }}
+      />
     </div>
   );
 }
