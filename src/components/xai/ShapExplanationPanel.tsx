@@ -185,8 +185,8 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
           </div>
 
           {/* Recharts Bar Chart of SHAP Contributions */}
-          <div className="h-36 w-full pt-1">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-36 w-full min-h-[144px] min-w-0 pt-1">
+            <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 24, left: 10, bottom: 0 }}>
                 <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} unit="%" />
                 <YAxis dataKey="name" type="category" width={110} tick={{ fontSize: 9.5, fill: '#cbd5e1' }} />

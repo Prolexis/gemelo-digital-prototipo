@@ -159,8 +159,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ mshaInci
             </span>
           </div>
 
-          <div className="h-64 w-full pt-2">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-64 w-full min-h-[256px] min-w-0 pt-2">
+            <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <BarChart data={warningTimeData} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                 <XAxis dataKey="event" tick={{ fill: '#94a3b8', fontSize: 10 }} angle={-15} textAnchor="end" />
@@ -202,8 +202,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ mshaInci
             </span>
           </div>
 
-          <div className="h-64 w-full pt-2">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-64 w-full min-h-[256px] min-w-0 pt-2">
+            <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <LineChart data={rocCurveData} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                 <XAxis dataKey="fpr" tick={{ fill: '#94a3b8', fontSize: 10 }} label={{ value: 'Tasa Falsos Positivos (FPR)', position: 'insideBottom', offset: -10, fill: '#64748b', fontSize: 10 }} />
@@ -265,8 +265,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ mshaInci
             <Users className="w-4 h-4 text-purple-400" />
             Riesgo por Turno Operacional
           </h3>
-          <div className="h-40 w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-40 w-full min-h-[160px] min-w-0 flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <PieChart>
                 <Pie data={shiftDistributionData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={55} innerRadius={35} paddingAngle={4}>
                   {shiftDistributionData.map((entry, index) => (

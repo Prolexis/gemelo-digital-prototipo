@@ -177,18 +177,24 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
     window.addEventListener('mouseup', handlePointerUp);
     domElement.addEventListener('wheel', handleWheel, { passive: false });
 
-    // Resize handler with ResizeObserver
+    // Resize handler with ResizeObserver wrapped in requestAnimationFrame
+    let rafResizeId: number | null = null;
     const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const { width: newW, height: newH } = entry.contentRect;
-        if (newW > 0 && newH > 0 && rendererRef.current && cameraRef.current) {
-          cameraRef.current.aspect = newW / newH;
-          cameraRef.current.updateProjectionMatrix();
-          rendererRef.current.setSize(newW, newH);
+      if (rafResizeId !== null) cancelAnimationFrame(rafResizeId);
+      rafResizeId = requestAnimationFrame(() => {
+        for (const entry of entries) {
+          const { width: newW, height: newH } = entry.contentRect;
+          if (newW > 0 && newH > 0 && rendererRef.current && cameraRef.current) {
+            cameraRef.current.aspect = newW / newH;
+            cameraRef.current.updateProjectionMatrix();
+            rendererRef.current.setSize(newW, newH, false);
+          }
         }
-      }
+      });
     });
-    resizeObserver.observe(containerRef.current);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
 
     // Animation Loop
     let clock = new THREE.Clock();
@@ -244,6 +250,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
 
     return () => {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (rafResizeId !== null) cancelAnimationFrame(rafResizeId);
       domElement.removeEventListener('mousedown', handlePointerDown);
       window.removeEventListener('mousemove', handlePointerMove);
       window.removeEventListener('mouseup', handlePointerUp);
