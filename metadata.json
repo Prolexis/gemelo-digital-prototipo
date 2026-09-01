@@ -1,0 +1,6 @@
+{
+  "name": "MineSafe 3D - Gemelo Digital Explicable Minería Open-Pit",
+  "description": "Sistema de Gemelo Digital 3D Explicable (XAI) con IA Multi-Modal para predicción de riesgo de colisión en flotas mixtas de minería a tajo abierto.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
