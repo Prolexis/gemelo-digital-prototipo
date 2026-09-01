@@ -27,7 +27,7 @@ import { ReportsModule } from './components/reports/ReportsModule';
 import { EthicsConsentModule } from './components/ethics/EthicsConsentModule';
 import { UserRolesModule } from './components/rbac/UserRolesModule';
 import { ArchitectureDocsModule } from './components/docs/ArchitectureDocsModule';
-import { GeminiAssistantModal } from './components/xai/GeminiAssistantModal';
+import { MiningAiChatbot } from './components/chat/MiningAiChatbot';
 
 // Icons
 import { 
@@ -48,13 +48,17 @@ import {
   Sparkles,
   Layers,
   ChevronRight,
-  Activity
+  Activity,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 export default function App() {
   // Navigation
   const [activeTab, setActiveTab] = useState<'3D_TWIN' | 'SCENARIOS' | 'ALERTS' | 'ANALYTICS' | 'REPORTS' | 'ETHICS' | 'RBAC' | 'ARCHITECTURE'>('3D_TWIN');
-  const [isGeminiModalOpen, setIsGeminiModalOpen] = useState<boolean>(false);
+
+  // Theme State: 'dark' | 'light'
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   // Application State
   const [equipments, setEquipments] = useState<Equipment[]>(INITIAL_EQUIPMENTS);
@@ -66,39 +70,12 @@ export default function App() {
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
   const [weatherCondition, setWeatherCondition] = useState<'CLEAR' | 'DUST_STORM' | 'HEAVY_FOG' | 'NIGHT_RAIN'>('CLEAR');
 
-  // Audit Logs
-  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([
-    {
-      id: 'log-1',
-      timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-      userEmail: 'supervisor.hse@mineraesperanza.cl',
-      userRole: 'SAFETY_SUPERVISOR',
-      action: 'LOGIN_AUTH',
-      resource: 'SISTEMA_CENTRAL',
-      details: 'Inicio de sesión con credenciales biométricas para Turno Noche.',
-      ipAddress: '10.240.12.88',
-    },
-    {
-      id: 'log-2',
-      timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
-      userEmail: 'supervisor.hse@mineraesperanza.cl',
-      userRole: 'SAFETY_SUPERVISOR',
-      action: 'ACKNOWLEDGE_ALERT',
-      resource: 'HT-108 (Botadero Sur)',
-      details: 'Alerta de proximidad de berma confirmada. Conductor alertado.',
-      ipAddress: '10.240.12.88',
-    },
-    {
-      id: 'log-3',
-      timestamp: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
-      userEmail: 'data.scientist@mineraesperanza.cl',
-      userRole: 'DATA_ANALYST',
-      action: 'INJECT_SCENARIO',
-      resource: 'SCENARIO_BLIND_CORNER',
-      details: 'Inyección de escenario de prueba de fatiga severa en Rampa Este.',
-      ipAddress: '10.240.14.102',
-    },
-  ]);
+  const isDark = theme === 'dark';
+
+  // Toggle Theme
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   // Telemetry Movement & Real-time Simulation Loop
   useEffect(() => {
@@ -331,27 +308,65 @@ export default function App() {
     );
   };
 
+  // Audit Logs
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([
+    {
+      id: 'log-1',
+      timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+      userEmail: 'supervisor.hse@mineraesperanza.cl',
+      userRole: 'SAFETY_SUPERVISOR',
+      action: 'LOGIN_AUTH',
+      resource: 'SISTEMA_CENTRAL',
+      details: 'Inicio de sesión con credenciales biométricas para Turno Noche.',
+      ipAddress: '10.240.12.88',
+    },
+    {
+      id: 'log-2',
+      timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
+      userEmail: 'supervisor.hse@mineraesperanza.cl',
+      userRole: 'SAFETY_SUPERVISOR',
+      action: 'ACKNOWLEDGE_ALERT',
+      resource: 'HT-108 (Botadero Sur)',
+      details: 'Alerta de proximidad de berma confirmada. Conductor alertado.',
+      ipAddress: '10.240.12.88',
+    },
+    {
+      id: 'log-3',
+      timestamp: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
+      userEmail: 'data.scientist@mineraesperanza.cl',
+      userRole: 'DATA_ANALYST',
+      action: 'INJECT_SCENARIO',
+      resource: 'SCENARIO_BLIND_CORNER',
+      details: 'Inyección de escenario de prueba de fatiga severa en Rampa Este.',
+      ipAddress: '10.240.14.102',
+    },
+  ]);
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
+    <div className={`min-h-screen flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950 transition-colors duration-200 ${
+      isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-100 text-slate-900'
+    }`}>
       {/* Top Corporate Navigation Header */}
-      <header className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 px-4 py-2.5">
+      <header className={`backdrop-blur-md border-b sticky top-0 z-40 px-4 py-2.5 transition-colors ${
+        isDark ? 'bg-slate-900/95 border-slate-800' : 'bg-white/95 border-slate-200 shadow-sm'
+      }`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           {/* Logo & Platform Title */}
           <div className="flex items-center gap-3 w-full md:w-auto justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center shadow-lg shadow-amber-500/20 text-base">
+              <div className="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center shadow-lg shadow-amber-500/20 text-base flex-shrink-0">
                 MS
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-sm font-extrabold tracking-tight text-slate-100">
+                  <h1 className={`text-sm font-extrabold tracking-tight ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
                     MINESAFE 3D
                   </h1>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30">
                     GEMELO DIGITAL EXPLICABLE (XAI)
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-400">
+                <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   Predicción de Riesgo de Colisión en Tajo Abierto • Flota Mixta (Manual + AHS)
                 </p>
               </div>
@@ -360,20 +375,35 @@ export default function App() {
             {/* Quick Live Telemetry Indicator on Mobile */}
             <div className="flex md:hidden items-center gap-2 text-xs">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-              <span className="text-emerald-400 font-mono text-[11px]">1 Hz VIVO</span>
+              <span className="text-emerald-500 font-mono text-[11px]">1 Hz VIVO</span>
             </div>
           </div>
 
-          {/* Quick Stats & Controls */}
-          <div className="flex flex-wrap items-center gap-2.5 text-xs w-full md:w-auto justify-end">
+          {/* Quick Stats, Theme Toggle & Controls */}
+          <div className="flex flex-wrap items-center gap-2 text-xs w-full md:w-auto justify-end">
+            {/* Theme Toggle (Dark / Light) */}
+            <button
+              id="btn-toggle-theme"
+              onClick={toggleTheme}
+              className={`p-2 rounded-xl border flex items-center gap-1.5 transition-all cursor-pointer ${
+                isDark
+                  ? 'bg-slate-800 hover:bg-slate-700 text-amber-400 border-slate-700'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 shadow-sm'
+              }`}
+              title={isDark ? 'Cambiar a Modo Blanco / Claro' : 'Cambiar a Modo Oscuro'}
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <span className="text-[11px] font-bold hidden sm:inline">{isDark ? 'Modo Claro' : 'Modo Oscuro'}</span>
+            </button>
+
             {/* Simulation Play/Pause */}
             <button
               id="btn-toggle-sim"
               onClick={() => setIsSimulating(!isSimulating)}
-              className={`px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1.5 transition-all border ${
+              className={`px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
                 isSimulating
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                  : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                  ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'
+                  : 'bg-amber-500/10 text-amber-500 border-amber-500/30'
               }`}
             >
               {isSimulating ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
@@ -381,18 +411,24 @@ export default function App() {
             </button>
 
             {/* Weather indicator */}
-            <div className="bg-slate-800 border border-slate-700 px-3 py-1 rounded-xl text-slate-300 flex items-center gap-1.5">
-              <span className="text-slate-400 text-[10px] uppercase font-bold">Clima:</span>
-              <span className="font-semibold text-amber-400">{weatherCondition}</span>
+            <div className={`border px-3 py-1 rounded-xl flex items-center gap-1.5 ${
+              isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-700'
+            }`}>
+              <span className="text-[10px] uppercase font-bold opacity-70">Clima:</span>
+              <span className="font-semibold text-amber-500">{weatherCondition}</span>
             </div>
 
             {/* Active Role Selector */}
-            <div className="bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-xl flex items-center gap-1.5">
-              <UserCheck className="w-3.5 h-3.5 text-sky-400" />
+            <div className={`border px-2.5 py-1 rounded-xl flex items-center gap-1.5 ${
+              isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-300'
+            }`}>
+              <UserCheck className="w-3.5 h-3.5 text-sky-500" />
               <select
                 value={currentRole}
                 onChange={(e) => setCurrentRole(e.target.value as UserRole)}
-                className="bg-transparent text-slate-200 text-xs font-bold outline-none cursor-pointer"
+                className={`bg-transparent text-xs font-bold outline-none cursor-pointer ${
+                  isDark ? 'text-slate-200' : 'text-slate-800'
+                }`}
               >
                 <option value="SAFETY_SUPERVISOR">Supervisor HSE</option>
                 <option value="ADMIN">Administrador</option>
@@ -401,16 +437,6 @@ export default function App() {
                 <option value="AUDITOR">Auditor MSHA</option>
               </select>
             </div>
-
-            {/* Gemini FastAPI Engine Modal Toggle Button */}
-            <button
-              id="btn-open-gemini-ai"
-              onClick={() => setIsGeminiModalOpen(true)}
-              className="bg-indigo-600/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all shadow-md shadow-indigo-500/10 cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
-              <span>Gemini AI (FastAPI)</span>
-            </button>
           </div>
         </div>
 
@@ -419,10 +445,10 @@ export default function App() {
           <button
             id="tab-3d-twin"
             onClick={() => setActiveTab('3D_TWIN')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
               activeTab === '3D_TWIN'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
             <Box className="w-4 h-4" />
@@ -432,10 +458,10 @@ export default function App() {
           <button
             id="tab-scenarios"
             onClick={() => setActiveTab('SCENARIOS')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'SCENARIOS'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
             <Flame className="w-4 h-4" />
@@ -445,10 +471,10 @@ export default function App() {
           <button
             id="tab-alerts"
             onClick={() => setActiveTab('ALERTS')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all relative ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all relative cursor-pointer ${
               activeTab === 'ALERTS'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
             <ShieldAlert className="w-4 h-4" />
@@ -461,10 +487,10 @@ export default function App() {
           <button
             id="tab-analytics"
             onClick={() => setActiveTab('ANALYTICS')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'ANALYTICS'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
             <BarChart3 className="w-4 h-4" />
@@ -474,23 +500,23 @@ export default function App() {
           <button
             id="tab-reports"
             onClick={() => setActiveTab('REPORTS')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'REPORTS'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
             <FileText className="w-4 h-4" />
-            <span>Reportes PDF / Excel</span>
+            <span>Reportes PDF / Word / Excel</span>
           </button>
 
           <button
             id="tab-ethics"
             onClick={() => setActiveTab('ETHICS')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'ETHICS'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
             <Shield className="w-4 h-4" />
@@ -500,10 +526,10 @@ export default function App() {
           <button
             id="tab-rbac"
             onClick={() => setActiveTab('RBAC')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'RBAC'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
             <UserCheck className="w-4 h-4" />
@@ -513,10 +539,10 @@ export default function App() {
           <button
             id="tab-architecture"
             onClick={() => setActiveTab('ARCHITECTURE')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'ARCHITECTURE'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
             <Code2 className="w-4 h-4" />
@@ -555,13 +581,13 @@ export default function App() {
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <button
                     onClick={() => setSelectedEquipmentId('eq-ht-104')}
-                    className="flex-1 sm:flex-initial bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow"
+                    className="flex-1 sm:flex-initial bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow cursor-pointer"
                   >
                     Inspeccionar SHAP
                   </button>
                   <button
                     onClick={() => handleAcknowledgeAlert(alerts[0].id, 'Supervisor HSE')}
-                    className="flex-1 sm:flex-initial bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3.5 py-2 rounded-xl border border-slate-700"
+                    className="flex-1 sm:flex-initial bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3.5 py-2 rounded-xl border border-slate-700 cursor-pointer"
                   >
                     Reconocer
                   </button>
@@ -627,13 +653,14 @@ export default function App() {
           <AnalyticsDashboard mshaIncidents={MSHA_HISTORICAL_INCIDENTS} />
         )}
 
-        {/* Tab 5: Reports Module */}
+        {/* Tab 5: Reports Module with PDF / Word / Excel Live Previews */}
         {activeTab === 'REPORTS' && (
           <ReportsModule
             equipments={equipments}
             alerts={alerts}
             mshaIncidents={MSHA_HISTORICAL_INCIDENTS}
             consents={OPERATOR_CONSENTS}
+            theme={theme}
           />
         )}
 
@@ -661,8 +688,21 @@ export default function App() {
         )}
       </main>
 
+      {/* Floating AI Mining Safety Chatbot Copilot */}
+      <MiningAiChatbot
+        equipments={equipments}
+        alerts={alerts}
+        currentRole={currentRole}
+        weatherCondition={weatherCondition}
+        onSendCabWarning={handleSendCabWarning}
+        onRequestRelief={handleRequestRelief}
+        theme={theme}
+      />
+
       {/* Footer */}
-      <footer className="bg-slate-900 border-t border-slate-800 px-4 py-3 text-xs text-slate-500">
+      <footer className={`border-t px-4 py-3 text-xs transition-colors ${
+        isDark ? 'bg-slate-900 border-slate-800 text-slate-500' : 'bg-white border-slate-200 text-slate-600 shadow-inner'
+      }`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
           <p>
             MineSafe 3D • Gemelo Digital Explicable para Seguridad Minera en Tajo Abierto (Flota Mixta)
@@ -675,18 +715,7 @@ export default function App() {
           </div>
         </div>
       </footer>
-
-      {/* Gemini AI Assistant Modal */}
-      <GeminiAssistantModal
-        isOpen={isGeminiModalOpen}
-        onClose={() => setIsGeminiModalOpen(false)}
-        currentEquipmentContext={{
-          equipmentsCount: equipments.length,
-          activeScenario: activeScenarioId,
-          activeAlerts: alerts.filter(a => a.status === 'ACTIVE').length,
-          weather: weatherCondition
-        }}
-      />
     </div>
   );
 }
+
