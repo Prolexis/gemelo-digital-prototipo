@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Equipment, CollisionAlert, UserRole, MiningScenario } from '../../types/mining';
+import { GeminiApiService } from '../../services/geminiApi';
 import { 
   Bot, 
   Send, 
@@ -12,13 +13,18 @@ import {
   Flame, 
   CheckCircle2, 
   ChevronRight,
-  Radio,
-  Volume2,
-  Trash2,
-  HelpCircle,
-  Clock,
-  Zap,
-  Users
+  Radio, 
+  Volume2, 
+  VolumeX, 
+  Mic, 
+  MicOff, 
+  Square,
+  Play,
+  Trash2, 
+  HelpCircle, 
+  Clock, 
+  Zap, 
+  Users 
 } from 'lucide-react';
 
 interface MiningAiChatbotProps {
@@ -55,13 +61,22 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  
+  // Audio: Speech-to-Text (STT) y Text-to-Speech (TTS)
+  const [isListening, setIsListening] = useState(false);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
+  const [currentlySpeakingMsgId, setCurrentlySpeakingMsgId] = useState<string | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+
+  const isDark = theme === 'dark';
 
   const initialMessages: ChatMessage[] = [
     {
       id: 'msg-welcome',
       sender: 'ai',
-      text: `👋 **¡Hola! Soy MineSafe Copilot**, tu asistente de inteligencia artificial para el Gemelo Digital 3D en Tajo Abierto.\n\nPuedo responder consultas sobre **telemetría en vivo**, calcular **factores SHAP**, explicar **tiempos de reacción frente al PDS** o ejecutar **protocolos de mitigación en cabina** para la flota mixta.`,
+      text: `👋 **¡Hola! Soy MineSafe Copilot**, tu asistente de inteligencia artificial para el Gemelo Digital 3D en Tajo Abierto.\n\n🎙️ **Novedad con Audio:** Ahora puedes hablarme por el micrófono y escucharé tus consultas, o escuchar mis diagnósticos en voz alta.\n\nPuedo responder consultas sobre **telemetría en vivo**, calcular **factores SHAP**, explicar **tiempos de reacción frente al PDS** o ejecutar **protocolos de mitigación en cabina** para la flota mixta.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       badge: 'IA OPERACIONAL & HSE',
       actions: [
@@ -81,7 +96,152 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
     }
   }, [messages, isOpen]);
 
-  // Quick suggestions chips
+  // Limpiar síntesis de voz al desmontar o cerrar
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch {}
+      }
+    };
+  }, []);
+
+  // Tono acústico de radio minera (chime sintetizado con Web Audio API)
+  const playRadioChime = useCallback(() => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.12);
+
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.13);
+    } catch {}
+  }, []);
+
+  // Función de Text-to-Speech (Locución de voz en español)
+  const speakText = useCallback((text: string, msgId?: string) => {
+    if (!('speechSynthesis' in window)) return;
+
+    window.speechSynthesis.cancel();
+
+    if (currentlySpeakingMsgId === msgId) {
+      setCurrentlySpeakingMsgId(null);
+      return;
+    }
+
+    // Limpieza de Markdown para lectura natural
+    const cleanText = text
+      .replace(/[*_#`~[\]]/g, '')
+      .replace(/[-•]/g, '')
+      .replace(/https?:\/\/\S+/g, '')
+      .replace(/\n+/g, '. ')
+      .trim();
+
+    if (!cleanText) return;
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'es-ES';
+    utterance.rate = 1.05; // Cadencia adecuada para operaciones mineras
+    utterance.pitch = 1.0;
+
+    // Asignar voz en español si el navegador la tiene
+    const voices = window.speechSynthesis.getVoices();
+    const spanishVoice = voices.find(v => v.lang.startsWith('es') || v.lang.includes('es-')) || null;
+    if (spanishVoice) {
+      utterance.voice = spanishVoice;
+    }
+
+    utterance.onstart = () => {
+      if (msgId) setCurrentlySpeakingMsgId(msgId);
+    };
+
+    utterance.onend = () => {
+      setCurrentlySpeakingMsgId(null);
+    };
+
+    utterance.onerror = () => {
+      setCurrentlySpeakingMsgId(null);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }, [currentlySpeakingMsgId]);
+
+  // Detener locución actual
+  const stopSpeaking = useCallback(() => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setCurrentlySpeakingMsgId(null);
+    }
+  }, []);
+
+  // Reconocimiento de Voz (Speech-to-Text por Micrófono)
+  const toggleSpeechRecognition = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Tu navegador no cuenta con soporte para reconocimiento de voz (SpeechRecognition). Puedes utilizar Google Chrome, Microsoft Edge o Safari.');
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'es-ES';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        playRadioChime();
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setInputValue(transcript);
+          handleSendMessage(transcript);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn('SpeechRecognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error('Error al iniciar reconocimiento de voz:', err);
+      setIsListening(false);
+    }
+  }, [isListening, playRadioChime]);
+
+  // Sugerencias rápidas
   const suggestionChips = [
     '¿Cuál es el camión con mayor riesgo actual?',
     'Explicar desglose SHAP de HT-104',
@@ -91,7 +251,7 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
     '¿Cómo se garantiza la privacidad ética de los operadores?',
   ];
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string) => {
     const query = (textToSend || inputValue).trim();
     if (!query) return;
 
@@ -106,11 +266,72 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
     if (!textToSend) setInputValue('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const botResponse = generateBotResponse(query);
+    // Intentar consultar al backend real de FastAPI Gemini primero
+    try {
+      const contextData = {
+        role: currentRole,
+        weather: weatherCondition,
+        fleet_count: equipments.length,
+        active_alerts: alerts.filter(a => a.status === 'ACTIVE').length,
+        critical_truck: equipments.find(e => e.id === 'eq-ht-104'),
+      };
+
+      const geminiResult = await GeminiApiService.chat(query, contextData);
+
+      let finalBotText = '';
+      let finalBadge = 'GEMINI 2.5 FLASH';
+      let actions: ChatMessage['actions'] = undefined;
+
+      if (geminiResult.success && geminiResult.reply) {
+        finalBotText = geminiResult.reply;
+        if (query.toLowerCase().includes('riesgo') || query.toLowerCase().includes('ht-104')) {
+          actions = [
+            { label: '📢 Enviar Aviso Acústico a Cabina', actionId: 'cab_warning_ht104', type: 'warning' },
+            { label: '🛑 Gestionar Relevo Inmediato', actionId: 'relief_ht104', type: 'relief' },
+          ];
+        }
+      } else {
+        // Fallback local enriquecido
+        const fallbackMsg = generateLocalBotResponse(query);
+        finalBotText = fallbackMsg.text;
+        finalBadge = fallbackMsg.badge || 'XAI TREESHAP';
+        actions = fallbackMsg.actions;
+      }
+
+      const botMsgId = `bot-${Date.now()}`;
+      const botResponse: ChatMessage = {
+        id: botMsgId,
+        sender: 'ai',
+        text: finalBotText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        badge: finalBadge,
+        actions,
+      };
+
       setMessages((prev) => [...prev, botResponse]);
       setIsTyping(false);
-    }, 600);
+
+      // Si la voz está habilitada, locutar automáticamente
+      if (isVoiceEnabled) {
+        speakText(finalBotText, botMsgId);
+      }
+    } catch (err) {
+      // Fallback local si falla la red
+      const fallbackMsg = generateLocalBotResponse(query);
+      const botMsgId = `bot-${Date.now()}`;
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...fallbackMsg,
+          id: botMsgId,
+        },
+      ]);
+      setIsTyping(false);
+
+      if (isVoiceEnabled) {
+        speakText(fallbackMsg.text, botMsgId);
+      }
+    }
   };
 
   const handleActionClick = (actionId: string) => {
@@ -121,35 +342,38 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
     } else if (actionId === 'fatigue_protocol') {
       handleSendMessage('Solicitar relevo por fatiga PERCLOS');
     } else if (actionId === 'cab_warning_ht104') {
+      playRadioChime();
       onSendCabWarning?.('eq-ht-104');
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `sys-${Date.now()}`,
-          sender: 'system',
-          text: `🚨 **Aviso emitido**: Señal acústica y háptica transmitida a la cabina de HT-104 (Operador Carlos Méndez).`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]);
+      const sysMsg: ChatMessage = {
+        id: `sys-${Date.now()}`,
+        sender: 'system',
+        text: `🚨 **Aviso emitido**: Señal acústica y háptica transmitida a la cabina de HT-104 (Operador Carlos Méndez).`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages((prev) => [...prev, sysMsg]);
+      if (isVoiceEnabled) {
+        speakText('Alerta transmitida a la cabina del camión HT 104.', sysMsg.id);
+      }
     } else if (actionId === 'relief_ht104') {
+      playRadioChime();
       onRequestRelief?.('op-104');
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `sys-${Date.now()}`,
-          sender: 'system',
-          text: `✅ **Relevo solicitado**: Despacho de Turno ha asignado un operador de reemplazo para HT-104 en el próximo pase del banco 3200.`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]);
+      const sysMsg: ChatMessage = {
+        id: `sys-${Date.now()}`,
+        sender: 'system',
+        text: `✅ **Relevo solicitado**: Despacho de Turno ha asignado un operador de reemplazo para HT-104 en el próximo pase del banco 3200.`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages((prev) => [...prev, sysMsg]);
+      if (isVoiceEnabled) {
+        speakText('Relevo operacional solicitado para el operador de HT 104.', sysMsg.id);
+      }
     }
   };
 
-  const generateBotResponse = (query: string): ChatMessage => {
+  const generateLocalBotResponse = (query: string): ChatMessage => {
     const q = query.toLowerCase();
     const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // 1. Critical Equipment status
     if (q.includes('riesgo') || q.includes('mayor riesgo') || q.includes('crítico') || q.includes('ht-104')) {
       const ht104 = equipments.find((e) => e.id === 'eq-ht-104');
       const riskScore = ht104 ? (ht104.currentPrediction.overallRiskScore * 100).toFixed(0) : '88';
@@ -169,7 +393,6 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
       };
     }
 
-    // 2. SHAP Explanation
     if (q.includes('shap') || q.includes('explicabilidad') || q.includes('factores') || q.includes('tree')) {
       return {
         id: `bot-${Date.now()}`,
@@ -180,7 +403,6 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
       };
     }
 
-    // 3. Hypothesis H1 / PDS Comparison
     if (q.includes('pds') || q.includes('h1') || q.includes('anticipacion') || q.includes('comparativa') || q.includes('superioridad')) {
       return {
         id: `bot-${Date.now()}`,
@@ -191,7 +413,6 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
       };
     }
 
-    // 4. Cabin warning / dispatch
     if (q.includes('aviso') || q.includes('cabina') || q.includes('sonar') || q.includes('alerta')) {
       onSendCabWarning?.('eq-ht-104');
       return {
@@ -203,7 +424,6 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
       };
     }
 
-    // 5. Fatigue relief
     if (q.includes('relevo') || q.includes('fatiga') || q.includes('perclos') || q.includes('descanso')) {
       onRequestRelief?.('op-104');
       return {
@@ -215,7 +435,6 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
       };
     }
 
-    // 6. Ethics & Data Privacy
     if (q.includes('ética') || q.includes('etica') || q.includes('privacidad') || q.includes('consentimiento') || q.includes('anonim')) {
       return {
         id: `bot-${Date.now()}`,
@@ -226,11 +445,10 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
       };
     }
 
-    // Default Fallback
     return {
       id: `bot-${Date.now()}`,
       sender: 'ai',
-      text: `Comprendo tu consulta: *"Estas analizando ${query}"*.\n\nEn este momento la flota de **${equipments.length} equipos** opera en clima **${weatherCondition}**. El Gemelo Digital mantiene streaming continuo a 1 Hz con **${alerts.filter(a => a.status === 'ACTIVE').length} alertas activas**.\n\n¿Deseas que analice un equipo en particular, exporte un reporte o revise la explicabilidad SHAP?`,
+      text: `Comprendo tu consulta: *"Estas analizando: ${query}"*.\n\nEn este momento la flota de **${equipments.length} equipos** opera en clima **${weatherCondition}**. El Gemelo Digital mantiene streaming continuo a 1 Hz con **${alerts.filter(a => a.status === 'ACTIVE').length} alertas activas**.\n\nPuedes utilizar el micrófono 🎙️ para hacer consultas por voz o preguntarme sobre cualquier camión en específico.`,
       timestamp: timeNow,
       badge: 'MINE ASSISTANT',
       actions: [
@@ -240,11 +458,9 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
     };
   };
 
-  const isDark = theme === 'dark';
-
   return (
     <>
-      {/* Floating Chat Trigger Button */}
+      {/* Botón flotante para abrir el Chatbot */}
       {!isOpen && (
         <button
           id="btn-open-copilot"
@@ -257,27 +473,27 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
           </div>
           <div className="text-left pr-1 hidden sm:block">
             <p className="text-xs font-black tracking-tight leading-none">MineSafe AI</p>
-            <p className="text-[10px] font-bold text-slate-900/80 leading-tight">Copiloto HSE & XAI</p>
+            <p className="text-[10px] font-bold text-slate-900/80 leading-tight">Copiloto HSE & Audio</p>
           </div>
         </button>
       )}
 
-      {/* Floating Chat Drawer Window */}
+      {/* Ventana Flotante del Chatbot */}
       {isOpen && (
         <div
           className={`fixed bottom-4 right-4 z-50 rounded-2xl border shadow-2xl flex flex-col transition-all duration-200 overflow-hidden ${
             isExpanded
-              ? 'w-[95vw] sm:w-[650px] h-[85vh]'
-              : 'w-[92vw] sm:w-[440px] h-[560px]'
+              ? 'w-[95vw] sm:w-[680px] h-[86vh]'
+              : 'w-[92vw] sm:w-[460px] h-[580px]'
           } ${
             isDark
-              ? 'bg-slate-950/95 border-slate-800 text-slate-100 backdrop-blur-xl'
-              : 'bg-white/95 border-slate-300 text-slate-900 backdrop-blur-xl'
+              ? 'bg-slate-950/98 border-slate-800 text-slate-100 backdrop-blur-xl'
+              : 'bg-white/98 border-slate-300 text-slate-900 shadow-2xl backdrop-blur-xl'
           }`}
         >
-          {/* Header */}
+          {/* Cabecera */}
           <div className={`px-4 py-3 border-b flex items-center justify-between gap-2 ${
-            isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-100/90 border-slate-200'
+            isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-100/95 border-slate-200'
           }`}>
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold shadow-md shadow-amber-500/20">
@@ -287,63 +503,90 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
                 <div className="flex items-center gap-1.5">
                   <h3 className="text-xs font-bold tracking-tight">MineSafe AI Copilot</h3>
                   <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
-                    VIVO (1 Hz)
+                    VOZ & GEMINI
                   </span>
                 </div>
                 <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                  Asistente de Gemelo Digital & Seguridad Minera
+                  Asistente por Voz & Explicabilidad XAI
                 </p>
               </div>
             </div>
 
+            {/* Controles de Cabecera: Altavoz Global, Limpiar, Maximizar, Cerrar */}
             <div className="flex items-center gap-1">
               <button
-                onClick={() => setMessages(initialMessages)}
-                className={`p-1.5 rounded-lg transition-colors ${
+                id="btn-toggle-chatbot-voice"
+                onClick={() => {
+                  if (currentlySpeakingMsgId) stopSpeaking();
+                  setIsVoiceEnabled(!isVoiceEnabled);
+                }}
+                className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                  isVoiceEnabled
+                    ? 'bg-amber-500/15 border-amber-500/40 text-amber-500'
+                    : isDark ? 'bg-slate-800 border-slate-700 text-slate-400' : 'bg-slate-200 border-slate-300 text-slate-600'
+                }`}
+                title={isVoiceEnabled ? 'Lectura por voz activada (clic para silenciar)' : 'Lectura por voz silenciada (clic para activar)'}
+              >
+                {isVoiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+              </button>
+
+              <button
+                onClick={() => {
+                  stopSpeaking();
+                  setMessages(initialMessages);
+                }}
+                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                   isDark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-200 text-slate-600'
                 }`}
-                title="Limpiar chat"
+                title="Limpiar conversación"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
 
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className={`p-1.5 rounded-lg transition-colors ${
+                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                   isDark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-200 text-slate-600'
                 }`}
-                title={isExpanded ? 'Restaurar tamaño' : 'Maximizar'}
+                title={isExpanded ? 'Restaurar tamaño normal' : 'Pantalla amplia'}
               >
                 {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
               </button>
 
               <button
-                onClick={() => setIsOpen(false)}
-                className={`p-1.5 rounded-lg transition-colors ${
+                onClick={() => {
+                  stopSpeaking();
+                  if (isListening && recognitionRef.current) {
+                    recognitionRef.current.stop();
+                    setIsListening(false);
+                  }
+                  setIsOpen(false);
+                }}
+                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                   isDark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-200 text-slate-600'
                 }`}
-                title="Cerrar"
+                title="Cerrar chat"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Quick Suggestion Chips Bar */}
+          {/* Barra de Sugerencias Rápidas */}
           <div className={`px-3 py-2 border-b overflow-x-auto scrollbar-none flex items-center gap-1.5 ${
-            isDark ? 'bg-slate-900/40 border-slate-800/80' : 'bg-slate-50 border-slate-200'
+            isDark ? 'bg-slate-900/50 border-slate-800/80' : 'bg-slate-50 border-slate-200'
           }`}>
             <span className="text-[10px] font-bold text-amber-500 flex items-center gap-1 whitespace-nowrap pl-1">
-              <Sparkles className="w-3 h-3" /> Sugerencias:
+              <Sparkles className="w-3 h-3" /> Preguntas rápidas:
             </span>
             {suggestionChips.map((chip, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSendMessage(chip)}
-                className={`text-[10.5px] px-2.5 py-1 rounded-full whitespace-nowrap border transition-all ${
+                className={`text-[10.5px] px-2.5 py-1 rounded-full whitespace-nowrap border transition-all cursor-pointer ${
                   isDark
                     ? 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800 hover:border-amber-500/50 hover:text-amber-400'
-                    : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-amber-500 hover:text-amber-600'
+                    : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-amber-500 hover:text-amber-600 shadow-xs'
                 }`}
               >
                 {chip}
@@ -351,78 +594,124 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
             ))}
           </div>
 
-          {/* Chat Messages Body */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex flex-col ${
-                  msg.sender === 'user' ? 'items-end' : 'items-start'
-                }`}
-              >
-                {/* Sender badge & time */}
-                <div className="flex items-center gap-1.5 mb-1 px-1">
-                  {msg.badge && (
-                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-500 border border-amber-500/30">
-                      {msg.badge}
-                    </span>
-                  )}
-                  <span className={`text-[9px] font-mono ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                    {msg.timestamp}
-                  </span>
-                </div>
+          {/* Mensajes del Chat */}
+          <div className={`flex-1 p-4 overflow-y-auto space-y-3.5 text-xs ${
+            isDark ? 'bg-slate-950/40' : 'bg-slate-50/50'
+          }`}>
+            {messages.map((msg) => {
+              const isAi = msg.sender === 'ai';
+              const isMsgSpeaking = currentlySpeakingMsgId === msg.id;
 
-                {/* Message Bubble */}
+              return (
                 <div
-                  className={`p-3 rounded-2xl max-w-[90%] leading-relaxed ${
-                    msg.sender === 'user'
-                      ? 'bg-amber-500 text-slate-950 font-medium rounded-br-none shadow-md'
-                      : msg.sender === 'system'
-                      ? 'bg-rose-950/60 border border-rose-500/40 text-rose-200'
-                      : isDark
-                      ? 'bg-slate-900 border border-slate-800 text-slate-200 rounded-bl-none shadow-lg'
-                      : 'bg-slate-100 border border-slate-200 text-slate-800 rounded-bl-none shadow-sm'
+                  key={msg.id}
+                  className={`flex flex-col ${
+                    msg.sender === 'user' ? 'items-end' : 'items-start'
                   }`}
                 >
-                  <div className="whitespace-pre-wrap">{msg.text}</div>
+                  {/* Encabezado del mensaje con insignia, hora y botón de reproducir audio */}
+                  <div className="flex items-center gap-1.5 mb-1 px-1">
+                    {msg.badge && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-500 border border-amber-500/30">
+                        {msg.badge}
+                      </span>
+                    )}
+                    <span className={`text-[9px] font-mono ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                      {msg.timestamp}
+                    </span>
 
-                  {/* Interactive Action Buttons inside Message */}
-                  {msg.actions && msg.actions.length > 0 && (
-                    <div className="mt-3 pt-2 border-t border-slate-700/50 flex flex-wrap gap-1.5">
-                      {msg.actions.map((act, i) => (
-                        <button
-                          key={i}
-                          onClick={() => handleActionClick(act.actionId)}
-                          className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1 cursor-pointer ${
-                            act.type === 'warning'
-                              ? 'bg-rose-600 hover:bg-rose-500 text-white border-rose-500'
-                              : act.type === 'relief'
-                              ? 'bg-purple-600 hover:bg-purple-500 text-white border-purple-500'
-                              : isDark
-                              ? 'bg-slate-800 hover:bg-slate-700 text-amber-400 border-slate-700'
-                              : 'bg-white hover:bg-slate-200 text-amber-700 border-slate-300'
-                          }`}
-                        >
-                          <span>{act.label}</span>
-                          <ChevronRight className="w-3 h-3" />
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                    {/* Botón de reproducción de audio individual para respuestas de la IA */}
+                    {isAi && (
+                      <button
+                        onClick={() => {
+                          if (isMsgSpeaking) {
+                            stopSpeaking();
+                          } else {
+                            speakText(msg.text, msg.id);
+                          }
+                        }}
+                        className={`p-1 rounded-md transition-all cursor-pointer ${
+                          isMsgSpeaking
+                            ? 'bg-amber-500 text-slate-950 animate-pulse'
+                            : isDark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-200 text-slate-600'
+                        }`}
+                        title={isMsgSpeaking ? 'Detener lectura' : 'Escuchar respuesta en voz alta'}
+                      >
+                        {isMsgSpeaking ? <Square className="w-2.5 h-2.5 fill-current" /> : <Play className="w-2.5 h-2.5 fill-current" />}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Burbuja del mensaje */}
+                  <div
+                    className={`p-3.5 rounded-2xl max-w-[90%] leading-relaxed ${
+                      msg.sender === 'user'
+                        ? 'bg-amber-500 text-slate-950 font-medium rounded-br-none shadow-md'
+                        : msg.sender === 'system'
+                        ? 'bg-rose-950/60 border border-rose-500/40 text-rose-200'
+                        : isDark
+                        ? 'bg-slate-900 border border-slate-800 text-slate-200 rounded-bl-none shadow-lg'
+                        : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm'
+                    }`}
+                  >
+                    <div className="whitespace-pre-wrap">{msg.text}</div>
+
+                    {/* Botones de acción integrados dentro de la respuesta */}
+                    {msg.actions && msg.actions.length > 0 && (
+                      <div className={`mt-3 pt-2.5 border-t flex flex-wrap gap-1.5 ${
+                        isDark ? 'border-slate-800' : 'border-slate-200'
+                      }`}>
+                        {msg.actions.map((act, i) => (
+                          <button
+                            key={i}
+                            onClick={() => handleActionClick(act.actionId)}
+                            className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1 cursor-pointer ${
+                              act.type === 'warning'
+                                ? 'bg-rose-600 hover:bg-rose-500 text-white border-rose-500'
+                                : act.type === 'relief'
+                                ? 'bg-purple-600 hover:bg-purple-500 text-white border-purple-500'
+                                : isDark
+                                ? 'bg-slate-800 hover:bg-slate-700 text-amber-400 border-slate-700'
+                                : 'bg-slate-100 hover:bg-slate-200 text-amber-700 border-slate-300'
+                            }`}
+                          >
+                            <span>{act.label}</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {isTyping && (
               <div className="flex items-center gap-2 text-slate-400 text-xs p-2">
                 <Bot className="w-4 h-4 text-amber-500 animate-spin" />
-                <span className="animate-pulse">MineSafe AI procesando telemetría y SHAP...</span>
+                <span className="animate-pulse">MineSafe AI procesando telemetría y SHAP con Gemini...</span>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area */}
+          {/* Indicador visual si el micrófono está escuchando */}
+          {isListening && (
+            <div className="bg-rose-500/15 border-t border-rose-500/30 px-3 py-1.5 flex items-center justify-between text-xs text-rose-500 animate-pulse">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+                <span className="font-bold text-[11px]">Escuchando micrófono... Habla claramente tu consulta</span>
+              </div>
+              <button
+                onClick={toggleSpeechRecognition}
+                className="text-[10px] font-bold underline cursor-pointer hover:text-rose-600"
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
+
+          {/* Área de Entrada con Botón de Micrófono (Audio) y Enviar */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -432,15 +721,32 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
               isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-100/90 border-slate-200'
             }`}
           >
+            {/* Botón de Entrada por Voz (Micrófono) */}
+            <button
+              id="btn-chatbot-mic"
+              type="button"
+              onClick={toggleSpeechRecognition}
+              className={`p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-center flex-shrink-0 ${
+                isListening
+                  ? 'bg-rose-500 text-white border-rose-600 shadow-lg shadow-rose-500/30 animate-pulse ring-2 ring-rose-400/50'
+                  : isDark
+                  ? 'bg-slate-800 hover:bg-slate-700 text-amber-400 border-slate-700'
+                  : 'bg-white hover:bg-slate-100 text-amber-600 border-slate-300 shadow-xs'
+              }`}
+              title={isListening ? 'Detener dictado por voz' : 'Hablar por micrófono (Dictado por Voz)'}
+            >
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </button>
+
             <input
               type="text"
-              placeholder="Pregunta a la IA sobre riesgos, fatiga, SHAP o emite comandos..."
+              placeholder={isListening ? "Escuchando tu voz..." : "Pregunta sobre riesgos, fatiga, o usa el micrófono 🎙️..."}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               className={`flex-1 text-xs rounded-xl px-3.5 py-2.5 outline-none border transition-colors ${
                 isDark
-                  ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-amber-500'
-                  : 'bg-white border-slate-300 text-slate-900 focus:border-amber-500'
+                  ? 'bg-slate-950 border-slate-700 text-slate-200 focus:border-amber-500 placeholder:text-slate-500'
+                  : 'bg-white border-slate-300 text-slate-900 focus:border-amber-500 placeholder:text-slate-400'
               }`}
             />
 
@@ -448,6 +754,7 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
               type="submit"
               disabled={!inputValue.trim()}
               className="bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-slate-950 p-2.5 rounded-xl font-bold transition-all shadow-md cursor-pointer flex-shrink-0"
+              title="Enviar mensaje"
             >
               <Send className="w-4 h-4" />
             </button>

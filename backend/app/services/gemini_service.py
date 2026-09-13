@@ -51,7 +51,10 @@ class GeminiService:
         if not self.is_configured():
             raise ValueError("GEMINI_API_KEY no configurada o cliente de Gemini no disponible.")
 
-        models_to_try = [self.model_name, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+        models_to_try = [self.model_name, "gemini-3.6-flash", "gemini-3.7-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-2.5-flash"]
+        # Eliminar duplicados manteniendo orden
+        seen = set()
+        models_to_try = [m for m in models_to_try if not (m in seen or seen.add(m))]
         last_error = None
 
         full_prompt = prompt

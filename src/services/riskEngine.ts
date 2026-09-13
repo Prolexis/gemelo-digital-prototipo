@@ -1,4 +1,5 @@
 import { Equipment, RiskPrediction, ShapFactor, RiskLevel } from '../types/mining';
+import { backendWsService } from './backendWsService';
 
 /**
  * Servicio de Inferencia de Riesgo Explicable (XAI).
@@ -192,4 +193,42 @@ export class RiskEngineService {
     const dz = (eqA.position.elevation || 3200) - (eqB.position.elevation || 3200);
     return Math.sqrt(dx * dx + dy * dy + dz * dz);
   }
+
+  /**
+   * Conecta con el backend WebSocket en /ws/telemetry y /ws/alerts
+   */
+  public static connectLiveBackend() {
+    backendWsService.connect();
+  }
+
+  /**
+   * Suscribe un listener para recibir la telemetría calculada en tiempo real por el backend
+   */
+  public static onLiveTelemetry(callback: (equipments: Equipment[]) => void) {
+    return backendWsService.subscribeTelemetry(callback);
+  }
+
+  /**
+   * Suscribe un listener para recibir alertas críticas emitidas por el backend
+   */
+  public static onLiveAlert(callback: (alert: CollisionAlert) => void) {
+    return backendWsService.subscribeAlert(callback);
+  }
+
+  /**
+   * Suscribe un listener para conocer el estado de la conexión con el backend
+   */
+  public static onConnectionStatus(callback: (status: { isConnected: boolean; source: string }) => void) {
+    return backendWsService.subscribeStatus(callback);
+  }
+
+  /**
+   * Notifica el reconocimiento de alerta al backend
+   */
+  public static acknowledgeAlert(alertId: string, supervisorName: string) {
+    return backendWsService.acknowledgeAlert(alertId, supervisorName);
+  }
 }
+
+export { backendWsService };
+

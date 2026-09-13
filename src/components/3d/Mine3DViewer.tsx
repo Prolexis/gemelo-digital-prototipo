@@ -21,6 +21,7 @@ interface Mine3DViewerProps {
   onSelectEquipment: (id: string) => void;
   weatherCondition?: string;
   isSimulating?: boolean;
+  theme?: 'dark' | 'light';
 }
 
 export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
@@ -29,7 +30,9 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
   onSelectEquipment,
   weatherCondition = 'CLEAR',
   isSimulating = true,
+  theme = 'dark',
 }) => {
+  const isDark = theme === 'dark';
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -65,8 +68,8 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
 
     // Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0b1120); // Dark slate mine sky
-    scene.fog = new THREE.FogExp2(0x0f172a, 0.0018);
+    scene.background = new THREE.Color(isDark ? 0x0b1120 : 0xdbeafe); // Dynamic daylight vs night sky
+    scene.fog = new THREE.FogExp2(isDark ? 0x0f172a : 0xe2e8f0, 0.0018);
     sceneRef.current = scene;
 
     // Camera
@@ -259,6 +262,14 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
       renderer.dispose();
     };
   }, []);
+
+  // React to theme changes in 3D scene (daylight vs night/slate)
+  useEffect(() => {
+    if (sceneRef.current) {
+      sceneRef.current.background = new THREE.Color(isDark ? 0x0b1120 : 0xdbeafe);
+      sceneRef.current.fog = new THREE.FogExp2(isDark ? 0x0f172a : 0xe2e8f0, 0.0018);
+    }
+  }, [isDark]);
 
   // Update camera coordinates
   function updateCameraPosition(
@@ -627,30 +638,40 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
   };
 
   return (
-    <div className="relative w-full h-full min-h-[500px] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl flex flex-col">
+    <div className={`relative w-full h-full min-h-[500px] rounded-2xl overflow-hidden border shadow-2xl flex flex-col transition-colors ${
+      isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-300'
+    }`}>
       {/* 3D WebGL Canvas Container */}
       <div ref={containerRef} className="w-full h-full flex-1 cursor-grab active:cursor-grabbing" />
 
       {/* Top Floating Controls Bar */}
       <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
         {/* Status Pill */}
-        <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 px-3.5 py-1.5 rounded-full flex items-center gap-2.5 shadow-lg pointer-events-auto">
+        <div className={`backdrop-blur-md border px-3.5 py-1.5 rounded-full flex items-center gap-2.5 shadow-lg pointer-events-auto transition-colors ${
+          isDark ? 'bg-slate-900/90 border-slate-700/80' : 'bg-white/95 border-slate-300 text-slate-900'
+        }`}>
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-          <span className="text-xs font-semibold text-slate-200 tracking-wide">
+          <span className={`text-xs font-semibold tracking-wide ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
             GEMELO DIGITAL 3D EN VIVO (1 Hz GNSS + LiDAR)
           </span>
-          <span className="text-[11px] font-mono bg-slate-800 text-amber-400 px-2 py-0.5 rounded-full font-medium">
+          <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full font-medium ${
+            isDark ? 'bg-slate-800 text-amber-400' : 'bg-amber-100 text-amber-800'
+          }`}>
             {equipments.length} EQUIPOS
           </span>
         </div>
 
         {/* Camera Views Quick Switch */}
-        <div className="flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 p-1.5 rounded-xl shadow-lg pointer-events-auto">
+        <div className={`flex items-center gap-1.5 backdrop-blur-md border p-1.5 rounded-xl shadow-lg pointer-events-auto transition-colors ${
+          isDark ? 'bg-slate-900/90 border-slate-700/80' : 'bg-white/95 border-slate-300 text-slate-800'
+        }`}>
           <button
             id="btn-cam-orbit"
             onClick={handleResetCamera}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
-              cameraMode === 'ORBIT' ? 'bg-amber-500 text-slate-950 font-semibold shadow' : 'text-slate-300 hover:bg-slate-800'
+            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+              cameraMode === 'ORBIT' 
+                ? 'bg-amber-500 text-slate-950 font-semibold shadow' 
+                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
             }`}
             title="Vista Libre Orbital 3D"
           >
@@ -661,8 +682,10 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
           <button
             id="btn-cam-topdown"
             onClick={handleTopDownCamera}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
-              cameraMode === 'TOP_DOWN' ? 'bg-amber-500 text-slate-950 font-semibold shadow' : 'text-slate-300 hover:bg-slate-800'
+            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+              cameraMode === 'TOP_DOWN' 
+                ? 'bg-amber-500 text-slate-950 font-semibold shadow' 
+                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
             }`}
             title="Vista Cenital 2D GIS"
           >
@@ -673,8 +696,10 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
           <button
             id="btn-cam-hotspot"
             onClick={handleFocusHotspot}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
-              cameraMode === 'HOTSPOT' ? 'bg-rose-500 text-white font-semibold shadow animate-pulse' : 'text-slate-300 hover:bg-slate-800'
+            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+              cameraMode === 'HOTSPOT' 
+                ? 'bg-rose-500 text-white font-semibold shadow animate-pulse' 
+                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
             }`}
             title="Enfocar Zona de Riesgo Crítico"
           >
@@ -687,12 +712,16 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
       {/* Bottom Layer Toggles & Legend */}
       <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-3 pointer-events-none z-10">
         {/* Layer Toggles */}
-        <div className="flex items-center gap-2 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 p-1.5 rounded-xl shadow-lg pointer-events-auto">
+        <div className={`flex items-center gap-2 backdrop-blur-md border p-1.5 rounded-xl shadow-lg pointer-events-auto transition-colors ${
+          isDark ? 'bg-slate-900/90 border-slate-700/80' : 'bg-white/95 border-slate-300'
+        }`}>
           <button
             id="btn-toggle-lidar"
             onClick={() => setShowLidarCones(!showLidarCones)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
-              showLidarCones ? 'bg-sky-500/20 text-sky-400 border border-sky-500/40' : 'text-slate-400 hover:bg-slate-800'
+            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+              showLidarCones 
+                ? 'bg-sky-500/20 text-sky-500 border border-sky-500/40 font-bold' 
+                : isDark ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <Radio className="w-3.5 h-3.5" />
@@ -702,8 +731,10 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
           <button
             id="btn-toggle-halos"
             onClick={() => setShowSafetyHalos(!showSafetyHalos)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
-              showSafetyHalos ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'text-slate-400 hover:bg-slate-800'
+            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+              showSafetyHalos 
+                ? 'bg-amber-500/20 text-amber-500 border border-amber-500/40 font-bold' 
+                : isDark ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -712,23 +743,27 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
         </div>
 
         {/* Risk Color Legend */}
-        <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 px-3.5 py-2 rounded-xl flex items-center gap-3 text-xs shadow-lg pointer-events-auto">
-          <span className="text-slate-400 font-semibold text-[11px] uppercase tracking-wider">Nivel de Riesgo:</span>
+        <div className={`backdrop-blur-md border px-3.5 py-2 rounded-xl flex items-center gap-3 text-xs shadow-lg pointer-events-auto transition-colors ${
+          isDark ? 'bg-slate-900/90 border-slate-700/80' : 'bg-white/95 border-slate-300 text-slate-800'
+        }`}>
+          <span className={`font-semibold text-[11px] uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            Nivel de Riesgo:
+          </span>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-            <span className="text-slate-300">Bajo (&lt;0.3)</span>
+            <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Bajo (&lt;0.3)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
-            <span className="text-slate-300">Medio</span>
+            <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Medio</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />
-            <span className="text-slate-300">Alto</span>
+            <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Alto</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
-            <span className="text-rose-400 font-bold">Crítico (≥0.8)</span>
+            <span className="text-rose-500 font-bold">Crítico (≥0.8)</span>
           </div>
         </div>
       </div>

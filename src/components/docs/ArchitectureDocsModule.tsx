@@ -16,7 +16,14 @@ import {
   BookOpen
 } from 'lucide-react';
 
-export const ArchitectureDocsModule: React.FC = () => {
+interface ArchitectureDocsModuleProps {
+  theme?: 'dark' | 'light';
+}
+
+export const ArchitectureDocsModule: React.FC<ArchitectureDocsModuleProps> = ({
+  theme = 'dark',
+}) => {
+  const isDark = theme === 'dark';
   const [selectedTab, setSelectedTab] = useState<'ARCHITECTURE' | 'DATA_MODEL' | 'BACKEND_CODE' | 'DOCKER' | 'ML_GUIDE'>('ARCHITECTURE');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
@@ -379,30 +386,42 @@ volumes:
     driver: local`;
 
   return (
-    <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl p-5 space-y-5 text-slate-100">
+    <div className={`rounded-2xl border shadow-xl p-5 space-y-5 transition-colors ${
+      isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900 shadow-sm'
+    }`}>
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+      <div className={`flex items-center justify-between pb-4 border-b transition-colors ${
+        isDark ? 'border-slate-800' : 'border-slate-200'
+      }`}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-            <BookOpen className="w-5 h-5 text-amber-400" />
+            <BookOpen className="w-5 h-5 text-amber-500" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-100">Documentación de Arquitectura de Software & Especificación Técnica</h2>
-            <p className="text-xs text-slate-400">Diseño Enterprise para Producción, PostGIS, Microservicios FastAPI y Modelos ML</p>
+            <h2 className={`text-base font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+              Documentación de Arquitectura de Software & Especificación Técnica
+            </h2>
+            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              Diseño Enterprise para Producción, PostGIS, Microservicios FastAPI y Modelos ML
+            </p>
           </div>
         </div>
 
-        <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">
+        <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 font-bold">
           Architecture Blueprints v3.0
         </span>
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+      <div className={`flex flex-wrap gap-2 p-1.5 rounded-xl border transition-colors ${
+        isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
+      }`}>
         <button
           onClick={() => setSelectedTab('ARCHITECTURE')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-            selectedTab === 'ARCHITECTURE' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-slate-200'
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            selectedTab === 'ARCHITECTURE' 
+              ? 'bg-amber-500 text-slate-950 shadow-sm font-bold' 
+              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <Workflow className="w-3.5 h-3.5" />
@@ -411,8 +430,10 @@ volumes:
 
         <button
           onClick={() => setSelectedTab('DATA_MODEL')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-            selectedTab === 'DATA_MODEL' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-slate-200'
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            selectedTab === 'DATA_MODEL' 
+              ? 'bg-amber-500 text-slate-950 shadow-sm font-bold' 
+              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <Database className="w-3.5 h-3.5" />
@@ -421,8 +442,10 @@ volumes:
 
         <button
           onClick={() => setSelectedTab('BACKEND_CODE')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-            selectedTab === 'BACKEND_CODE' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-slate-200'
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            selectedTab === 'BACKEND_CODE' 
+              ? 'bg-amber-500 text-slate-950 shadow-sm font-bold' 
+              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <FileCode className="w-3.5 h-3.5" />
@@ -431,8 +454,10 @@ volumes:
 
         <button
           onClick={() => setSelectedTab('DOCKER')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-            selectedTab === 'DOCKER' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-slate-200'
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            selectedTab === 'DOCKER' 
+              ? 'bg-amber-500 text-slate-950 shadow-sm font-bold' 
+              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <Boxes className="w-3.5 h-3.5" />
@@ -441,8 +466,10 @@ volumes:
 
         <button
           onClick={() => setSelectedTab('ML_GUIDE')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-            selectedTab === 'ML_GUIDE' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-slate-200'
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            selectedTab === 'ML_GUIDE' 
+              ? 'bg-amber-500 text-slate-950 shadow-sm font-bold' 
+              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <Cpu className="w-3.5 h-3.5" />
@@ -453,13 +480,15 @@ volumes:
       {/* Content Panes */}
       <div className="space-y-4">
         {selectedTab === 'ARCHITECTURE' && (
-          <div className="space-y-4 text-xs text-slate-300 leading-relaxed">
-            <div className="bg-slate-800/60 border border-slate-700/80 p-4 rounded-xl space-y-2">
-              <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-                <Server className="w-4 h-4 text-amber-400" />
+          <div className="space-y-4 text-xs leading-relaxed">
+            <div className={`p-4 rounded-xl border space-y-2 transition-colors ${
+              isDark ? 'bg-slate-800/60 border-slate-700/80 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+            }`}>
+              <h3 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+                <Server className="w-4 h-4 text-amber-500" />
                 Flujo End-to-End: Telemetría GNSS/LiDAR → Redis Pub/Sub → Risk Engine → XAI SHAP → Gemelo 3D
               </h3>
-              <p className="text-slate-400">
+              <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>
                 1. <strong>Ingesta de Alta Frecuencia (1 Hz):</strong> Los camiones de extracción (CAT 797F) y autónomos (AHS) emiten coordenadas GNSS submétricas y vectores de features LiDAR (distancia a obstáculos, volumen de bounding boxes, reflectancia).
               </p>
               <p className="text-slate-400">

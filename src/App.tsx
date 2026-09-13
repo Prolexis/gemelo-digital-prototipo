@@ -16,6 +16,7 @@ import {
   OPERATOR_CONSENTS 
 } from './data/mockMineData';
 import { RiskEngineService } from './services/riskEngine';
+import { backendWsService } from './services/backendWsService';
 
 // Components
 import { Mine3DViewer } from './components/3d/Mine3DViewer';
@@ -57,8 +58,37 @@ export default function App() {
   // Navigation
   const [activeTab, setActiveTab] = useState<'3D_TWIN' | 'SCENARIOS' | 'ALERTS' | 'ANALYTICS' | 'REPORTS' | 'ETHICS' | 'RBAC' | 'ARCHITECTURE'>('3D_TWIN');
 
-  // Theme State: 'dark' | 'light'
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  // Theme State: 'dark' | 'light' con persistencia en localStorage
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    try {
+      const saved = localStorage.getItem('minesafe_theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+      return 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+
+  const isDark = theme === 'dark';
+
+  // Sincronizar clase .dark en <html> y persistir en localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('minesafe_theme', theme);
+    } catch {}
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    }
+  }, [theme, isDark]);
+
+  // Toggle Theme
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   // Application State
   const [equipments, setEquipments] = useState<Equipment[]>(INITIAL_EQUIPMENTS);
@@ -69,17 +99,49 @@ export default function App() {
   const [isAnonymized, setIsAnonymized] = useState<boolean>(false);
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
   const [weatherCondition, setWeatherCondition] = useState<'CLEAR' | 'DUST_STORM' | 'HEAVY_FOG' | 'NIGHT_RAIN'>('CLEAR');
+  const [isBackendWsActive, setIsBackendWsActive] = useState<boolean>(false);
 
-  const isDark = theme === 'dark';
-
-  // Toggle Theme
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  };
-
-  // Telemetry Movement & Real-time Simulation Loop
+  // Conexión en tiempo real con WebSockets del Backend (/ws/telemetry y /ws/alerts)
   useEffect(() => {
-    if (!isSimulating) return;
+    backendWsService.connect();
+
+    const unsubTelemetry = backendWsService.subscribeTelemetry((liveFleet) => {
+      if (liveFleet && liveFleet.length > 0) {
+        setEquipments(liveFleet);
+        setIsBackendWsActive(true);
+      }
+    });
+
+    const unsubAlert = backendWsService.subscribeAlert((newAlert) => {
+      setAlerts((prev) => {
+        if (prev.some((a) => a.id === newAlert.id || a.alertCode === newAlert.alertCode)) {
+          return prev;
+        }
+        return [newAlert, ...prev.slice(0, 24)];
+      });
+    });
+
+    const unsubSnapshot = backendWsService.subscribeAlertsSnapshot((snapshotAlerts) => {
+      if (snapshotAlerts && snapshotAlerts.length > 0) {
+        setAlerts(snapshotAlerts);
+      }
+    });
+
+    const unsubStatus = backendWsService.subscribeStatus(({ isConnected }) => {
+      setIsBackendWsActive(isConnected);
+    });
+
+    return () => {
+      unsubTelemetry();
+      unsubAlert();
+      unsubSnapshot();
+      unsubStatus();
+    };
+  }, []);
+
+  // Telemetry Movement & Real-time Simulation Loop (Fallback local si el backend está desconectado)
+  useEffect(() => {
+    if (!isSimulating || isBackendWsActive) return;
 
     const interval = setInterval(() => {
       setEquipments((prevList) => {
@@ -126,17 +188,22 @@ export default function App() {
     }, 1000); // 1 Hz (1 actualización por segundo)
 
     return () => clearInterval(interval);
-  }, [isSimulating, weatherCondition]);
+  }, [isSimulating, weatherCondition, isBackendWsActive]);
 
   const selectedEquipment = equipments.find((e) => e.id === selectedEquipmentId) || null;
 
   // Acciones de Alertas y Supervisor
   const handleAcknowledgeAlert = (alertId: string, supervisorName: string) => {
+    // 1. Notificar al backend en segundo plano
+    backendWsService.acknowledgeAlert(alertId, supervisorName);
+
+    // 2. Actualizar estado local inmediatamente
     setAlerts((prev) =>
       prev.map((a) =>
         a.id === alertId ? { ...a, status: 'RESOLVED', isAcknowledged: true, acknowledgedBy: supervisorName } : a
       )
     );
+
 
     // Registrar en Audit Log
     const newLog: AuditLogEntry = {
@@ -410,6 +477,22 @@ export default function App() {
               <span>{isSimulating ? 'Simulación Activa' : 'Pausada'}</span>
             </button>
 
+            {/* Backend WebSocket Status Badge */}
+            <div
+              className={`border px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition-all ${
+                isBackendWsActive
+                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                  : isDark ? 'bg-slate-800/80 border-slate-700 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-500'
+              }`}
+              title={isBackendWsActive ? 'Conectado a FastAPI + Redis WebSocket (1 Hz Real-Time)' : 'Modo Autónomo / Fallback Local'}
+            >
+              <span className={`w-2 h-2 rounded-full ${isBackendWsActive ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
+              <span className="text-[11px] font-bold">
+                {isBackendWsActive ? 'FastAPI 1 Hz Live' : 'Sim Local'}
+              </span>
+            </div>
+
+
             {/* Weather indicator */}
             <div className={`border px-3 py-1 rounded-xl flex items-center gap-1.5 ${
               isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-700'
@@ -558,21 +641,25 @@ export default function App() {
           <div className="space-y-4">
             {/* Top Critical Alert Flash Bar */}
             {alerts.some((a) => a.severity === 'CRITICAL' && a.status === 'ACTIVE') && (
-              <div className="bg-rose-950/60 border border-rose-500/60 p-3.5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl shadow-rose-950/50 animate-pulse">
+              <div className={`border p-3.5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 transition-colors ${
+                isDark 
+                  ? 'bg-rose-950/60 border-rose-500/60 shadow-xl shadow-rose-950/50' 
+                  : 'bg-rose-50 border-rose-300 shadow-sm'
+              } animate-pulse`}>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center flex-shrink-0">
                     <ShieldAlert className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-xs font-bold text-rose-300 uppercase tracking-wide">
+                      <h3 className={`text-xs font-bold uppercase tracking-wide ${isDark ? 'text-rose-300' : 'text-rose-800'}`}>
                         ALERTA TEMPRANA DE COLISIÓN DETECTADA (H1: &gt;5s ANTICIPACIÓN)
                       </h3>
                       <span className="text-[10px] font-mono bg-rose-500 text-white font-bold px-2 py-0.5 rounded-full">
                         CRÍTICA
                       </span>
                     </div>
-                    <p className="text-xs text-slate-200 mt-0.5">
+                    <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
                       Rampa Este - Banco 3200: HT-104 (Manual, Fatiga 10.8h) en trayectoria convergente con AHS-02 (Autónomo).
                     </p>
                   </div>
@@ -587,7 +674,9 @@ export default function App() {
                   </button>
                   <button
                     onClick={() => handleAcknowledgeAlert(alerts[0].id, 'Supervisor HSE')}
-                    className="flex-1 sm:flex-initial bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3.5 py-2 rounded-xl border border-slate-700 cursor-pointer"
+                    className={`flex-1 sm:flex-initial text-xs px-3.5 py-2 rounded-xl border cursor-pointer transition-colors ${
+                      isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-300'
+                    }`}
                   >
                     Reconocer
                   </button>
@@ -605,6 +694,7 @@ export default function App() {
                   onSelectEquipment={(id) => setSelectedEquipmentId(id)}
                   weatherCondition={weatherCondition}
                   isSimulating={isSimulating}
+                  theme={theme}
                 />
               </div>
 
@@ -614,6 +704,7 @@ export default function App() {
                   equipment={selectedEquipment}
                   onSendCabWarning={handleSendCabWarning}
                   onRequestRelief={handleRequestRelief}
+                  theme={theme}
                 />
               </div>
             </div>
@@ -629,6 +720,7 @@ export default function App() {
               onResetToBaseline={handleResetToBaseline}
               onCustomInject={handleCustomInject}
               currentEquipment={selectedEquipment}
+              theme={theme}
             />
           </div>
         )}
@@ -644,13 +736,17 @@ export default function App() {
                 setSelectedEquipmentId(id);
                 setActiveTab('3D_TWIN');
               }}
+              theme={theme}
             />
           </div>
         )}
 
         {/* Tab 4: Analytics Dashboard */}
         {activeTab === 'ANALYTICS' && (
-          <AnalyticsDashboard mshaIncidents={MSHA_HISTORICAL_INCIDENTS} />
+          <AnalyticsDashboard 
+            mshaIncidents={MSHA_HISTORICAL_INCIDENTS} 
+            theme={theme}
+          />
         )}
 
         {/* Tab 5: Reports Module with PDF / Word / Excel Live Previews */}
@@ -670,6 +766,7 @@ export default function App() {
             consents={OPERATOR_CONSENTS}
             isAnonymized={isAnonymized}
             onToggleAnonymization={() => setIsAnonymized(!isAnonymized)}
+            theme={theme}
           />
         )}
 
@@ -679,12 +776,13 @@ export default function App() {
             currentRole={currentRole}
             onRoleChange={(role) => setCurrentRole(role)}
             auditLogs={auditLogs}
+            theme={theme}
           />
         )}
 
         {/* Tab 8: Architecture, PostGIS SQL & Backend Code */}
         {activeTab === 'ARCHITECTURE' && (
-          <ArchitectureDocsModule />
+          <ArchitectureDocsModule theme={theme} />
         )}
       </main>
 
