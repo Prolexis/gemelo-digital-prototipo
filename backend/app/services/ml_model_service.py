@@ -28,6 +28,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+import json
+import warnings
+warnings.filterwarnings("ignore", message=".*sklearn.utils.parallel.*")
+
 logger = logging.getLogger("ml_model_service")
 
 # Orden de features exacto (debe coincidir con ml_model.py del CRISP-DM Lab)
@@ -48,6 +52,7 @@ class MLModelService:
     """
     Singleton que carga los modelos ML exportados por el CRISP-DM Lab y
     expone inferencia en tiempo real para el RiskEngineService.
+    Soporta tanto estimadores directos como Pipelines formales de Scikit-Learn.
     """
 
     def __init__(self):
@@ -56,6 +61,9 @@ class MLModelService:
         self._loaded_at: Optional[datetime] = None
         self._model_dir: Optional[Path] = None
         self._is_available = False
+        self._is_pipeline = False
+        self._pipeline_steps: List[str] = []
+        self._metadata: Dict[str, Any] = {}
 
     def load(self, model_dir: Path) -> bool:
         """
@@ -74,8 +82,9 @@ class MLModelService:
             self._is_available = False
             return False
 
-        rf_path  = model_dir / "rf_model.joblib"
-        gbm_path = model_dir / "gbm_model.joblib"
+        rf_path   = model_dir / "rf_model.joblib"
+        gbm_path  = model_dir / "gbm_model.joblib"
+        meta_path = model_dir / "pipeline_metadata.json"
 
         if not rf_path.exists():
             logger.warning(
@@ -89,12 +98,47 @@ class MLModelService:
         try:
             self._rf  = joblib.load(rf_path)
             self._gbm = joblib.load(gbm_path) if gbm_path.exists() else None
+
+            # Detección de Pipeline formal
+            if hasattr(self._rf, "named_steps"):
+                self._is_pipeline = True
+                self._pipeline_steps = list(self._rf.named_steps.keys())
+                # Optimizar clasificador para inferencia monomuestra
+                clf = self._rf.named_steps.get("classifier")
+                if clf and hasattr(clf, "n_jobs"):
+                    clf.n_jobs = 1
+            else:
+                self._is_pipeline = False
+                self._pipeline_steps = []
+                if hasattr(self._rf, "n_jobs"):
+                    self._rf.n_jobs = 1
+
+            if self._gbm:
+                if hasattr(self._gbm, "named_steps"):
+                    gbm_clf = self._gbm.named_steps.get("classifier")
+                    if gbm_clf and hasattr(gbm_clf, "n_jobs"):
+                        gbm_clf.n_jobs = 1
+                elif hasattr(self._gbm, "n_jobs"):
+                    self._gbm.n_jobs = 1
+
+            # Cargar metadatos si existen
+            if meta_path.exists():
+                try:
+                    with open(meta_path, "r", encoding="utf-8") as f:
+                        self._metadata = json.load(f)
+                except Exception as _e:
+                    logger.debug(f"No se pudieron leer metadatos: {_e}")
+                    self._metadata = {}
+            else:
+                self._metadata = {}
+
             self._loaded_at = datetime.now(timezone.utc)
             self._is_available = True
 
+            pipe_info = f" (Pipeline: {self._pipeline_steps})" if self._is_pipeline else ""
             gbm_info = f" + {type(self._gbm).__name__}" if self._gbm else ""
             logger.info(
-                f"[ML] Modelos cargados: {type(self._rf).__name__}{gbm_info} "
+                f"[ML] Modelos cargados: {type(self._rf).__name__}{pipe_info}{gbm_info} "
                 f"desde {model_dir}"
             )
             return True
@@ -104,6 +148,8 @@ class MLModelService:
             self._rf = None
             self._gbm = None
             self._is_available = False
+            self._is_pipeline = False
+            self._pipeline_steps = []
             return False
 
     @property
@@ -175,15 +221,29 @@ class MLModelService:
                     "Entrena y exporta desde el CRISP-DM Lab (Streamlit :8501)."
                 ),
             }
+        clf_name = (
+            type(self._rf.named_steps["classifier"]).__name__
+            if self._is_pipeline and "classifier" in self._rf.named_steps
+            else type(self._rf).__name__
+        )
         return {
             "model_loaded": True,
+            "is_pipeline": self._is_pipeline,
+            "pipeline_steps": self._pipeline_steps,
             "model_type": type(self._rf).__name__,
+            "classifier": clf_name,
             "gbm_available": self._gbm is not None,
             "gbm_type": type(self._gbm).__name__ if self._gbm else None,
             "loaded_at": self._loaded_at.isoformat() if self._loaded_at else None,
             "model_dir": str(self._model_dir),
             "feature_cols": FEATURE_COLS,
-            "message": "Modelo ML activo — inferencia en tiempo real habilitada.",
+            "pipeline_metadata": self._metadata,
+            "message": (
+                f"Pipeline Scikit-Learn activo ({' ➔ '.join(self._pipeline_steps)}) — "
+                "inferencia en tiempo real habilitada."
+                if self._is_pipeline
+                else "Modelo ML activo — inferencia en tiempo real habilitada."
+            ),
         }
 
     def reload(self) -> bool:

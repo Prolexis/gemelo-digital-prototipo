@@ -43,7 +43,11 @@ from sklearn.metrics import (
     recall_score, f1_score, confusion_matrix, roc_curve, auc,
     classification_report
 )
-from sklearn.preprocessing import label_binarize
+from sklearn.preprocessing import label_binarize, RobustScaler
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+import json
+from datetime import datetime, timezone
 
 from data_generator import generate_dataset
 
@@ -121,20 +125,36 @@ def train_models(df: pd.DataFrame, n_estimators_rf: int = 200) -> Dict[str, Any]
         X, y, test_size=0.20, random_state=42, stratify=y
     )
 
-    # ── 1. Random Forest ─────────────────────────────────────────────────────
-    rf = RandomForestClassifier(
+    # ── 1. Construcción de Pipelines formales de Scikit-Learn ─────────────────
+    # Pipeline = Preprocesador (Imputación + Escalado Robusto) + Clasificador
+    preprocessor_rf = Pipeline([
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scaler", RobustScaler()),
+    ])
+
+    rf_clf = RandomForestClassifier(
         n_estimators=n_estimators_rf,
         max_depth=12,
         min_samples_leaf=5,
         max_features="sqrt",
         class_weight="balanced",
         random_state=42,
-        n_jobs=-1,
+        n_jobs=1,
     )
-    rf.fit(X_train, y_train)
 
-    # ── 2. Gradient Boosting ─────────────────────────────────────────────────
-    gbm = GradientBoostingClassifier(
+    rf_pipeline = Pipeline([
+        ("preprocessor", preprocessor_rf),
+        ("classifier", rf_clf),
+    ])
+    rf_pipeline.fit(X_train, y_train)
+
+    # ── 2. Pipeline para Gradient Boosting ────────────────────────────────────
+    preprocessor_gbm = Pipeline([
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scaler", RobustScaler()),
+    ])
+
+    gbm_clf = GradientBoostingClassifier(
         n_estimators=150,
         learning_rate=0.05,
         max_depth=6,
@@ -142,13 +162,22 @@ def train_models(df: pd.DataFrame, n_estimators_rf: int = 200) -> Dict[str, Any]
         subsample=0.85,
         random_state=42,
     )
-    gbm.fit(X_train, y_train)
 
-    # ── Probabilidades y predicciones ────────────────────────────────────────
-    rf_proba  = rf.predict_proba(X_test)[:, 1]
-    gbm_proba = gbm.predict_proba(X_test)[:, 1]
-    rf_pred   = rf.predict(X_test)
-    gbm_pred  = gbm.predict(X_test)
+    gbm_pipeline = Pipeline([
+        ("preprocessor", preprocessor_gbm),
+        ("classifier", gbm_clf),
+    ])
+    gbm_pipeline.fit(X_train, y_train)
+
+    # Alias para compatibilidad con código existente
+    rf = rf_pipeline
+    gbm = gbm_pipeline
+
+    # ── Probabilidades y predicciones con Pipelines ───────────────────────────
+    rf_proba  = rf_pipeline.predict_proba(X_test)[:, 1]
+    gbm_proba = gbm_pipeline.predict_proba(X_test)[:, 1]
+    rf_pred   = rf_pipeline.predict(X_test)
+    gbm_pred  = gbm_pipeline.predict(X_test)
 
     # ── Curvas ROC ────────────────────────────────────────────────────────────
     fpr_rf,  tpr_rf,  thr_rf  = roc_curve(y_test, rf_proba)
@@ -156,16 +185,16 @@ def train_models(df: pd.DataFrame, n_estimators_rf: int = 200) -> Dict[str, Any]
     auc_rf  = auc(fpr_rf,  tpr_rf)
     auc_gbm = auc(fpr_gbm, tpr_gbm)
 
-    # ── Cross-Validation (5-fold estratificado) ───────────────────────────────
+    # ── Cross-Validation (5-fold estratificado sobre Pipeline completo) ────────
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    cv_rf  = cross_val_score(rf,  X, y, cv=cv, scoring="roc_auc", n_jobs=-1)
-    cv_gbm = cross_val_score(gbm, X, y, cv=cv, scoring="roc_auc", n_jobs=-1)
+    cv_rf  = cross_val_score(rf_pipeline,  X, y, cv=cv, scoring="roc_auc", n_jobs=1)
+    cv_gbm = cross_val_score(gbm_pipeline, X, y, cv=cv, scoring="roc_auc", n_jobs=1)
 
-    # ── Curva de aprendizaje del Random Forest ────────────────────────────────
+    # ── Curva de aprendizaje del Pipeline Random Forest ───────────────────────
     train_sizes, train_scores, val_scores = learning_curve(
-        rf, X, y, cv=3, scoring="roc_auc",
+        rf_pipeline, X, y, cv=3, scoring="roc_auc",
         train_sizes=np.linspace(0.1, 1.0, 8),
-        n_jobs=-1
+        n_jobs=1
     )
 
     # ── Métricas por modelo ───────────────────────────────────────────────────
@@ -185,15 +214,19 @@ def train_models(df: pd.DataFrame, n_estimators_rf: int = 200) -> Dict[str, Any]
     metrics_rf  = _metrics(y_test, rf_pred,  rf_proba)
     metrics_gbm = _metrics(y_test, gbm_pred, gbm_proba)
 
-    # ── SHAP — TreeExplainer (muestra de 300 registros para rapidez) ──────────
+    # ── SHAP — TreeExplainer sobre clasificador del pipeline ──────────────────
     shap_sample_idx = np.random.default_rng(42).choice(len(X_test), min(300, len(X_test)), replace=False)
     X_shap = X_test.iloc[shap_sample_idx].copy()
 
-    explainer_rf  = shap.TreeExplainer(rf)
-    explainer_gbm = shap.TreeExplainer(gbm)
+    # Preprocesar muestra para el TreeExplainer del clasificador subyacente
+    X_shap_trans = preprocessor_rf.transform(X_shap)
+    X_shap_trans_df = pd.DataFrame(X_shap_trans, columns=FEATURE_COLS, index=X_shap.index)
 
-    sv_rf  = explainer_rf.shap_values(X_shap)
-    sv_gbm = explainer_gbm.shap_values(X_shap)
+    explainer_rf  = shap.TreeExplainer(rf_clf)
+    explainer_gbm = shap.TreeExplainer(gbm_clf)
+
+    sv_rf  = explainer_rf.shap_values(X_shap_trans_df)
+    sv_gbm = explainer_gbm.shap_values(X_shap_trans_df)
 
     # shap ≥ 0.45 devuelve ndarray (n_samples, n_features, n_classes) para RF binario
     # Tomamos siempre la clase positiva (índice 1)
@@ -207,13 +240,34 @@ def train_models(df: pd.DataFrame, n_estimators_rf: int = 200) -> Dict[str, Any]
     shap_rf  = _pos(sv_rf)
     shap_gbm = _pos(sv_gbm)
 
-    # ── Guardar modelos ───────────────────────────────────────────────────────
-    joblib.dump(rf,  MODEL_DIR / "rf_model.joblib")
-    joblib.dump(gbm, MODEL_DIR / "gbm_model.joblib")
+    # ── Guardar Pipelines completos y metadatos ──────────────────────────────
+    joblib.dump(rf_pipeline,  MODEL_DIR / "rf_model.joblib")
+    joblib.dump(gbm_pipeline, MODEL_DIR / "gbm_model.joblib")
+
+    pipeline_metadata = {
+        "pipeline_name": "MineSafe 3D Predictive Risk Pipeline",
+        "version": "1.0.0",
+        "trained_at": datetime.now(timezone.utc).isoformat(),
+        "is_pipeline": True,
+        "pipeline_steps": ["imputer (SimpleImputer:median)", "scaler (RobustScaler)", "classifier (RandomForestClassifier)"],
+        "feature_cols": FEATURE_COLS,
+        "n_samples": len(df),
+        "n_train": len(X_train),
+        "n_test": len(X_test),
+        "metrics_rf": metrics_rf,
+        "metrics_gbm": metrics_gbm,
+    }
+    with open(MODEL_DIR / "pipeline_metadata.json", "w", encoding="utf-8") as f_meta:
+        json.dump(pipeline_metadata, f_meta, indent=2, ensure_ascii=False)
 
     return {
-        "rf":  rf,
-        "gbm": gbm,
+        "rf":  rf_pipeline,
+        "gbm": gbm_pipeline,
+        "rf_pipeline": rf_pipeline,
+        "gbm_pipeline": gbm_pipeline,
+        "is_pipeline": True,
+        "pipeline_steps": ["imputer", "scaler", "classifier"],
+        "pipeline_metadata": pipeline_metadata,
         "X_train": X_train,
         "X_test":  X_test,
         "y_train": y_train,

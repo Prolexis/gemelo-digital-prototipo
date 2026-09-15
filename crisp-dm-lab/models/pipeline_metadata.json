@@ -1,0 +1,49 @@
+{
+  "pipeline_name": "MineSafe 3D Predictive Risk Pipeline",
+  "version": "1.0.0",
+  "trained_at": "2026-09-15T13:40:48.428529+00:00",
+  "is_pipeline": true,
+  "pipeline_steps": [
+    "imputer (SimpleImputer:median)",
+    "scaler (RobustScaler)",
+    "classifier (RandomForestClassifier)"
+  ],
+  "feature_cols": [
+    "gnss_speed_kmh",
+    "gnss_ramp_grade",
+    "lidar_obstacle_dist_m",
+    "lidar_visibility_index",
+    "op_perclos_score",
+    "op_shift_hours",
+    "op_steering_jerk_stddev",
+    "op_harsh_braking_count",
+    "is_autonomous"
+  ],
+  "n_samples": 2000,
+  "n_train": 1600,
+  "n_test": 400,
+  "metrics_rf": {
+    "accuracy": 0.9675,
+    "precision": 0.9085,
+    "recall": 1.0,
+    "f1": 0.952,
+    "auc_roc": 0.9976,
+    "fpr": 0.048,
+    "tp": 129,
+    "fp": 13,
+    "fn": 0,
+    "tn": 258
+  },
+  "metrics_gbm": {
+    "accuracy": 0.9775,
+    "precision": 0.9545,
+    "recall": 0.9767,
+    "f1": 0.9655,
+    "auc_roc": 0.9976,
+    "fpr": 0.0221,
+    "tp": 126,
+    "fp": 6,
+    "fn": 3,
+    "tn": 265
+  }
+}

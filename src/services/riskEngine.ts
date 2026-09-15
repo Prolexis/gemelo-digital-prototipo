@@ -1,4 +1,4 @@
-import { Equipment, RiskPrediction, ShapFactor, RiskLevel } from '../types/mining';
+import { Equipment, RiskPrediction, ShapFactor, RiskLevel, CollisionAlert } from '../types/mining';
 import { backendWsService } from './backendWsService';
 
 /**

@@ -339,17 +339,24 @@ with st.sidebar:
 
     # Estado del backend ML
     _ml_status_ok = False
+    _is_pipe_active = False
+    _pipe_clf_name = "RF"
     try:
         import urllib.request as _ur
         import json as _jmod
         with _ur.urlopen("http://localhost:8000/api/v1/ml/status", timeout=2) as _r:
             _st_data = _jmod.loads(_r.read())
             _ml_status_ok = _st_data.get("model_loaded", False)
+            _is_pipe_active = _st_data.get("is_pipeline", False)
+            _pipe_clf_name = _st_data.get("classifier", "RF")
     except Exception:
         pass
 
     _status_color = C["success"] if _ml_status_ok else C["warning"]
-    _status_text  = "ML activo en backend" if _ml_status_ok else "Backend: fallback analítico"
+    if _ml_status_ok:
+        _status_text = f"Pipeline ML activo ({_pipe_clf_name})" if _is_pipe_active else "ML activo en backend"
+    else:
+        _status_text = "Backend: fallback analítico"
     st.markdown(
         f"<div style='margin-top:6px;padding:6px 10px;border-radius:8px;"
         f"background:{_status_color}22;border:1px solid {_status_color}44;"
@@ -641,6 +648,39 @@ elif "F4" in fase:
             res = get_model(n_samples)
             # Guardar en session_state para que el botón "Exportar al backend" pueda usarlo
             st.session_state["model_data"] = res
+
+        # ── Pipeline Architecture Banner ──────────────────────────────────────
+        st.markdown(f"""
+        <div style="background:{C['card']};border:1px solid {C['primary']}44;border-radius:12px;padding:16px;margin:16px 0;">
+            <h4 style="margin:0 0 10px 0;color:{C['primary']};font-size:1.05rem;">
+                🏗️ Pipeline Formal de Machine Learning (Scikit-Learn Pipeline)
+            </h4>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:0.85rem;color:{C['text']};">
+                <span style="background:{C['primary']}22;border:1px solid {C['primary']}55;padding:6px 12px;border-radius:8px;">
+                    📡 <b>1. Ingesta Telemetría</b><br><small style="color:{C['muted']}">9 features (LiDAR, GNSS, PERCLOS)</small>
+                </span>
+                <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
+                <span style="background:{C['cyan']}22;border:1px solid {C['cyan']}55;padding:6px 12px;border-radius:8px;">
+                    🩹 <b>2. SimpleImputer</b><br><small style="color:{C['muted']}">strategy="median" (tolerancia a fallos)</small>
+                </span>
+                <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
+                <span style="background:{C['warning']}22;border:1px solid {C['warning']}55;padding:6px 12px;border-radius:8px;">
+                    ⚖️ <b>3. RobustScaler</b><br><small style="color:{C['muted']}">Resiliencia a outliers extremos</small>
+                </span>
+                <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
+                <span style="background:{C['success']}22;border:1px solid {C['success']}55;padding:6px 12px;border-radius:8px;">
+                    🌲 <b>4. RandomForest / GBM</b><br><small style="color:{C['muted']}">Ensamble con balanced weights</small>
+                </span>
+                <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
+                <span style="background:{C['purple']}22;border:1px solid {C['purple']}55;padding:6px 12px;border-radius:8px;">
+                    🔍 <b>5. TreeSHAP (XAI)</b><br><small style="color:{C['muted']}">Explicabilidad aditiva ISO 21815</small>
+                </span>
+            </div>
+            <p style="color:{C['muted']};font-size:0.8rem;margin:10px 0 0 0;">
+                ✅ <i>Exportado como <code>sklearn.pipeline.Pipeline</code> completo a <code>crisp-dm-lab/models/rf_model.joblib</code> + metadatos en <code>pipeline_metadata.json</code> para inferencia directa en el backend sin data leakage.</i>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
         # ── KPIs de ambos modelos ─────────────────────────────────────────────
         st.markdown("### 🏆 Comparación de Modelos")
