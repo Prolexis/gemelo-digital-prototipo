@@ -365,6 +365,21 @@ class SimulatorService:
                 }
                 await redis_service.publish("mining:telemetry", telemetry_payload)
 
+                # Log periódico de ejecución visible en consola/terminal
+                if self._step_counter % 3 == 0:
+                    ht = next((e for e in self.fleet if e.get("code") == "HT-104"), None)
+                    ht_pred = ht.get("currentPrediction", {}) if ht else {}
+                    ht_risk = ht_pred.get("overallRiskScore", 0.0)
+                    ht_lvl = ht_pred.get("riskLevel", "LOW")
+                    ht_ttc = ht_pred.get("timeToCollisionSec", 0.0)
+                    ml_on = ht_pred.get("ml_inference", False)
+                    logger.info(
+                        f"[MOTOR GEMELO DIGITAL 1Hz] Tick #{self._step_counter} | "
+                        f"Flota: {len(self.fleet)} equipos | "
+                        f"HT-104 Riesgo: {ht_risk:.2f} [{ht_lvl}] TTC: {ht_ttc}s (ML: {'ACTIVO' if ml_on else 'OFF'}) | "
+                        f"Alertas activas: {len(self.latest_alerts)} | WebSockets: OK"
+                    )
+
             except Exception as e:
                 logger.error(f"Error en bucle de simulación: {e}", exc_info=True)
 
