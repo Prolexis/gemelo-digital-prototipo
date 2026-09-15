@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import List
 from dotenv import load_dotenv
 
@@ -10,6 +11,15 @@ class Settings:
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
     FALLBACK_MODEL: str = os.getenv("FALLBACK_MODEL", "gemini-flash-latest")
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
+
+    # ML Models Directory — ruta donde Streamlit exporta los modelos entrenados
+    # Por defecto: carpeta models/ dentro de crisp-dm-lab (desarrollo local)
+    ML_MODELS_DIR: Path = Path(
+        os.getenv(
+            "ML_MODELS_DIR",
+            str(Path(__file__).parent.parent / "crisp-dm-lab" / "models")
+        )
+    )
     CORS_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",

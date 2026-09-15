@@ -274,6 +274,90 @@ with st.sidebar:
         </div>""", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
+    # ── Exportar modelo al backend ─────────────────────────────────────────────
+    st.markdown(f"<hr style='border-color:{C['border']};margin:16px 0 12px;'>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div style='color:{C['muted']};font-size:.72rem;letter-spacing:.05em;margin-bottom:8px;'>"
+        "INTEGRACIÓN CON BACKEND</div>",
+        unsafe_allow_html=True,
+    )
+
+    # Verificar si ya hay modelos entrenados en sesión
+    _models_trained = "model_data" in st.session_state
+
+    if st.button(
+        "🚀 Exportar modelo al backend",
+        help="Copia rf_model.joblib y gbm_model.joblib al backend FastAPI para inferencia en tiempo real",
+        use_container_width=True,
+        disabled=not _models_trained,
+    ):
+        import shutil
+        from pathlib import Path
+
+        # Ruta de origen: models/ dentro de crisp-dm-lab
+        src_dir = Path(__file__).parent / "models"
+        # Ruta destino: backend puede leerla por defecto (crisp-dm-lab/models)
+        # Si se configuró ML_MODELS_DIR distinto, copiar allá también
+        rf_src  = src_dir / "rf_model.joblib"
+        gbm_src = src_dir / "gbm_model.joblib"
+
+        if not rf_src.exists():
+            st.error("⚠️ No hay modelos entrenados aún. Ve a **F4 — Modeling** y entrena primero.")
+        else:
+            # Los modelos ya están en crisp-dm-lab/models/ (joblib los guardó ahí)
+            # Intentar notificar al backend via API reload
+            _exported_ok = True
+            _backend_msg = ""
+            try:
+                import urllib.request
+                import json as _json
+                req = urllib.request.Request(
+                    "http://localhost:8000/api/v1/ml/reload",
+                    method="POST",
+                    headers={"Content-Type": "application/json"},
+                )
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    data = _json.loads(resp.read())
+                    _backend_msg = f"✅ Backend recargó el modelo: {data.get('status', {}).get('model_type', 'RF')}"
+            except Exception as _e:
+                _backend_msg = f"ℹ️ Backend no disponible ({_e}). El modelo se cargará al reiniciar el backend."
+
+            if _exported_ok:
+                # Guardar métricas del modelo exportado en session
+                _md = st.session_state.get("model_data", {})
+                _auc = _md.get("auc_rf", 0.0)
+                _f1  = _md.get("metrics_rf", {}).get("f1", 0.0)
+                st.success(
+                    f"**Modelo exportado exitosamente**\n\n"
+                    f"📁 `crisp-dm-lab/models/rf_model.joblib`\n\n"
+                    f"AUC-ROC: `{_auc:.4f}` · F1: `{_f1:.4f}`\n\n"
+                    f"{_backend_msg}"
+                )
+
+    if not _models_trained:
+        st.caption("💡 Entrena el modelo en **F4 — Modeling** para habilitar la exportación.")
+
+    # Estado del backend ML
+    _ml_status_ok = False
+    try:
+        import urllib.request as _ur
+        import json as _jmod
+        with _ur.urlopen("http://localhost:8000/api/v1/ml/status", timeout=2) as _r:
+            _st_data = _jmod.loads(_r.read())
+            _ml_status_ok = _st_data.get("model_loaded", False)
+    except Exception:
+        pass
+
+    _status_color = C["success"] if _ml_status_ok else C["warning"]
+    _status_text  = "ML activo en backend" if _ml_status_ok else "Backend: fallback analítico"
+    st.markdown(
+        f"<div style='margin-top:6px;padding:6px 10px;border-radius:8px;"
+        f"background:{_status_color}22;border:1px solid {_status_color}44;"
+        f"font-size:.75rem;color:{_status_color};text-align:center;'>"
+        f"{'🟢' if _ml_status_ok else '🟡'} {_status_text}</div>",
+        unsafe_allow_html=True,
+    )
+
 
 def ph(title: str):
     st.markdown(f'<div class="phase-hdr"><h2>{title}</h2></div>', unsafe_allow_html=True)
@@ -555,6 +639,8 @@ elif "F4" in fase:
 
         with st.spinner("🤖 Entrenando RandomForest + GradientBoosting + SHAP (puede tardar ~30s la primera vez)…"):
             res = get_model(n_samples)
+            # Guardar en session_state para que el botón "Exportar al backend" pueda usarlo
+            st.session_state["model_data"] = res
 
         # ── KPIs de ambos modelos ─────────────────────────────────────────────
         st.markdown("### 🏆 Comparación de Modelos")

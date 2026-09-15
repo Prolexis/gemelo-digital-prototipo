@@ -3,6 +3,8 @@ import time
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple
 
+from app.services.ml_model_service import ml_model_service
+
 class PerceptionLayer:
     """
     Capa 1: Percepción Espacial LiDAR (Proxy PointNet++).
@@ -297,14 +299,42 @@ class RiskEngineService:
             road_grade=road_grade
         )
 
-        # 4. Fusión Multi-Modal
-        overall_score, severity = MultiModalFusionLayer.fuse(
-            is_autonomous=is_autonomous,
-            behavior_risk=behavior_risk,
-            speed_risk=speed_risk,
-            perception_risk=perception_risk,
-            obstacle_dist_m=obstacle_dist
-        )
+        # 4. Fusión Multi-Modal / Inferencia ML
+        # ── Intentar inferencia con modelo ML del CRISP-DM Lab ───────────────
+        raw_features = {
+            "gnss_speed_kmh":          speed_kmh,
+            "gnss_ramp_grade":         road_grade,
+            "lidar_obstacle_dist_m":   obstacle_dist,
+            "lidar_visibility_index":  vis_factor,
+            "op_perclos_score":        operator.get("perclosScore", 0.12) if operator else 0.12,
+            "op_shift_hours":          operator.get("shiftHoursAccumulated", 6.0) if operator else 6.0,
+            "op_steering_jerk_stddev": operator.get("steeringJerkStdDev", 1.0) if operator else 1.0,
+            "op_harsh_braking_count":  operator.get("harshBrakingCountLastHour", 0) if operator else 0,
+            "is_autonomous":           is_autonomous,
+        }
+        ml_score = ml_model_service.predict_risk_score(raw_features)
+
+        if ml_score is not None:
+            # Modelo ML disponible: usar su probabilidad directamente
+            # Mapear severidad desde el score ML
+            overall_score = ml_score
+            if overall_score >= 0.80:
+                severity = "CRITICAL"
+            elif overall_score >= 0.60:
+                severity = "HIGH"
+            elif overall_score >= 0.30:
+                severity = "MEDIUM"
+            else:
+                severity = "LOW"
+        else:
+            # Fallback: fórmulas analíticas (sin modelo ML exportado aún)
+            overall_score, severity = MultiModalFusionLayer.fuse(
+                is_autonomous=is_autonomous,
+                behavior_risk=behavior_risk,
+                speed_risk=speed_risk,
+                perception_risk=perception_risk,
+                obstacle_dist_m=obstacle_dist
+            )
 
         # 5. Explicabilidad XAI (TreeSHAP)
         shap_factors, primary_driver, rec = XAILayer.explain(
@@ -337,8 +367,13 @@ class RiskEngineService:
             "modelVersions": {
                 "perception": "PointNet++ LiDAR v2.1 (ONNX/TensorRT ready)",
                 "behavior": "Bi-LSTM Maniobras Operador v1.4",
-                "fusion": "Multi-Modal Transformer v3.0",
+                "fusion": (
+                    f"RandomForest ML (CRISP-DM Lab) v1.0"
+                    if ml_score is not None
+                    else "Multi-Modal Transformer v3.0 (analítico)"
+                ),
                 "xai": "Fast Kernel-TreeSHAP RealTime v1.2"
             },
+            "ml_inference": ml_score is not None,
             "shapFactors": shap_factors
         }

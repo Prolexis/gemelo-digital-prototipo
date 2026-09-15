@@ -11,6 +11,7 @@ from app.routers.auth import router as auth_router
 from app.routers.vehicles import router as vehicles_router
 from app.routers.alerts import router as alerts_router
 from app.routers.analytics import router as analytics_router
+from app.routers.ml import router as ml_router
 from app.ws.telemetry_ws import router as telemetry_ws_router
 from app.ws.alerts_ws import router as alerts_ws_router
 from app.ws.connection_manager import ws_manager
@@ -19,6 +20,7 @@ from app.ws.connection_manager import ws_manager
 from app.db.session import init_db
 from app.services.redis_service import redis_service
 from app.services.simulator_service import simulator_service
+from app.services.ml_model_service import ml_model_service
 
 # Logging setup
 logging.basicConfig(
@@ -37,6 +39,9 @@ async def lifespan(app: FastAPI):
 
     # 2. Conectar a Redis 7.0 Pub/Sub
     await redis_service.connect()
+
+    # 3. Cargar modelos ML del CRISP-DM Lab (si ya fueron exportados)
+    ml_model_service.load(settings.ML_MODELS_DIR)
 
     # 3. Vincular escuchas de Redis Pub/Sub con WebSocket Manager
     async def on_telemetry_msg(data: dict):
@@ -85,11 +90,12 @@ app.add_middleware(
 # 1. Routers de Google Gemini (Existente e intacto)
 app.include_router(gemini_router)
 
-# 2. Routers REST v1 (Nuevos: Auth, Vehículos, Alertas, Analytics)
+# 2. Routers REST v1 (Nuevos: Auth, Vehículos, Alertas, Analytics, ML)
 app.include_router(auth_router)
 app.include_router(vehicles_router)
 app.include_router(alerts_router)
 app.include_router(analytics_router)
+app.include_router(ml_router)
 
 # 3. WebSockets (Telemetría y Alertas en tiempo real)
 app.include_router(telemetry_ws_router)
@@ -107,7 +113,9 @@ async def root():
             "auth": "/api/v1/auth",
             "vehicles": "/api/v1/vehicles",
             "alerts": "/api/v1/alerts",
-            "analytics": "/api/v1/analytics/kpis"
+            "analytics": "/api/v1/analytics/kpis",
+            "ml_status": "/api/v1/ml/status",
+            "ml_reload": "/api/v1/ml/reload"
         }
     }
 
