@@ -365,6 +365,54 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
+    st.markdown(f"<hr style='border-color:{C['border']};margin:10px 0 8px;'>", unsafe_allow_html=True)
+
+    st.markdown(
+        f"<div style='color:{C['muted']};font-size:.72rem;letter-spacing:.05em;margin-bottom:6px;'>"
+        "MOTOR DEL GEMELO DIGITAL</div>",
+        unsafe_allow_html=True,
+    )
+
+    if st.button(
+        "⚡ Ejecutar Motor del Gemelo Digital",
+        help="Ejecuta 1 ciclo de cálculo cinemático e inferencia de riesgo con el modelo ML en FastAPI",
+        use_container_width=True,
+    ):
+        try:
+            import urllib.request as _req
+            import json as _j
+            _r = _req.Request("http://localhost:8000/api/v1/simulator/tick", method="POST", headers={"Content-Type": "application/json"})
+            with _req.urlopen(_r, timeout=4) as _resp:
+                _tick_data = _j.loads(_resp.read())
+                st.session_state["last_engine_tick"] = _tick_data
+                st.success(f"✅ Ciclo #{_tick_data.get('step')} ejecutado en Python")
+        except Exception as _err:
+            st.error(f"❌ Error conectando con el backend: {_err}")
+
+    if "last_engine_tick" in st.session_state:
+        _td = st.session_state["last_engine_tick"]
+        _eqs = _td.get("equipments", [])
+        _ht = next((e for e in _eqs if e.get("code") == "HT-104"), None)
+        if _ht:
+            _pred = _ht.get("currentPrediction", {})
+            _r_score = _pred.get("overallRiskScore", 0.0)
+            _r_lvl = _pred.get("riskLevel", "LOW")
+            _ttc = _pred.get("timeToCollisionSec", 0.0)
+            _ml_used = _pred.get("ml_inference", False)
+            _badge_col = C["CRITICAL"] if _r_score >= 0.8 else C["warning"] if _r_score >= 0.5 else C["success"]
+            st.markdown(f"""
+            <div style="background:{C['card']};border:1px solid {_badge_col}55;border-radius:10px;padding:10px;margin-top:6px;font-size:0.8rem;">
+                <div style="font-weight:700;color:{C['text']};">🚛 HT-104 (CAT 797F)</div>
+                <div style="color:{_badge_col};font-weight:800;font-size:1.1rem;margin:2px 0;">
+                    Riesgo ML: {_r_score:.2f} ({_r_lvl})
+                </div>
+                <div style="color:{C['muted']};font-size:0.75rem;">
+                    ⏱️ TTC: <b>{_ttc}s</b> | ML: <b>{'ACTIVO' if _ml_used else 'FORMULA'}</b><br>
+                    📍 Coords: ({_ht['position']['easting']:.1f}, {_ht['position']['northing']:.1f})
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
 
 def ph(title: str):
     st.markdown(f'<div class="phase-hdr"><h2>{title}</h2></div>', unsafe_allow_html=True)

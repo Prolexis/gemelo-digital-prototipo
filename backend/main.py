@@ -128,6 +128,37 @@ async def health():
         "simulator_active": simulator_service.is_running
     }
 
+@app.get("/api/v1/telemetry/live", tags=["Telemetría Live"])
+async def get_live_telemetry():
+    """Retorna el estado en tiempo real de todos los equipos del gemelo digital calculado por el motor."""
+    from datetime import datetime, timezone
+    return {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "fleet_size": len(simulator_service.get_current_fleet()),
+        "equipments": simulator_service.get_current_fleet(),
+        "active_alerts": simulator_service.get_latest_alerts(),
+    }
+
+@app.post("/api/v1/simulator/tick", tags=["Simulador Gemelo Digital"])
+async def step_simulator():
+    """Ejecuta un ciclo de cálculo inmediato del motor del gemelo digital y retorna el estado resultante."""
+    from datetime import datetime, timezone
+    simulator_service._step_counter += 1
+    simulator_service._recalculate_all_risks()
+    simulator_service._process_active_alerts()
+    fleet = simulator_service.get_current_fleet()
+    alerts = simulator_service.get_latest_alerts()
+    return {
+        "success": True,
+        "step": simulator_service._step_counter,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "fleet_size": len(fleet),
+        "equipments": fleet,
+        "active_alerts": alerts,
+        "message": f"Tick #{simulator_service._step_counter} ejecutado exitosamente con inferencia ML.",
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
