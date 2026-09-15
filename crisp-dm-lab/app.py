@@ -670,7 +670,11 @@ elif "F3" in fase:
 elif "F4" in fase:
     ph("🧠 Fase 4 — Modeling & Training")
 
-    tab_ml, tab_live = st.tabs(["🤖 Modelo ML Entrenado", "🎛️ Motor XAI en Vivo (Sliders)"])
+    tab_ml, tab_twin, tab_live = st.tabs([
+        "🤖 Modelo ML Entrenado",
+        "⚡ Ejecutar Motor del Gemelo Digital",
+        "🎛️ Motor XAI en Vivo (Sliders)"
+    ])
 
     # ── TAB 1: MODELO ML ─────────────────────────────────────────────────────
     with tab_ml:
@@ -920,7 +924,182 @@ elif "F4" in fase:
                               yaxis_title="")
             st.plotly_chart(fig, width="stretch")
 
-    # ── TAB 2: MOTOR XAI EN VIVO ─────────────────────────────────────────────
+    # ── TAB 2: EJECUTAR MOTOR DEL GEMELO DIGITAL (PRODUCCIÓN) ────────────────
+    with tab_twin:
+        st.markdown(f"""
+        <div style="background:{C['card']};border:1px solid {C['primary']}44;border-radius:12px;padding:16px;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <div>
+                    <h3 style="margin:0;color:{C['primary']};font-size:1.2rem;">
+                        ⚡ Control y Ejecución en Vivo del Motor del Gemelo Digital
+                    </h3>
+                    <p style="color:{C['muted']};font-size:0.85rem;margin:4px 0 0 0;">
+                        Servicio en Python (FastAPI + Redis + Scikit-Learn Pipeline a 1 Hz) • Inferencia de riesgo en caliente
+                    </p>
+                </div>
+                <div style="font-size:0.8rem;background:{C['primary']}22;border:1px solid {C['primary']}44;padding:6px 12px;border-radius:8px;color:{C['text']};">
+                    📡 Backend: <b>http://localhost:8000</b>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        col_b1, col_b2, col_b3 = st.columns([1.5, 1.5, 1])
+        
+        do_tick = col_b1.button("▶️ Ejecutar 1 Ciclo del Motor (1 Hz)", use_container_width=True, type="primary", key="btn_tab_twin_tick")
+        do_burst = col_b2.button("🔄 Ejecutar Ráfaga (3 Ciclos)", use_container_width=True, key="btn_tab_twin_burst")
+        do_query = col_b3.button("📡 Consultar Estado Actual", use_container_width=True, key="btn_tab_twin_query")
+
+        if do_tick or do_burst or do_query:
+            import urllib.request as _ur
+            import json as _jm
+            import time as _tm
+            
+            iterations = 3 if do_burst else 1
+            for _it in range(iterations):
+                try:
+                    _url = "http://localhost:8000/api/v1/simulator/tick" if (do_tick or do_burst) else "http://localhost:8000/api/v1/telemetry/live"
+                    _req = _ur.Request(_url, method="POST" if (do_tick or do_burst) else "GET", headers={"Content-Type": "application/json"})
+                    with _ur.urlopen(_req, timeout=4) as _resp:
+                        _data = _jm.loads(_resp.read())
+                        st.session_state["f4_live_engine_data"] = _data
+                    if do_burst and _it < iterations - 1:
+                        _tm.sleep(0.4)
+                except Exception as _ex:
+                    st.error(f"Error comunicando con el motor backend: {_ex}")
+                    break
+
+        # Mostrar estado de ejecución
+        if "f4_live_engine_data" in st.session_state:
+            _edata = st.session_state["f4_live_engine_data"]
+            _flt = _edata.get("equipments", _edata.get("fleet", []))
+            _alrts = _edata.get("active_alerts", _edata.get("alerts", []))
+            _step = _edata.get("step", "N/A")
+            _ts = _edata.get("timestamp", "")[:19].replace("T", " ")
+
+            st.success(f"✅ Ciclo ejecutado exitosamente en Python — Tick #{_step} ({_ts} UTC) | {_edata.get('message', 'Inferencia completada')}")
+
+            # KPIs de ejecución del motor
+            st.markdown("#### 📊 Estado de la Flota e Inferencia en el Tick")
+            k1, k2, k3, k4 = st.columns(4)
+            k1.metric("Equipos Monitoreados", f"{len(_flt)}")
+            
+            # HT-104 metrics
+            _ht = next((e for e in _flt if e.get("code") == "HT-104"), None)
+            if _ht:
+                _pred = _ht.get("currentPrediction", {})
+                _score = _pred.get("overallRiskScore", 0.0)
+                _lvl = _pred.get("riskLevel", "LOW")
+                _ttc = _pred.get("timeToCollisionSec", 0.0)
+                _ml_act = _pred.get("ml_inference", False)
+                k2.metric("Riesgo HT-104 (ML)", f"{_score:.2f}", delta=f"{_lvl}")
+                k3.metric("TTC Proyectado", f"{_ttc} s", delta="Alerta Temprana")
+                k4.metric("Inferencia IA", "Random Forest" if _ml_act else "Fórmula", delta="Pipeline Activo")
+
+                st.markdown("---")
+                # Detalle de los vehículos en rampa
+                st.markdown("#### 🚛 Análisis de Equipos Críticos en el Tajo")
+                c_ht, c_ahs = st.columns(2)
+                with c_ht:
+                    _color_ht = C["CRITICAL"] if _score >= 0.8 else C["warning"] if _score >= 0.5 else C["success"]
+                    st.markdown(f"""
+                    <div style="background:{C['card']};border:2px solid {_color_ht};border-radius:12px;padding:16px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <h4 style="margin:0;color:{C['text']};">🚛 {_ht.get('name', 'HT-104')}</h4>
+                            <span style="background:{_color_ht}33;color:{_color_ht};font-weight:bold;padding:4px 10px;border-radius:6px;font-size:0.85rem;">
+                                {_lvl}
+                            </span>
+                        </div>
+                        <p style="color:{C['muted']};font-size:0.8rem;margin:4px 0 10px 0;">
+                            Zona: {_ht.get('currentZone', 'Rampa Este')} • Estado: {_ht.get('status')}
+                        </p>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.85rem;">
+                            <div>📍 <b>Easting:</b> {_ht.get('position', {}).get('easting', 0):.1f} m</div>
+                            <div>📍 <b>Northing:</b> {_ht.get('position', {}).get('northing', 0):.1f} m</div>
+                            <div>🏎️ <b>Velocidad:</b> {_ht.get('position', {}).get('speedKmh', 0):.1f} km/h</div>
+                            <div>🎯 <b>Dist. LiDAR:</b> {_ht.get('lidarFeatures', {}).get('nearestObstacleDistM', 0):.1f} m</div>
+                            <div>👁️ <b>PERCLOS:</b> {_ht.get('assignedOperator', {}).get('perclosScore', 0):.2f} (Fatiga)</div>
+                            <div>⏱️ <b>Turno:</b> {_ht.get('assignedOperator', {}).get('shiftHoursAccumulated', 0):.1f} h</div>
+                        </div>
+                        <div style="margin-top:12px;padding:8px 12px;background:#1e293b;border-radius:8px;font-size:0.8rem;">
+                            💡 <b>Recomendación XAI:</b> {_pred.get('counterfactualRecommendation', 'Sin incidencias.')}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                with c_ahs:
+                    _ahs = next((e for e in _flt if e.get("code") == "AHS-02"), None)
+                    if _ahs:
+                        _apred = _ahs.get("currentPrediction", {})
+                        _ascore = _apred.get("overallRiskScore", 0.0)
+                        _alvl = _apred.get("riskLevel", "LOW")
+                        _color_ahs = C["CRITICAL"] if _ascore >= 0.8 else C["warning"] if _ascore >= 0.5 else C["success"]
+                        st.markdown(f"""
+                        <div style="background:{C['card']};border:2px solid {_color_ahs};border-radius:12px;padding:16px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <h4 style="margin:0;color:{C['text']};">🤖 {_ahs.get('name', 'AHS-02')}</h4>
+                                <span style="background:{_color_ahs}33;color:{_color_ahs};font-weight:bold;padding:4px 10px;border-radius:6px;font-size:0.85rem;">
+                                    {_alvl}
+                                </span>
+                            </div>
+                            <p style="color:{C['muted']};font-size:0.8rem;margin:4px 0 10px 0;">
+                                Zona: {_ahs.get('currentZone', 'Rampa Este')} • Operación Autónoma
+                            </p>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.85rem;">
+                                <div>📍 <b>Easting:</b> {_ahs.get('position', {}).get('easting', 0):.1f} m</div>
+                                <div>📍 <b>Northing:</b> {_ahs.get('position', {}).get('northing', 0):.1f} m</div>
+                                <div>🏎️ <b>Velocidad:</b> {_ahs.get('position', {}).get('speedKmh', 0):.1f} km/h</div>
+                                <div>🎯 <b>Dist. LiDAR:</b> {_ahs.get('lidarFeatures', {}).get('nearestObstacleDistM', 0):.1f} m</div>
+                                <div>📡 <b>Modo V2V:</b> Conectado (AHS Guidance)</div>
+                                <div>🛡️ <b>Riesgo ML:</b> {_ascore:.2f}</div>
+                            </div>
+                            <div style="margin-top:12px;padding:8px 12px;background:#1e293b;border-radius:8px;font-size:0.8rem;">
+                                💡 <b>Recomendación XAI:</b> {_apred.get('counterfactualRecommendation', 'Ajuste de velocidad autónoma.')}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+            # Tabla completa de telemetría de la flota
+            st.markdown("---")
+            st.markdown("#### 📋 Telemetría Completa de la Flota (Generada en Python)")
+            fleet_rows = []
+            for eq in _flt:
+                p = eq.get("position", {})
+                pr = eq.get("currentPrediction", {})
+                op = eq.get("assignedOperator", {}) or {}
+                fleet_rows.append({
+                    "Código": eq.get("code"),
+                    "Tipo": eq.get("type"),
+                    "Autónomo": "Sí (AHS)" if eq.get("isAutonomous") else "No (Manual)",
+                    "Velocidad (km/h)": p.get("speedKmh"),
+                    "Easting (m)": p.get("easting"),
+                    "Northing (m)": p.get("northing"),
+                    "Dist. LiDAR (m)": eq.get("lidarFeatures", {}).get("nearestObstacleDistM"),
+                    "PERCLOS": op.get("perclosScore", 0.0),
+                    "Riesgo ML": round(pr.get("overallRiskScore", 0.0), 3),
+                    "Severidad": pr.get("riskLevel", "LOW"),
+                    "Driver SHAP": pr.get("primaryRiskDriver", "N/A"),
+                })
+            st.dataframe(pd.DataFrame(fleet_rows), use_container_width=True)
+
+            if _alrts:
+                st.markdown("#### 🚨 Alertas Activas Emitidas por el Motor")
+                for al in _alrts:
+                    _acol = C["CRITICAL"] if al.get("severity") == "CRITICAL" else C["warning"]
+                    st.markdown(f"""
+                    <div style="background:{_acol}15;border-left:5px solid {_acol};padding:10px 14px;border-radius:6px;margin:6px 0;">
+                        <b>[{al.get('severity')}] {al.get('alertCode')}</b> • {al.get('zone')}<br>
+                        <span style="font-size:0.85rem;color:{C['muted']}">
+                            Origen: <b>{al.get('sourceEquipmentCode')}</b> ➔ Objetivo: <b>{al.get('targetEquipmentCode')}</b> |
+                            Factor Dominante: <b>{al.get('primaryFactor')}</b> | TTC: <b>{al.get('timeToCollision')}s</b>
+                        </span><br>
+                        <span style="font-size:0.85rem;">🛡️ {al.get('recommendedAction')}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+        else:
+            st.info("💡 Presiona **'▶️ Ejecutar 1 Ciclo del Motor'** para disparar un ciclo de telemetría e inferencia en tiempo real en FastAPI y ver los resultados aquí mismo.")
+
+    # ── TAB 3: MOTOR XAI EN VIVO ─────────────────────────────────────────────
     with tab_live:
         st.markdown("Ajusta los parámetros con los **sliders** para predecir el riesgo en tiempo real usando **ambos sistemas**: el Motor de Reglas físicas y el **Modelo RandomForest entrenado**.")
 
