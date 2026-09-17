@@ -783,10 +783,17 @@ elif "F4" in fase:
 
         c1, c2 = st.columns(2)
         with c1:
-            # Importancia RF (Gini)
+            # Importancia RF (Gini) — compatible con Pipeline de Scikit-Learn
+            rf_obj = res["rf"]
+            if hasattr(rf_obj, "named_steps") and "classifier" in rf_obj.named_steps:
+                rf_clf = rf_obj.named_steps["classifier"]
+            else:
+                rf_clf = rf_obj
+            rf_importances = getattr(rf_clf, "feature_importances_", np.zeros(len(FEATURE_COLS)))
+
             imp_df = pd.DataFrame({
                 "Feature": [FEATURE_LABELS.get(f, f) for f in FEATURE_COLS],
-                "Importancia Gini": res["rf"].feature_importances_
+                "Importancia Gini": rf_importances
             }).sort_values("Importancia Gini")
 
             colors_imp = [C["CRITICAL"] if v > 0.15 else C["HIGH"] if v > 0.08
