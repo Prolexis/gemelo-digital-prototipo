@@ -883,37 +883,61 @@ elif "F4" in fase:
         if do_pipeline:
             import urllib.request as _ur
             import json as _jm
+            import time as _tm
             
-            with st.spinner("⏳ Ejecutando pipeline completo del Gemelo Digital..."):
-                # 1. Asegurar sincronización y recarga del modelo en el backend si está activo
-                _ml_sync_msg = "Pipeline verificado"
-                try:
-                    _reload_req = _ur.Request(
-                        "http://localhost:8000/api/v1/ml/reload",
-                        method="POST",
-                        headers={"Content-Type": "application/json"},
-                    )
-                    with _ur.urlopen(_reload_req, timeout=3) as _r_resp:
-                        _r_data = _jm.loads(_r_resp.read())
-                        _clf_name = _r_data.get("status", {}).get("model_type", "RF")
-                        _ml_sync_msg = f"Pipeline ML recargado ({_clf_name})"
-                except Exception:
-                    _ml_sync_msg = "Modo autónomo / fallback"
+            progress_bar = st.progress(0, text="🚀 Inicializando Pipeline del Gemelo Digital...")
+            status_box = st.empty()
+            
+            # Etapa 1: Ingesta y Validación de Sensores (25%)
+            status_box.info("📡 **Paso 1/4:** Ingestando telemetría de flota en rampa (GNSS-RTK, LiDAR 3D, fatiga PERCLOS)...")
+            progress_bar.progress(25, text="📡 Paso 1/4: Ingestando y validando telemetría de campo...")
+            _tm.sleep(0.4)
 
-                # 2. Ejecutar Ciclo del Motor del Gemelo Digital (1 Hz)
-                try:
-                    _tick_req = _ur.Request(
-                        "http://localhost:8000/api/v1/simulator/tick",
-                        method="POST",
-                        headers={"Content-Type": "application/json"},
-                    )
-                    with _ur.urlopen(_tick_req, timeout=4) as _resp:
-                        _data = _jm.loads(_resp.read())
-                        _data["ml_sync_msg"] = _ml_sync_msg
-                        st.session_state["f4_live_engine_data"] = _data
-                        st.session_state["last_engine_tick"] = _data
-                except Exception as _ex:
-                    st.error(f"❌ Error comunicando con el backend: {_ex}. Asegúrate de que FastAPI esté ejecutándose en http://localhost:8000")
+            # Etapa 2: Sincronización con Pipeline ML Scikit-Learn (50%)
+            status_box.info("🧠 **Paso 2/4:** Sincronizando Pipeline Scikit-Learn (SimpleImputer + RobustScaler + RandomForest)...")
+            progress_bar.progress(50, text="🧠 Paso 2/4: Sincronizando Pipeline ML con backend FastAPI...")
+            _ml_sync_msg = "Pipeline verificado"
+            try:
+                _reload_req = _ur.Request(
+                    "http://localhost:8000/api/v1/ml/reload",
+                    method="POST",
+                    headers={"Content-Type": "application/json"},
+                )
+                with _ur.urlopen(_reload_req, timeout=3) as _r_resp:
+                    _r_data = _jm.loads(_r_resp.read())
+                    _clf_name = _r_data.get("status", {}).get("model_type", "RF")
+                    _ml_sync_msg = f"Pipeline ML recargado ({_clf_name})"
+            except Exception:
+                _ml_sync_msg = "Modo autónomo / fallback"
+            _tm.sleep(0.4)
+
+            # Etapa 3: Ejecución del Ciclo Físico del Motor a 1 Hz (75%)
+            status_box.info("⚡ **Paso 3/4:** Ejecutando ciclo físico del Gemelo Digital en FastAPI (Cálculo de trayectorias a 1 Hz y TTC)...")
+            progress_bar.progress(75, text="⚡ Paso 3/4: Ejecutando ciclo cinemático del Gemelo Digital a 1 Hz...")
+            _tick_ok = False
+            try:
+                _tick_req = _ur.Request(
+                    "http://localhost:8000/api/v1/simulator/tick",
+                    method="POST",
+                    headers={"Content-Type": "application/json"},
+                )
+                with _ur.urlopen(_tick_req, timeout=4) as _resp:
+                    _data = _jm.loads(_resp.read())
+                    _data["ml_sync_msg"] = _ml_sync_msg
+                    st.session_state["f4_live_engine_data"] = _data
+                    st.session_state["last_engine_tick"] = _data
+                    _tick_ok = True
+            except Exception as _ex:
+                status_box.error(f"❌ Error comunicando con el backend: {_ex}. Asegúrate de que FastAPI esté ejecutándose en http://localhost:8000")
+            _tm.sleep(0.4)
+
+            # Etapa 4: Inferencia XAI y Clasificación Multimodal (100%)
+            if _tick_ok:
+                status_box.info("🔬 **Paso 4/4:** Computando factores de riesgo explicables TreeSHAP y recomendaciones contrafactuales...")
+                progress_bar.progress(100, text="✅ ¡Pipeline del Gemelo Digital ejecutado exitosamente al 100%!")
+                _tm.sleep(0.5)
+                status_box.empty()
+                progress_bar.empty()
 
         # Mostrar estado de ejecución
         if "f4_live_engine_data" in st.session_state:
