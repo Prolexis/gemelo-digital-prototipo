@@ -59,11 +59,14 @@ class MLModelService:
         self._rf = None
         self._gbm = None
         self._loaded_at: Optional[datetime] = None
-        self._model_dir: Optional[Path] = None
+        default_dir = Path(__file__).resolve().parent.parent.parent.parent / "crisp-dm-lab" / "models"
+        self._model_dir: Optional[Path] = default_dir if default_dir.exists() else None
         self._is_available = False
         self._is_pipeline = False
         self._pipeline_steps: List[str] = []
         self._metadata: Dict[str, Any] = {}
+        if self._model_dir and (self._model_dir / "rf_model.joblib").exists():
+            self.load(self._model_dir)
 
     def load(self, model_dir: Path) -> bool:
         """
@@ -246,11 +249,14 @@ class MLModelService:
             ),
         }
 
-    def reload(self) -> bool:
+    def reload(self, model_dir: Optional[Path] = None) -> bool:
         """Recarga los modelos desde disco (util tras exportar desde Streamlit)."""
-        if self._model_dir is None:
+        target_dir = model_dir or self._model_dir
+        if target_dir is None or not target_dir.exists():
+            target_dir = Path(__file__).resolve().parent.parent.parent.parent / "crisp-dm-lab" / "models"
+        if not target_dir.exists():
             return False
-        return self.load(self._model_dir)
+        return self.load(target_dir)
 
 
 # Singleton global

@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import logging
 import asyncio
 from contextlib import asynccontextmanager
@@ -119,7 +123,8 @@ async def root():
         }
     }
 
-@app.get("/health")
+@app.get("/health", tags=["Salud del Sistema"])
+@app.get("/api/v1/health", tags=["Salud del Sistema"])
 async def health():
     return {
         "status": "ok",

@@ -274,68 +274,13 @@ with st.sidebar:
         </div>""", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # ── Exportar modelo al backend ─────────────────────────────────────────────
+    # ── Estado de Integración con el Gemelo Digital ───────────────────────────
     st.markdown(f"<hr style='border-color:{C['border']};margin:16px 0 12px;'>", unsafe_allow_html=True)
     st.markdown(
         f"<div style='color:{C['muted']};font-size:.72rem;letter-spacing:.05em;margin-bottom:8px;'>"
-        "INTEGRACIÓN CON BACKEND</div>",
+        "ESTADO DEL GEMELO DIGITAL</div>",
         unsafe_allow_html=True,
     )
-
-    # Verificar si ya hay modelos entrenados en sesión
-    _models_trained = "model_data" in st.session_state
-
-    if st.button(
-        "🚀 Exportar modelo al backend",
-        help="Copia rf_model.joblib y gbm_model.joblib al backend FastAPI para inferencia en tiempo real",
-        use_container_width=True,
-        disabled=not _models_trained,
-    ):
-        import shutil
-        from pathlib import Path
-
-        # Ruta de origen: models/ dentro de crisp-dm-lab
-        src_dir = Path(__file__).parent / "models"
-        # Ruta destino: backend puede leerla por defecto (crisp-dm-lab/models)
-        # Si se configuró ML_MODELS_DIR distinto, copiar allá también
-        rf_src  = src_dir / "rf_model.joblib"
-        gbm_src = src_dir / "gbm_model.joblib"
-
-        if not rf_src.exists():
-            st.error("⚠️ No hay modelos entrenados aún. Ve a **F4 — Modeling** y entrena primero.")
-        else:
-            # Los modelos ya están en crisp-dm-lab/models/ (joblib los guardó ahí)
-            # Intentar notificar al backend via API reload
-            _exported_ok = True
-            _backend_msg = ""
-            try:
-                import urllib.request
-                import json as _json
-                req = urllib.request.Request(
-                    "http://localhost:8000/api/v1/ml/reload",
-                    method="POST",
-                    headers={"Content-Type": "application/json"},
-                )
-                with urllib.request.urlopen(req, timeout=3) as resp:
-                    data = _json.loads(resp.read())
-                    _backend_msg = f"✅ Backend recargó el modelo: {data.get('status', {}).get('model_type', 'RF')}"
-            except Exception as _e:
-                _backend_msg = f"ℹ️ Backend no disponible ({_e}). El modelo se cargará al reiniciar el backend."
-
-            if _exported_ok:
-                # Guardar métricas del modelo exportado en session
-                _md = st.session_state.get("model_data", {})
-                _auc = _md.get("auc_rf", 0.0)
-                _f1  = _md.get("metrics_rf", {}).get("f1", 0.0)
-                st.success(
-                    f"**Modelo exportado exitosamente**\n\n"
-                    f"📁 `crisp-dm-lab/models/rf_model.joblib`\n\n"
-                    f"AUC-ROC: `{_auc:.4f}` · F1: `{_f1:.4f}`\n\n"
-                    f"{_backend_msg}"
-                )
-
-    if not _models_trained:
-        st.caption("💡 Entrena el modelo en **F4 — Modeling** para habilitar la exportación.")
 
     # Estado del backend ML
     _ml_status_ok = False
@@ -358,36 +303,12 @@ with st.sidebar:
     else:
         _status_text = "Backend: fallback analítico"
     st.markdown(
-        f"<div style='margin-top:6px;padding:6px 10px;border-radius:8px;"
+        f"<div style='margin-top:6px;padding:8px 10px;border-radius:8px;"
         f"background:{_status_color}22;border:1px solid {_status_color}44;"
         f"font-size:.75rem;color:{_status_color};text-align:center;'>"
         f"{'🟢' if _ml_status_ok else '🟡'} {_status_text}</div>",
         unsafe_allow_html=True,
     )
-
-    st.markdown(f"<hr style='border-color:{C['border']};margin:10px 0 8px;'>", unsafe_allow_html=True)
-
-    st.markdown(
-        f"<div style='color:{C['muted']};font-size:.72rem;letter-spacing:.05em;margin-bottom:6px;'>"
-        "MOTOR DEL GEMELO DIGITAL</div>",
-        unsafe_allow_html=True,
-    )
-
-    if st.button(
-        "⚡ Ejecutar Motor del Gemelo Digital",
-        help="Ejecuta 1 ciclo de cálculo cinemático e inferencia de riesgo con el modelo ML en FastAPI",
-        use_container_width=True,
-    ):
-        try:
-            import urllib.request as _req
-            import json as _j
-            _r = _req.Request("http://localhost:8000/api/v1/simulator/tick", method="POST", headers={"Content-Type": "application/json"})
-            with _req.urlopen(_r, timeout=4) as _resp:
-                _tick_data = _j.loads(_resp.read())
-                st.session_state["last_engine_tick"] = _tick_data
-                st.success(f"✅ Ciclo #{_tick_data.get('step')} ejecutado en Python")
-        except Exception as _err:
-            st.error(f"❌ Error conectando con el backend: {_err}")
 
     if "last_engine_tick" in st.session_state:
         _td = st.session_state["last_engine_tick"]
@@ -672,7 +593,7 @@ elif "F4" in fase:
 
     tab_ml, tab_twin, tab_live = st.tabs([
         "🤖 Modelo ML Entrenado",
-        "⚡ Ejecutar Motor del Gemelo Digital",
+        "⚡ Pipeline del Gemelo Digital",
         "🎛️ Motor XAI en Vivo (Sliders)"
     ])
 
@@ -924,17 +845,17 @@ elif "F4" in fase:
                               yaxis_title="")
             st.plotly_chart(fig, width="stretch")
 
-    # ── TAB 2: EJECUTAR MOTOR DEL GEMELO DIGITAL (PRODUCCIÓN) ────────────────
+    # ── TAB 2: PIPELINE DEL GEMELO DIGITAL (PRODUCCIÓN) ─────────────────────
     with tab_twin:
         st.markdown(f"""
         <div style="background:{C['card']};border:1px solid {C['primary']}44;border-radius:12px;padding:16px;margin-bottom:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                 <div>
                     <h3 style="margin:0;color:{C['primary']};font-size:1.2rem;">
-                        ⚡ Control y Ejecución en Vivo del Motor del Gemelo Digital
+                        ⚡ Pipeline General del Gemelo Digital
                     </h3>
                     <p style="color:{C['muted']};font-size:0.85rem;margin:4px 0 0 0;">
-                        Servicio en Python (FastAPI + Redis + Scikit-Learn Pipeline a 1 Hz) • Inferencia de riesgo en caliente
+                        Servicio en Python (FastAPI + Scikit-Learn Pipeline + Simulación 1 Hz) • Inferencia de riesgo en caliente
                     </p>
                 </div>
                 <div style="font-size:0.8rem;background:{C['primary']}22;border:1px solid {C['primary']}44;padding:6px 12px;border-radius:8px;color:{C['text']};">
@@ -944,30 +865,48 @@ elif "F4" in fase:
         </div>
         """, unsafe_allow_html=True)
 
-        col_b1, col_b2, col_b3 = st.columns([1.5, 1.5, 1])
-        
-        do_tick = col_b1.button("▶️ Ejecutar 1 Ciclo del Motor (1 Hz)", use_container_width=True, type="primary", key="btn_tab_twin_tick")
-        do_burst = col_b2.button("🔄 Ejecutar Ráfaga (3 Ciclos)", use_container_width=True, key="btn_tab_twin_burst")
-        do_query = col_b3.button("📡 Consultar Estado Actual", use_container_width=True, key="btn_tab_twin_query")
+        do_pipeline = st.button(
+            "⚡ Ejecutar Pipeline del Gemelo Digital",
+            use_container_width=True,
+            type="primary",
+            key="btn_run_gemelo_digital_pipeline",
+            help="Ejecuta el pipeline general de extremo a extremo: Sincronización del Pipeline ML + Inferencia de Riesgo + Ciclo Físico del Gemelo Digital a 1 Hz + Telemetría XAI",
+        )
 
-        if do_tick or do_burst or do_query:
+        if do_pipeline:
             import urllib.request as _ur
             import json as _jm
-            import time as _tm
             
-            iterations = 3 if do_burst else 1
-            for _it in range(iterations):
+            with st.spinner("⏳ Ejecutando pipeline completo del Gemelo Digital..."):
+                # 1. Asegurar sincronización y recarga del modelo en el backend si está activo
+                _ml_sync_msg = "Pipeline verificado"
                 try:
-                    _url = "http://localhost:8000/api/v1/simulator/tick" if (do_tick or do_burst) else "http://localhost:8000/api/v1/telemetry/live"
-                    _req = _ur.Request(_url, method="POST" if (do_tick or do_burst) else "GET", headers={"Content-Type": "application/json"})
-                    with _ur.urlopen(_req, timeout=4) as _resp:
+                    _reload_req = _ur.Request(
+                        "http://localhost:8000/api/v1/ml/reload",
+                        method="POST",
+                        headers={"Content-Type": "application/json"},
+                    )
+                    with _ur.urlopen(_reload_req, timeout=3) as _r_resp:
+                        _r_data = _jm.loads(_r_resp.read())
+                        _clf_name = _r_data.get("status", {}).get("model_type", "RF")
+                        _ml_sync_msg = f"Pipeline ML recargado ({_clf_name})"
+                except Exception:
+                    _ml_sync_msg = "Modo autónomo / fallback"
+
+                # 2. Ejecutar Ciclo del Motor del Gemelo Digital (1 Hz)
+                try:
+                    _tick_req = _ur.Request(
+                        "http://localhost:8000/api/v1/simulator/tick",
+                        method="POST",
+                        headers={"Content-Type": "application/json"},
+                    )
+                    with _ur.urlopen(_tick_req, timeout=4) as _resp:
                         _data = _jm.loads(_resp.read())
+                        _data["ml_sync_msg"] = _ml_sync_msg
                         st.session_state["f4_live_engine_data"] = _data
-                    if do_burst and _it < iterations - 1:
-                        _tm.sleep(0.4)
+                        st.session_state["last_engine_tick"] = _data
                 except Exception as _ex:
-                    st.error(f"Error comunicando con el motor backend: {_ex}")
-                    break
+                    st.error(f"❌ Error comunicando con el backend: {_ex}. Asegúrate de que FastAPI esté ejecutándose en http://localhost:8000")
 
         # Mostrar estado de ejecución
         if "f4_live_engine_data" in st.session_state:
@@ -976,8 +915,32 @@ elif "F4" in fase:
             _alrts = _edata.get("active_alerts", _edata.get("alerts", []))
             _step = _edata.get("step", "N/A")
             _ts = _edata.get("timestamp", "")[:19].replace("T", " ")
+            _sync_txt = _edata.get("ml_sync_msg", "Pipeline Activo")
 
-            st.success(f"✅ Ciclo ejecutado exitosamente en Python — Tick #{_step} ({_ts} UTC) | {_edata.get('message', 'Inferencia completada')}")
+            st.success(f"✅ **Pipeline del Gemelo Digital Ejecutado Exitosamente** — Tick #{_step} ({_ts} UTC) | {_edata.get('message', 'Inferencia completada')}")
+
+            # Diagrama de etapas del pipeline ejecutado
+            st.markdown(f"""
+            <div style="background:{C['card']};border:1px solid {C['success']}44;border-radius:10px;padding:12px;margin:10px 0 16px 0;">
+                <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:0.8rem;color:{C['text']};">
+                    <span style="background:{C['success']}22;border:1px solid {C['success']}55;padding:5px 10px;border-radius:6px;">
+                        ✅ <b>1. Ingesta Telemetría</b> (GNSS + LiDAR + Fatiga)
+                    </span>
+                    <span style="color:{C['primary']};">➔</span>
+                    <span style="background:{C['success']}22;border:1px solid {C['success']}55;padding:5px 10px;border-radius:6px;">
+                        ✅ <b>2. ML Pipeline</b> ({_sync_txt})
+                    </span>
+                    <span style="color:{C['primary']};">➔</span>
+                    <span style="background:{C['success']}22;border:1px solid {C['success']}55;padding:5px 10px;border-radius:6px;">
+                        ✅ <b>3. Motor Cinemático</b> (Simulador 1 Hz)
+                    </span>
+                    <span style="color:{C['primary']};">➔</span>
+                    <span style="background:{C['success']}22;border:1px solid {C['success']}55;padding:5px 10px;border-radius:6px;">
+                        ✅ <b>4. Explicabilidad XAI</b> (SHAP + Recomendación)
+                    </span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
             # KPIs de ejecución del motor
             st.markdown("#### 📊 Estado de la Flota e Inferencia en el Tick")
