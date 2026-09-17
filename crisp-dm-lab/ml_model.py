@@ -274,6 +274,8 @@ def train_models(df: pd.DataFrame, n_estimators_rf: int = 200) -> Dict[str, Any]
         "y_test":  y_test,
         "metrics_rf":  metrics_rf,
         "metrics_gbm": metrics_gbm,
+        "explainer_rf": explainer_rf,
+        "explainer_gbm": explainer_gbm,
         "shap_rf":     shap_rf,
         "shap_gbm":    shap_gbm,
         "shap_X":      X_shap,
@@ -333,9 +335,14 @@ def predict_single(model, X_single: pd.DataFrame) -> Tuple[float, int]:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-def get_shap_single(explainer, X_single: pd.DataFrame) -> np.ndarray:
+def get_shap_single(explainer, X_single: pd.DataFrame, model_or_pipeline=None) -> np.ndarray:
     """SHAP values para una sola observación (shap >= 0.45 compatible)."""
-    sv = explainer.shap_values(X_single[FEATURE_COLS])
+    X = X_single[FEATURE_COLS].copy()
+    if model_or_pipeline is not None and hasattr(model_or_pipeline, "named_steps"):
+        preprocessor = model_or_pipeline[:-1]
+        X_trans = preprocessor.transform(X)
+        X = pd.DataFrame(X_trans, columns=FEATURE_COLS)
+    sv = explainer.shap_values(X)
     # shap 0.51+: ndarray (1, n_features, n_classes) para RF binario
     if isinstance(sv, np.ndarray):
         if sv.ndim == 3:

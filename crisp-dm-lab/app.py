@@ -1158,8 +1158,12 @@ elif "F4" in fase:
         # SHAP de la predicción actual
         st.markdown("#### 🔬 Atribuciones SHAP para esta predicción")
         with st.spinner("Calculando SHAP individual…"):
-            exp_rf = shap.TreeExplainer(ml_res["rf"])
-            shap_single = get_shap_single(exp_rf, X_single)
+            rf_obj = ml_res["rf"]
+            rf_clf = rf_obj.named_steps["classifier"] if hasattr(rf_obj, "named_steps") else rf_obj
+            exp_rf = ml_res.get("explainer_rf")
+            if exp_rf is None:
+                exp_rf = shap.TreeExplainer(rf_clf)
+            shap_single = get_shap_single(exp_rf, X_single, model_or_pipeline=rf_obj)
 
         shap_df_single = pd.DataFrame({
             "Feature": [FEATURE_LABELS.get(f, f) for f in FEATURE_COLS],
