@@ -328,3 +328,17 @@ Al ejecutar `python experiments/run_all.py` con las dependencias fijadas en `req
 }
 ```
 Para metadatos adicionales, consulta el archivo [`CITATION.cff`](./CITATION.cff).
+
+---
+
+## 14. License (Licencias y Restricciones)
+
+Este paquete científico sigue una política de licenciamiento dual:
+
+* **Licencia del Código (Software):**
+  Todos los scripts de generación, entrenamiento, explicabilidad y pruebas estadísticas se distribuyen bajo la **[Licencia MIT](./LICENSE)** (código abierto permisivo para auditoría, ejecución y reutilización académica).
+* **Licencia del Dataset (Datos):**
+  El dataset canónico [`DSTM-MineSafe-2026.csv`](./data/DSTM-MineSafe-2026.csv) y su documentación asociada se distribuyen bajo la licencia **[Creative Commons Attribution 4.0 International (CC BY 4.0)](./data/LICENSE-DATA)**. Permite el libre uso, redistribución y adaptación con la debida atribución al autor.
+* **Restricciones Operativas:**
+  El dataset y los modelos tienen fines estrictamente de evaluación algorítmica y reproducibilidad científica; no deben emplearse para control físico de frenado en operaciones mineras sin validación de campo con instrumentación embarcada certificada.
+

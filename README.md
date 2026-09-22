@@ -248,10 +248,20 @@ python experiments/run_all.py
 
 ---
 
-## 📄 Licencia
+## 📄 License (Licencia de Uso)
 
-Este proyecto está bajo la Licencia **MIT** para código y **Creative Commons Attribution 4.0 (CC-BY 4.0)** para el conjunto de datos de telemetría. Consulta el archivo `LICENSE` y `experiments/data/LICENSE-DATA`.
+Este repositorio implementa un esquema de doble licenciamiento para salvaguardar la reproducibilidad científica abierta:
+
+* **Licencia del Código (Software License):**
+  Todo el código fuente de la plataforma (Gemelo Digital React/Three.js, Backend FastAPI y el pipeline experimental de Machine Learning en `/experiments`) se distribuye bajo la **[Licencia MIT](./LICENSE)**. Permite el uso libre, modificación, distribución y auditoría para fines académicos, de investigación y comerciales, con el único requisito de conservar el aviso de copyright.
+
+* **Licencia del Dataset (Data License):**
+  El conjunto de datos sintético de telemetría minera [`DSTM-MineSafe-2026.csv`](./experiments/data/DSTM-MineSafe-2026.csv) y su ficha técnica se distribuyen bajo la licencia **[Creative Commons Attribution 4.0 International (CC BY 4.0)](./experiments/data/LICENSE-DATA)**. Permite compartir, copiar y adaptar el material para cualquier propósito, siempre que se otorgue el crédito adecuado al autor.
+
+* **Restricciones Relevantes y Descargo de Responsabilidad (Disclaimers):**
+  1. **Naturaleza Sintética de los Datos:** El dataset fue generado mediante simulación física-estocástica calibrada para benchmarking algorítmico y reproducibilidad Q1; no constituye un sustituto de validación in-situ con telemetría de minas comerciales activas.
+  2. **Exclusión de Garantía Operativa:** El software se suministra "tal cual" (*as is*), sin garantías de idoneidad para operaciones de misión crítica en tiempo real sin previa homologación y pruebas de campo con sensores certificados bajo normas ISO 21815 / MSHA.
 
 <div align="center">
-  <sub>Desarrollado para el Gemelo Digital de Seguridad Minera en Tajo Abierto. © 2026 Prolexis Mining Systems.</sub>
+  <sub>MineSafe 3D • Gemelo Digital Explicable para Seguridad Minera en Tajo Abierto. © 2026 Cristhian Alexis Sanchez Enriquez.</sub>
 </div>

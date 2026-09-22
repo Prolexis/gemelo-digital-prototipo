@@ -1,6 +1,6 @@
 # Reporte de Pruebas de Estadística Inferencial (Estándar Q1)
 ## Proyecto MineSafe 3D: Evaluación Pareada Random Forest vs. Gradient Boosting
-**Fecha de generación:** 2026-09-22 14:33:07  
+**Fecha de generación:** 2026-09-22 16:16:42  
 **Muestras evaluadas out-of-fold:** 5,000  
 **Estrategia de validación:** Stratified 5-Fold Cross-Validation  
 
