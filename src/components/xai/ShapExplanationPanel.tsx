@@ -228,71 +228,36 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
           </div>
         </div>
 
-        {/* Explainability Breakdown (Por qué el riesgo es alto - XAI SHAP) */}
-        <div className={`p-3.5 rounded-xl border space-y-3 transition-colors ${
+        {/* Factores Causales SHAP (High-Density) */}
+        <div className={`p-3.5 rounded-xl border space-y-2.5 transition-colors ${
           isDark ? 'bg-slate-800/40 border-slate-700/70' : 'bg-slate-50 border-slate-200'
         }`}>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-slate-400" />
-              <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-                Descomposición Causal de Factores (TreeSHAP)
-              </h3>
-            </div>
-            <span className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Norma ISO 21815</span>
+            <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+              Factores de Riesgo (TreeSHAP)
+            </span>
+            <span className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>ISO 21815</span>
           </div>
 
-          {/* Recharts Bar Chart of SHAP Contributions */}
-          <div className="h-36 w-full min-h-[144px] min-w-0 pt-1">
-            <ResponsiveContainer width="100%" height="100%" debounce={50}>
-              <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 24, left: 10, bottom: 0 }}>
-                <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b' }} unit="%" />
-                <YAxis dataKey="name" type="category" width={110} tick={{ fontSize: 9.5, fill: isDark ? '#cbd5e1' : '#334155' }} />
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0].payload;
-                      return (
-                        <div className={`p-2.5 rounded-lg text-xs shadow-xl border ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-200 text-slate-900 shadow-md'
-                        }`}>
-                          <p className="font-bold">{data.fullName}</p>
-                          <p className="text-amber-500 font-mono mt-1">Peso en Riesgo: {data.weight}%</p>
-                          <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                            Atribución SHAP: {data.attribution > 0 ? `+${data.attribution}` : data.attribution}
-                          </p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Bar dataKey="weight" radius={[0, 4, 4, 0]}>
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Detailed Factor Cards */}
+          {/* Factor Bars */}
           <div className="space-y-2 pt-1">
             {prediction.shapFactors.map((factor, idx) => {
               const styles = getFactorCategoryColor(factor.category);
               return (
-                <div key={idx} className={`p-2.5 rounded-lg border ${styles.bg} ${styles.border} text-xs space-y-1`}>
-                  <div className="flex items-center justify-between">
-                    <span className={`font-semibold ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>{factor.featureName}</span>
-                    <span className={`font-mono font-bold ${styles.text}`}>
+                <div key={idx} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={`font-medium truncate ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                      {factor.featureName}
+                    </span>
+                    <span className="font-mono font-bold ml-2" style={{ color: styles.fill }}>
                       {factor.percentageWeight}%
                     </span>
                   </div>
-                  <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{factor.humanReadableReason}</p>
-                  <div className={`text-[10px] font-mono px-2 py-0.5 rounded inline-block ${
-                    isDark ? 'text-slate-400 bg-slate-900/60' : 'text-slate-600 bg-white border border-slate-200 shadow-xs'
-                  }`}>
-                    Medición: {factor.unitValueString}
+                  <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}>
+                    <div
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{ width: `${Math.min(factor.percentageWeight, 100)}%`, backgroundColor: styles.fill }}
+                    />
                   </div>
                 </div>
               );
@@ -300,55 +265,41 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
           </div>
         </div>
 
-        {/* Counterfactual Prescription (Recomendación Contrafáctica) */}
-        <div className={`p-3 rounded-xl border flex items-start gap-2.5 transition-colors ${
-          isDark ? 'bg-emerald-950/40 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'
+        {/* Action Recommendation */}
+        <div className={`p-2.5 rounded-xl border flex items-center gap-2 transition-colors ${
+          isDark ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-200' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
         }`}>
-          <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <h4 className={`text-xs font-bold uppercase tracking-wide ${isDark ? 'text-emerald-300' : 'text-emerald-800'}`}>
-              Prescripción Contrafáctica (Mitigación)
-            </h4>
-            <p className={`text-xs leading-relaxed ${isDark ? 'text-emerald-200' : 'text-emerald-700'}`}>
-              {prediction.counterfactualRecommendation}
-            </p>
-          </div>
+          <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+          <p className="text-xs font-medium leading-tight truncate">
+            <span className="font-bold">Acción: </span>{prediction.counterfactualRecommendation}
+          </p>
         </div>
 
         {/* Action Buttons for Supervisor */}
-        <div className="pt-2 flex flex-col sm:flex-row gap-2">
+        <div className="pt-1 flex flex-col sm:flex-row gap-2">
           <button
             id="btn-send-cab-warning"
             onClick={() => onSendCabWarning && onSendCabWarning(equipment.id)}
-            className="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+            className="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
           >
-            <Volume2 className="w-4 h-4" />
-            <span>Alerta Acústica a Cabina</span>
+            <Volume2 className="w-3.5 h-3.5" />
+            <span>Aviso a Cabina</span>
           </button>
 
           {!equipment.isAutonomous && operator && (
             <button
               id="btn-request-relief"
               onClick={() => onRequestRelief && onRequestRelief(operator.operatorId)}
-              className={`flex-1 font-medium text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+              className={`flex-1 font-medium text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-2 border transition-all cursor-pointer ${
                 isDark 
                   ? 'bg-slate-800 hover:bg-slate-700 text-amber-300 border-amber-500/40' 
                   : 'bg-white hover:bg-slate-50 text-amber-700 border-amber-400 shadow-xs'
               }`}
             >
-              <UserCheck className="w-4 h-4" />
-              <span>Programar Relevo por Fatiga</span>
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>Relevo por Fatiga</span>
             </button>
           )}
-        </div>
-
-        {/* Model Pipeline Metadata */}
-        <div className={`border-t pt-3 text-[10px] font-mono flex flex-wrap justify-between gap-y-1 ${
-          isDark ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'
-        }`}>
-          <span>Percepción: {prediction.modelVersions.perception}</span>
-          <span>Comportamiento: {prediction.modelVersions.behavior}</span>
-          <span>Fusión: {prediction.modelVersions.fusion}</span>
         </div>
       </div>
     </div>

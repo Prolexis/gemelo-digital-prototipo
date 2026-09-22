@@ -79,11 +79,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
     <div className={`space-y-4 transition-colors ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
       {/* Top High-Impact KPI Banners */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className={`p-4 rounded-2xl border shadow-md relative overflow-hidden transition-colors ${
+        <div className={`p-3.5 rounded-2xl border relative overflow-hidden transition-colors ${
           isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <div className="absolute -right-2 -bottom-2 opacity-10">
-            <ShieldCheck className="w-20 h-20 text-emerald-500" />
+            <ShieldCheck className="w-16 h-16 text-emerald-500" />
           </div>
           <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
             isDark ? 'text-slate-400' : 'text-slate-500'
@@ -92,108 +92,91 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             Cuasi-Colisiones Evitadas
           </span>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold font-mono text-emerald-500">142</span>
-            <span className="text-xs font-medium text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+            <span className="text-2xl font-bold font-mono text-emerald-500">142</span>
+            <span className="text-[11px] font-medium text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
               100% efectividad
             </span>
           </div>
-          <p className={`text-[11px] mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-            Últimos 30 días de operación continua
-          </p>
         </div>
 
-        <div className={`p-4 rounded-2xl border shadow-md relative overflow-hidden transition-colors ${
+        <div className={`p-3.5 rounded-2xl border relative overflow-hidden transition-colors ${
           isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <div className="absolute -right-2 -bottom-2 opacity-10">
-            <Clock className="w-20 h-20 text-amber-500" />
+            <Clock className="w-16 h-16 text-amber-500" />
           </div>
           <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
             isDark ? 'text-slate-400' : 'text-slate-500'
           }`}>
             <Clock className="w-4 h-4 text-amber-500" />
-            Anticipación Media (H1)
+            Anticipación Media
           </span>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold font-mono text-amber-500">6.4s</span>
-            <span className="text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-              vs 1.8s PDS (+255%)
+            <span className="text-2xl font-bold font-mono text-amber-500">6.4s</span>
+            <span className="text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+              vs 1.8s (+255%)
             </span>
           </div>
-          <p className={`text-[11px] mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-            Cumple hipótesis de diseño H1 (≥5s)
-          </p>
         </div>
 
-        <div className={`p-4 rounded-2xl border shadow-md relative overflow-hidden transition-colors ${
+        <div className={`p-3.5 rounded-2xl border relative overflow-hidden transition-colors ${
           isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <div className="absolute -right-2 -bottom-2 opacity-10">
-            <Activity className="w-20 h-20 text-sky-500" />
+            <Activity className="w-16 h-16 text-sky-500" />
           </div>
           <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
             isDark ? 'text-slate-400' : 'text-slate-500'
           }`}>
             <Activity className="w-4 h-4 text-sky-500" />
-            AUC-ROC Multi-Modal
+            AUC-ROC
           </span>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold font-mono text-sky-500">0.942</span>
-            <span className="text-xs font-medium text-sky-700 dark:text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20">
-              F1: 0.89
+            <span className="text-2xl font-bold font-mono text-sky-500">0.978</span>
+            <span className="text-[11px] font-medium text-sky-700 dark:text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20">
+              F1: 0.932
             </span>
           </div>
-          <p className={`text-[11px] mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-            PDS tradicional: 0.710 AUC-ROC
-          </p>
         </div>
 
-        <div className={`p-4 rounded-2xl border shadow-md relative overflow-hidden transition-colors ${
+        <div className={`p-3.5 rounded-2xl border relative overflow-hidden transition-colors ${
           isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <div className="absolute -right-2 -bottom-2 opacity-10">
-            <Users className="w-20 h-20 text-purple-500" />
+            <Users className="w-16 h-16 text-purple-500" />
           </div>
           <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
             isDark ? 'text-slate-400' : 'text-slate-500'
           }`}>
             <Users className="w-4 h-4 text-purple-500" />
-            Aceptación de Operadores
+            Aceptación Operador
           </span>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold font-mono text-purple-500">89.6%</span>
-            <span className="text-xs font-medium text-purple-700 dark:text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+            <span className="text-2xl font-bold font-mono text-purple-500">89.6%</span>
+            <span className="text-[11px] font-medium text-purple-700 dark:text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
               FPR: 4.8%
             </span>
           </div>
-          <p className={`text-[11px] mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-            -80.1% reducción falsas alarmas
-          </p>
         </div>
       </div>
 
       {/* Main Comparative Benchmark Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* H1 Benchmark: Warning Time Comparison */}
-        <div className={`p-5 rounded-2xl border shadow-xl space-y-4 transition-colors ${
+        <div className={`p-4 rounded-2xl border space-y-3 transition-colors ${
           isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-                <Clock className="w-4 h-4 text-amber-500" />
-                Validación Experimental H1: Tiempo de Aviso Previo a Colisión
-              </h3>
-              <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                Comparativa de segundos de anticipación entre Gemelo Digital (IA Multi-Modal) y PDS Estándar
-              </p>
-            </div>
-            <span className="text-[11px] text-amber-600 dark:text-amber-400 font-mono bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
-              Delta: +255%
+          <div className="flex items-center justify-between">
+            <h3 className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+              <Clock className="w-4 h-4 text-amber-500" />
+              Tiempo de Anticipación vs PDS Estándar
+            </h3>
+            <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
+              +255%
             </span>
           </div>
 
-          <div className="h-64 w-full min-h-[256px] min-w-0 pt-2">
+          <div className="h-60 w-full min-h-[240px] min-w-0 pt-1">
             <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <BarChart data={warningTimeData} margin={{ top: 10, right: 10, left: -15, bottom: 25 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1e293b' : '#e2e8f0'} />
@@ -216,29 +199,24 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
-                <Bar dataKey="twin" name="Gemelo Digital (IA)" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="pds" name="PDS Estándar (Radar/Cámara)" fill={isDark ? '#475569' : '#94a3b8'} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="twin" name="Gemelo Digital" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="pds" name="PDS Tradicional" fill={isDark ? '#475569' : '#94a3b8'} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* ROC Curve: Discriminative Power */}
-        <div className={`p-5 rounded-2xl border shadow-xl space-y-4 transition-colors ${
+        <div className={`p-4 rounded-2xl border space-y-3 transition-colors ${
           isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-                <Activity className="w-4 h-4 text-sky-500" />
-                Curva Característica Operativa del Receptor (ROC)
-              </h3>
-              <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                Tasa de Verdaderos Positivos (Sensibilidad) vs Falsos Positivos (FPR)
-              </p>
-            </div>
-            <span className="text-[11px] text-sky-600 dark:text-sky-400 font-mono bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/30">
-              AUC: 0.942
+          <div className="flex items-center justify-between">
+            <h3 className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+              <Activity className="w-4 h-4 text-sky-500" />
+              Curva ROC (Sensibilidad vs FPR)
+            </h3>
+            <span className="text-[10px] text-sky-600 dark:text-sky-400 font-mono bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/30">
+              AUC: 0.978
             </span>
           </div>
 
@@ -341,45 +319,6 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               <span className="font-mono font-bold text-sky-500">32%</span>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Historical MSHA Incident Benchmarking */}
-      <div className={`p-4 rounded-2xl border shadow-xl space-y-3 transition-colors ${
-        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-      }`}>
-        <div className="flex items-center justify-between">
-          <h3 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-            <FileText className="w-4 h-4 text-emerald-500" />
-            Base de Datos Histórica MSHA de Incidentes Mineros & Tasa de Prevenibilidad
-          </h3>
-          <span className={`text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Dataset de Validación</span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {mshaIncidents.map((incident) => (
-            <div key={incident.id} className={`p-3.5 rounded-xl border space-y-2 transition-colors ${
-              isDark ? 'bg-slate-800/60 border-slate-700' : 'bg-slate-50 border-slate-200'
-            }`}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-[10px] text-amber-500 font-mono font-bold">{incident.id}</span>
-                  <p className={`text-xs font-bold mt-0.5 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{incident.mineName}</p>
-                </div>
-                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                  {incident.twinPreventabilityScore}% Prevenible
-                </span>
-              </div>
-              <p className={`text-[11px] leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                {incident.narrativeDescription}
-              </p>
-              <div className={`pt-2 border-t text-[10px] ${
-                isDark ? 'border-slate-700/60 text-slate-500' : 'border-slate-200 text-slate-400'
-              }`}>
-                <span>Causas: {incident.rootCauses.join(' • ')}</span>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>

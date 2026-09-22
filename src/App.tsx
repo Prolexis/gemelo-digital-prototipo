@@ -24,11 +24,6 @@ import { ShapExplanationPanel } from './components/xai/ShapExplanationPanel';
 import { ScenarioManager } from './components/scenarios/ScenarioManager';
 import { AlertsCenter } from './components/alerts/AlertsCenter';
 import { AnalyticsDashboard } from './components/dashboard/AnalyticsDashboard';
-import { ReportsModule } from './components/reports/ReportsModule';
-import { EthicsConsentModule } from './components/ethics/EthicsConsentModule';
-import { UserRolesModule } from './components/rbac/UserRolesModule';
-import { ArchitectureDocsModule } from './components/docs/ArchitectureDocsModule';
-import { MiningAiChatbot } from './components/chat/MiningAiChatbot';
 
 // Icons
 import { 
@@ -56,7 +51,7 @@ import {
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<'3D_TWIN' | 'SCENARIOS' | 'ALERTS' | 'ANALYTICS' | 'REPORTS' | 'ETHICS' | 'RBAC' | 'ARCHITECTURE'>('3D_TWIN');
+  const [activeTab, setActiveTab] = useState<'3D_TWIN' | 'SCENARIOS' | 'ALERTS' | 'ANALYTICS'>('3D_TWIN');
 
   // Theme State: 'dark' | 'light' con persistencia en localStorage
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -436,7 +431,7 @@ export default function App() {
                   </span>
                 </div>
                 <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                  Monitoreo Predictivo de Riesgo de Colisión • Tajo Abierto (Flota Mixta)
+                  Telemetría & Prevención de Colisiones (Flota Mixta)
                 </p>
               </div>
             </div>
@@ -462,7 +457,7 @@ export default function App() {
               title={isDark ? 'Cambiar a Modo Blanco / Claro' : 'Cambiar a Modo Oscuro'}
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              <span className="text-[11px] font-bold hidden sm:inline">{isDark ? 'Modo Claro' : 'Modo Oscuro'}</span>
+              <span className="text-[11px] font-bold hidden sm:inline">{isDark ? 'Claro' : 'Oscuro'}</span>
             </button>
 
             {/* Simulation Play/Pause */}
@@ -490,148 +485,69 @@ export default function App() {
             >
               <span className={`w-2 h-2 rounded-full ${isBackendWsActive ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
               <span className="text-[11px] font-bold">
-                {isBackendWsActive ? 'FastAPI 1 Hz Live' : 'Sim Local'}
+                {isBackendWsActive ? 'FastAPI 1 Hz' : 'Sim Local'}
               </span>
-            </div>
-
-
-            {/* Weather indicator */}
-            <div className={`border px-3 py-1 rounded-xl flex items-center gap-1.5 ${
-              isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-700'
-            }`}>
-              <span className="text-[10px] uppercase font-bold opacity-70">Clima:</span>
-              <span className="font-semibold text-amber-500">{weatherCondition}</span>
-            </div>
-
-            {/* Active Role Selector */}
-            <div className={`border px-2.5 py-1 rounded-xl flex items-center gap-1.5 ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-300'
-            }`}>
-              <UserCheck className="w-3.5 h-3.5 text-sky-500" />
-              <select
-                value={currentRole}
-                onChange={(e) => setCurrentRole(e.target.value as UserRole)}
-                className={`bg-transparent text-xs font-bold outline-none cursor-pointer ${
-                  isDark ? 'text-slate-200' : 'text-slate-800'
-                }`}
-              >
-                <option value="SAFETY_SUPERVISOR">Supervisor HSE</option>
-                <option value="ADMIN">Administrador</option>
-                <option value="OPERATOR">Operador</option>
-                <option value="DATA_ANALYST">Data Scientist</option>
-                <option value="AUDITOR">Auditor MSHA</option>
-              </select>
             </div>
           </div>
         </div>
 
-        {/* Navigation Tabs Bar */}
-        <div className="max-w-7xl mx-auto flex items-center gap-1 mt-3 overflow-x-auto pb-1 scrollbar-none">
+        {/* Navigation Tabs Bar — 4 Pestañas Esenciales */}
+        <div className="max-w-7xl mx-auto flex items-center gap-1.5 mt-2.5 overflow-x-auto pb-1 scrollbar-none">
           <button
             id="tab-3d-twin"
             onClick={() => setActiveTab('3D_TWIN')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
               activeTab === '3D_TWIN'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                ? 'bg-amber-500 text-slate-950 shadow-sm'
                 : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
             <Box className="w-4 h-4" />
-            <span>Gemelo Digital 3D & Telemetría</span>
-          </button>
-
-          <button
-            id="tab-scenarios"
-            onClick={() => setActiveTab('SCENARIOS')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === 'SCENARIOS'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-            }`}
-          >
-            <Flame className="w-4 h-4" />
-            <span>Escenarios & Inyector</span>
+            <span>Gemelo 3D</span>
           </button>
 
           <button
             id="tab-alerts"
             onClick={() => setActiveTab('ALERTS')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all relative cursor-pointer ${
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all relative cursor-pointer ${
               activeTab === 'ALERTS'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                ? 'bg-amber-500 text-slate-950 shadow-sm'
                 : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
             <ShieldAlert className="w-4 h-4" />
-            <span>Centro de Alertas</span>
+            <span>Alertas</span>
             {alerts.some((a) => a.status === 'ACTIVE') && (
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping absolute top-1 right-1" />
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-rose-500 text-white">
+                {alerts.filter((a) => a.status === 'ACTIVE').length}
+              </span>
             )}
           </button>
 
           <button
             id="tab-analytics"
             onClick={() => setActiveTab('ANALYTICS')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'ANALYTICS'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                ? 'bg-amber-500 text-slate-950 shadow-sm'
                 : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
             <BarChart3 className="w-4 h-4" />
-            <span>Dashboard & Benchmark PDS</span>
+            <span>Telemetría & KPIs</span>
           </button>
 
           <button
-            id="tab-reports"
-            onClick={() => setActiveTab('REPORTS')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === 'REPORTS'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+            id="tab-scenarios"
+            onClick={() => setActiveTab('SCENARIOS')}
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
+              activeTab === 'SCENARIOS'
+                ? 'bg-amber-500 text-slate-950 shadow-sm'
                 : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
             }`}
           >
-            <FileText className="w-4 h-4" />
-            <span>Reportes PDF / Word / Excel</span>
-          </button>
-
-          <button
-            id="tab-ethics"
-            onClick={() => setActiveTab('ETHICS')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === 'ETHICS'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-            }`}
-          >
-            <Shield className="w-4 h-4" />
-            <span>Ética & Privacidad</span>
-          </button>
-
-          <button
-            id="tab-rbac"
-            onClick={() => setActiveTab('RBAC')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === 'RBAC'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-            }`}
-          >
-            <UserCheck className="w-4 h-4" />
-            <span>Roles & Auditoría</span>
-          </button>
-
-          <button
-            id="tab-architecture"
-            onClick={() => setActiveTab('ARCHITECTURE')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === 'ARCHITECTURE'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-            }`}
-          >
-            <Code2 className="w-4 h-4" />
-            <span>Arquitectura Backend & PostGIS</span>
+            <Flame className="w-4 h-4" />
+            <span>Escenarios</span>
           </button>
         </div>
       </header>
@@ -640,43 +556,30 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-4">
         {/* Tab 1: 3D Digital Twin & XAI SHAP Explanation Drawer */}
         {activeTab === '3D_TWIN' && (
-          <div className="space-y-4">
-            {/* Top Critical Alert Flash Bar */}
+          <div className="space-y-3">
+            {/* Slim High-Density Alert Strip (Solo si hay alerta crítica activa) */}
             {alerts.some((a) => a.severity === 'CRITICAL' && a.status === 'ACTIVE') && (
-              <div className={`border p-3.5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 transition-colors ${
+              <div className={`px-4 py-2 rounded-xl flex items-center justify-between gap-3 text-xs transition-colors ${
                 isDark 
-                  ? 'bg-rose-950/60 border-rose-500/60 shadow-xl shadow-rose-950/50' 
-                  : 'bg-rose-50 border-rose-300 shadow-sm'
-              } animate-pulse`}>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center flex-shrink-0">
-                    <ShieldAlert className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className={`text-xs font-bold uppercase tracking-wide ${isDark ? 'text-rose-300' : 'text-rose-800'}`}>
-                        ALERTA TEMPRANA DE COLISIÓN DETECTADA (H1: &gt;5s ANTICIPACIÓN)
-                      </h3>
-                      <span className="text-[10px] font-mono bg-rose-500 text-white font-bold px-2 py-0.5 rounded-full">
-                        CRÍTICA
-                      </span>
-                    </div>
-                    <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                      Rampa Este - Banco 3200: HT-104 (Manual, Fatiga 10.8h) en trayectoria convergente con AHS-02 (Autónomo).
-                    </p>
-                  </div>
+                  ? 'bg-rose-950/70 border border-rose-500/50 text-rose-200 shadow-lg shadow-rose-950/40' 
+                  : 'bg-rose-50 border border-rose-300 text-rose-900 shadow-sm'
+              }`}>
+                <div className="flex items-center gap-2.5 truncate">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping flex-shrink-0" />
+                  <span className="font-mono font-bold text-rose-500 flex-shrink-0">[ALERTA CRÍTICA]</span>
+                  <span className="truncate">HT-104 vs AHS-02 • Rampa Este (Banco 3200) • Anticipación: 6.2s</span>
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     onClick={() => setSelectedEquipmentId('eq-ht-104')}
-                    className="flex-1 sm:flex-initial bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow cursor-pointer"
+                    className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-[11px] px-2.5 py-1 rounded-lg transition-all cursor-pointer"
                   >
-                    Inspeccionar SHAP
+                    Ver SHAP
                   </button>
                   <button
-                    onClick={() => handleAcknowledgeAlert(alerts[0].id, 'Supervisor HSE')}
-                    className={`flex-1 sm:flex-initial text-xs px-3.5 py-2 rounded-xl border cursor-pointer transition-colors ${
+                    onClick={() => handleAcknowledgeAlert(alerts[0].id, 'Supervisor')}
+                    className={`text-[11px] font-medium px-2.5 py-1 rounded-lg border cursor-pointer transition-colors ${
                       isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-300'
                     }`}
                   >
@@ -743,75 +646,25 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 4: Analytics Dashboard */}
+        {/* Tab 3: Analytics Dashboard */}
         {activeTab === 'ANALYTICS' && (
           <AnalyticsDashboard 
             mshaIncidents={MSHA_HISTORICAL_INCIDENTS} 
             theme={theme}
           />
         )}
-
-        {/* Tab 5: Reports Module with PDF / Word / Excel Live Previews */}
-        {activeTab === 'REPORTS' && (
-          <ReportsModule
-            equipments={equipments}
-            alerts={alerts}
-            mshaIncidents={MSHA_HISTORICAL_INCIDENTS}
-            consents={OPERATOR_CONSENTS}
-            theme={theme}
-          />
-        )}
-
-        {/* Tab 6: Ethics & Informed Consent */}
-        {activeTab === 'ETHICS' && (
-          <EthicsConsentModule
-            consents={OPERATOR_CONSENTS}
-            isAnonymized={isAnonymized}
-            onToggleAnonymization={() => setIsAnonymized(!isAnonymized)}
-            theme={theme}
-          />
-        )}
-
-        {/* Tab 7: RBAC & Audit Log */}
-        {activeTab === 'RBAC' && (
-          <UserRolesModule
-            currentRole={currentRole}
-            onRoleChange={(role) => setCurrentRole(role)}
-            auditLogs={auditLogs}
-            theme={theme}
-          />
-        )}
-
-        {/* Tab 8: Architecture, PostGIS SQL & Backend Code */}
-        {activeTab === 'ARCHITECTURE' && (
-          <ArchitectureDocsModule theme={theme} />
-        )}
       </main>
 
-      {/* Floating AI Mining Safety Chatbot Copilot */}
-      <MiningAiChatbot
-        equipments={equipments}
-        alerts={alerts}
-        currentRole={currentRole}
-        weatherCondition={weatherCondition}
-        onSendCabWarning={handleSendCabWarning}
-        onRequestRelief={handleRequestRelief}
-        theme={theme}
-      />
-
       {/* Footer */}
-      <footer className={`border-t px-4 py-3 text-xs transition-colors ${
+      <footer className={`border-t px-4 py-2.5 text-[11px] transition-colors ${
         isDark ? 'bg-slate-900 border-slate-800 text-slate-500' : 'bg-white border-slate-200 text-slate-600 shadow-inner'
       }`}>
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-          <p>
-            MineSafe 3D • Gemelo Digital Explicable para Seguridad Minera en Tajo Abierto (Flota Mixta)
-          </p>
-          <div className="flex items-center gap-4 font-mono text-[11px]">
-            <span>PostGIS 3.3</span>
-            <span>FastAPI 0.110</span>
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span>MineSafe 3D • Sistema de Telemetría y Gemelo Digital</span>
+          <div className="flex items-center gap-3 font-mono text-[10px]">
+            <span>FastAPI 1 Hz</span>
             <span>Three.js WebGL</span>
-            <span>Fast TreeSHAP v1.2</span>
+            <span>TreeSHAP v1.2</span>
           </div>
         </div>
       </footer>

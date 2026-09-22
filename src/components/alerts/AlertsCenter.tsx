@@ -6,11 +6,8 @@ import {
   Clock, 
   Volume2, 
   VolumeX, 
-  Sparkles, 
-  Filter, 
-  User, 
   ChevronRight,
-  AlertTriangle
+  Activity
 } from 'lucide-react';
 
 interface AlertsCenterProps {
@@ -30,7 +27,6 @@ export const AlertsCenter: React.FC<AlertsCenterProps> = ({
 }) => {
   const [filterSeverity, setFilterSeverity] = useState<'ALL' | 'CRITICAL' | 'WARNING'>('ALL');
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [supervisorName, setSupervisorName] = useState('Ing. Patricia Valenzuela (HSE)');
 
   const isDark = theme === 'dark';
 
@@ -53,14 +49,11 @@ export const AlertsCenter: React.FC<AlertsCenterProps> = ({
           </div>
           <div>
             <h2 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-              Centro de Alertas de Colisión Temprana (XAI)
+              Alertas de Proximidad & Colisión
               <span className="text-xs px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-500 font-mono font-bold">
                 {alerts.filter(a => a.status === 'ACTIVE').length} Activas
               </span>
             </h2>
-            <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Emisión anticipada ≥5s sobre sistemas de proximidad PDS
-            </p>
           </div>
         </div>
 
@@ -76,64 +69,47 @@ export const AlertsCenter: React.FC<AlertsCenterProps> = ({
           title={soundEnabled ? 'Silenciar avisos sonoros' : 'Activar avisos sonoros'}
         >
           {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-          <span className="hidden sm:inline font-semibold">{soundEnabled ? 'Audio Activo' : 'Silenciado'}</span>
+          <span className="hidden sm:inline font-semibold">{soundEnabled ? 'Audio' : 'Silenciado'}</span>
         </button>
       </div>
 
-      {/* Filter Bar & Supervisor Profile */}
-      <div className={`flex flex-wrap items-center justify-between gap-2 p-2 rounded-xl border text-xs transition-colors ${
+      {/* Filter Bar */}
+      <div className={`flex items-center gap-1.5 p-2 rounded-xl border text-xs transition-colors ${
         isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
       }`}>
-        <div className="flex items-center gap-1.5">
-          <span className={`font-semibold text-[11px] uppercase ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            Filtrar:
-          </span>
-          <button
-            onClick={() => setFilterSeverity('ALL')}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-              filterSeverity === 'ALL'
-                ? isDark ? 'bg-slate-800 text-white font-bold' : 'bg-white text-slate-900 font-bold shadow-xs'
-                : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Todas ({alerts.length})
-          </button>
-          <button
-            onClick={() => setFilterSeverity('CRITICAL')}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-              filterSeverity === 'CRITICAL'
-                ? 'bg-rose-500/20 text-rose-500 font-bold border border-rose-500/40'
-                : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Críticas ({alerts.filter(a => a.severity === 'CRITICAL').length})
-          </button>
-          <button
-            onClick={() => setFilterSeverity('WARNING')}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-              filterSeverity === 'WARNING'
-                ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 font-bold border border-yellow-500/40'
-                : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Advertencias ({alerts.filter(a => a.severity === 'WARNING').length})
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <User className={`w-3.5 h-3.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`} />
-          <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>Supervisor:</span>
-          <input
-            type="text"
-            value={supervisorName}
-            onChange={(e) => setSupervisorName(e.target.value)}
-            className={`px-2 py-0.5 rounded text-xs outline-none border transition-colors ${
-              isDark 
-                ? 'bg-slate-900 border-slate-700 text-slate-200 focus:border-amber-500' 
-                : 'bg-white border-slate-300 text-slate-900 focus:border-amber-500'
-            }`}
-          />
-        </div>
+        <span className={`font-semibold text-[11px] uppercase mr-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+          Filtrar:
+        </span>
+        <button
+          onClick={() => setFilterSeverity('ALL')}
+          className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
+            filterSeverity === 'ALL'
+              ? isDark ? 'bg-slate-800 text-white font-bold' : 'bg-white text-slate-900 font-bold shadow-xs'
+              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Todas ({alerts.length})
+        </button>
+        <button
+          onClick={() => setFilterSeverity('CRITICAL')}
+          className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
+            filterSeverity === 'CRITICAL'
+              ? 'bg-rose-500/20 text-rose-500 font-bold border border-rose-500/40'
+              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Críticas ({alerts.filter(a => a.severity === 'CRITICAL').length})
+        </button>
+        <button
+          onClick={() => setFilterSeverity('WARNING')}
+          className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
+            filterSeverity === 'WARNING'
+              ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 font-bold border border-yellow-500/40'
+              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Advertencias ({alerts.filter(a => a.severity === 'WARNING').length})
+        </button>
       </div>
 
       {/* Alerts Feed */}
@@ -232,7 +208,7 @@ export const AlertsCenter: React.FC<AlertsCenterProps> = ({
                     {isActive ? (
                       <button
                         id={`btn-ack-${alert.id}`}
-                        onClick={() => onAcknowledgeAlert(alert.id, supervisorName)}
+                        onClick={() => onAcknowledgeAlert(alert.id, 'Supervisor HSE')}
                         className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
                       >
                         <CheckCircle className="w-3.5 h-3.5" />
