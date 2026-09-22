@@ -10,6 +10,7 @@
 [![Three.js](https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22905230.svg)](https://doi.org/10.5281/zenodo.22905230)
 
 ---
 
@@ -231,6 +232,7 @@ El sistema incorpora un modelo de control de acceso basado en roles con trazabil
 Para verificar y reproducir de forma independiente todos los modelos, datos, explicabilidad TreeSHAP y pruebas estadísticas del artículo de investigación:
 
 * **Directorio de Experimentos:** [`/experiments`](./experiments/) o en [GitHub Release v1.0.0](https://github.com/Prolexis/gemelo-digital-prototipo/tree/v1.0.0/experiments)
+* **Archivo Permanente DOI (Zenodo):** [https://doi.org/10.5281/zenodo.22905230](https://doi.org/10.5281/zenodo.22905230)
 * **Dataset DSTM-MineSafe-2026 (n=5.000):** [`DSTM-MineSafe-2026.csv`](./experiments/data/DSTM-MineSafe-2026.csv) ([Enlace Directo](https://github.com/Prolexis/gemelo-digital-prototipo/blob/v1.0.0/experiments/data/DSTM-MineSafe-2026.csv))
 * **Datasheet Normativo (ISO 21815 / MSHA 30 CFR):** [`datasheet.md`](./experiments/data/datasheet.md) ([Enlace Directo](https://github.com/Prolexis/gemelo-digital-prototipo/blob/v1.0.0/experiments/data/datasheet.md))
 * **Pruebas Inferenciales (McNemar, Wilcoxon, Bootstrap):** [`statistical_tests.md`](./experiments/results/statistical_tests.md)

@@ -2,6 +2,7 @@ cff-version: 1.2.0
 message: "If you use this reproducible pipeline or the DSTM-MineSafe-2026 dataset in your research, please cite it as below."
 title: "MineSafe 3D: Explainable Digital Twin for Predictive Collision Prevention in Mixed Open-Pit Mining Fleets"
 version: 1.0.0
+doi: "10.5281/zenodo.22905230"
 date-released: 2026-09-22
 url: "https://github.com/Prolexis/gemelo-digital-prototipo/tree/v1.0.0"
 repository-code: "https://github.com/Prolexis/gemelo-digital-prototipo"
@@ -15,5 +16,6 @@ keywords:
   - "treeshap"
   - "reproducible machine learning"
 authors:
-  - family-names: "MineSafe 3D Research Team"
+  - family-names: "Sanchez Enriquez"
+    given-names: "Cristhian Alexis"
     affiliation: "Prolexis Mining Systems / Academic Research Consortium"

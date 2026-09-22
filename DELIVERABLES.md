@@ -79,13 +79,14 @@ gemelo-digital-prototipo/
 
 Los siguientes pasos deben ser realizados por el autor antes del reenvío formal a la revista científica:
 
-- [ ] **Subir los cambios al Repositorio de GitHub**:
-  - Tu repositorio configurado es: **`https://github.com/Prolexis/gemelo-digital-prototipo`**.
-  - Ejecutar `git add .`, `git commit` y `git push origin main` para que la carpeta `experiments/` sea visible públicamente en GitHub.
-- [ ] **Subir Dataset Canónico y Código a Zenodo / Figshare**:
-  - Crear un nuevo depósito en [Zenodo](https://zenodo.org/) bajo licencia **CC-BY 4.0** con el archivo `experiments/data/DSTM-MineSafe-2026.csv` y el archivo `experiments/data/datasheet.md`.
-  - Obtener el identificador DOI persistente (e.g. `10.5281/zenodo.12345678`).
-  - Actualizar el placeholder `10.5281/zenodo.placeholder` en `experiments/README.md`, `experiments/CITATION.cff` y en la sección *Data Availability Statement* del artículo.
+- [x] **Subir los cambios al Repositorio de GitHub**:
+  - Repositorio oficial y público: [https://github.com/Prolexis/gemelo-digital-prototipo](https://github.com/Prolexis/gemelo-digital-prototipo).
+  - Release oficial inmutable: [Tag v1.0.0](https://github.com/Prolexis/gemelo-digital-prototipo/releases/tag/v1.0.0).
+- [x] **Subir Dataset Canónico y Código a Zenodo**:
+  - Depósito oficial completado por el autor con DOI persistente:
+  - **DOI:** [`10.5281/zenodo.22905230`](https://doi.org/10.5281/zenodo.22905230)
+  - **Cita Software:** *Cristhian Alexis Sanchez Enriquez. (2026). Prolexis/gemelo-digital-prototipo: Version1 (Version v1.0.0) [Computer software]. Zenodo.*
+  - Vinculado en `README.md`, `experiments/README.md`, `experiments/CITATION.cff` y en el *Data/Code Availability Statement*.
 - [ ] **Actualizar el Manuscrito del Artículo (Sección Resultados y Discusión)**:
   - Copiar el párrafo en formato APA generado en [`experiments/results/statistical_tests.md`](./experiments/results/statistical_tests.md) directamente a la sección de resultados estadísticos.
   - Insertar la Tabla Comparativa de Baselines desde [`experiments/results/baselines_comparison.md`](./experiments/results/baselines_comparison.md).
