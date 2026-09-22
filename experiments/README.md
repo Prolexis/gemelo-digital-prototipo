@@ -4,7 +4,7 @@
 [![CI Reproducibility](https://img.shields.io/badge/CI-Reproducibility%20Verified-brightgreen?style=for-the-badge&logo=githubactions)](../.github/workflows/reproduce.yml)
 [![License: MIT](https://img.shields.io/badge/Code%20License-MIT-yellow.svg?style=for-the-badge)](./LICENSE)
 [![Data License: CC BY 4.0](https://img.shields.io/badge/Data%20License-CC%20BY%204.0-lightgrey.svg?style=for-the-badge)](./data/LICENSE-DATA)
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.placeholder-blue?style=for-the-badge)](https://doi.org/10.5281/zenodo.placeholder)
+[![Release: v1.0.0](https://img.shields.io/badge/Release-v1.0.0-blue?style=for-the-badge&logo=github)](https://github.com/Prolexis/gemelo-digital-prototipo/releases/tag/v1.0.0)
 
 Este directorio contiene el submódulo **completamente desacoplado y autónomo** para reproducir de forma determinista todos los datos, entrenamientos, baselines, explicabilidad TreeSHAP y pruebas de estadística inferencial reportados en el artículo de investigación.
 
@@ -115,13 +115,13 @@ experiments/
 Si utilizas este software o el dataset en tu investigación, cita según la siguiente referencia bibliográfica:
 
 ```bibtex
-@article{minesafe3d_2026,
+@software{minesafe3d_2026,
   author    = {MineSafe 3D Research Consortium},
-  title     = {MineSafe 3D: Explainable Digital Twin for Predictive Collision Prevention in Mixed Open-Pit Mining Fleets},
-  journal   = {Preprint / Submitted for Peer Review (Under Revision)},
+  title     = {MineSafe 3D: Explainable Digital Twin for Predictive Collision Prevention in Mixed Open-Pit Mining Fleets (v1.0.0 Reproducibility Package)},
   year      = {2026},
-  doi       = {10.5281/zenodo.placeholder},
-  url       = {https://github.com/Prolexis/gemelo-digital-prototipo}
+  version   = {v1.0.0},
+  url       = {https://github.com/Prolexis/gemelo-digital-prototipo/tree/v1.0.0}
 }
 ```
 O consulta el archivo [`CITATION.cff`](./CITATION.cff) para formatos CFF/BibTeX adicionales.
+*(Nota: Si la revista requiere DOI estático de Zenodo para la versión final de cámara, este puede acuñarse automáticamente sincronizando este release de GitHub con Zenodo).*

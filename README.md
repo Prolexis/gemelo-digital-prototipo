@@ -226,9 +226,21 @@ El sistema incorpora un modelo de control de acceso basado en roles con trazabil
 
 ---
 
+## 🔬 Paquete de Reproducibilidad Científica & Benchmarks Q1
+
+Para verificar y reproducir de forma independiente todos los modelos, datos, explicabilidad TreeSHAP y pruebas estadísticas del artículo de investigación:
+
+* **Directorio de Experimentos:** [`/experiments`](./experiments/) o en [GitHub Release v1.0.0](https://github.com/Prolexis/gemelo-digital-prototipo/tree/v1.0.0/experiments)
+* **Dataset DSTM-MineSafe-2026 (n=5.000):** [`DSTM-MineSafe-2026.csv`](./experiments/data/DSTM-MineSafe-2026.csv) ([Enlace Directo](https://github.com/Prolexis/gemelo-digital-prototipo/blob/v1.0.0/experiments/data/DSTM-MineSafe-2026.csv))
+* **Datasheet Normativo (ISO 21815 / MSHA 30 CFR):** [`datasheet.md`](./experiments/data/datasheet.md) ([Enlace Directo](https://github.com/Prolexis/gemelo-digital-prototipo/blob/v1.0.0/experiments/data/datasheet.md))
+* **Pruebas Inferenciales (McNemar, Wilcoxon, Bootstrap):** [`statistical_tests.md`](./experiments/results/statistical_tests.md)
+* **Release Oficial del Manuscrito:** [Tag v1.0.0 en GitHub](https://github.com/Prolexis/gemelo-digital-prototipo/releases/tag/v1.0.0)
+
+---
+
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia **MIT**. Consulta el archivo `LICENSE` para obtener más información.
+Este proyecto está bajo la Licencia **MIT** para código y **Creative Commons Attribution 4.0 (CC-BY 4.0)** para el conjunto de datos de telemetría. Consulta el archivo `LICENSE` y `experiments/data/LICENSE-DATA`.
 
 <div align="center">
   <sub>Desarrollado para el Gemelo Digital de Seguridad Minera en Tajo Abierto. © 2026 Prolexis Mining Systems.</sub>
