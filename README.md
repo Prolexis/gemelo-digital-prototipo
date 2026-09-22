@@ -229,7 +229,15 @@ El sistema incorpora un modelo de control de acceso basado en roles con trazabil
 
 ## 🔬 Paquete de Reproducibilidad Científica & Benchmarks Q1
 
-Para verificar y reproducir de forma independiente todos los modelos, datos, explicabilidad TreeSHAP y pruebas estadísticas del artículo de investigación:
+Para verificar y reproducir de forma independiente todos los modelos, datos, explicabilidad TreeSHAP y pruebas estadísticas del artículo de investigación en un solo comando:
+
+```bash
+# 1. Instalar dependencias fijadas
+pip install -r experiments/requirements.lock
+
+# 2. Ejecutar todo el pipeline experimental en un solo paso
+python experiments/run_all.py
+```
 
 * **Directorio de Experimentos:** [`/experiments`](./experiments/) o en [GitHub Release v1.0.0](https://github.com/Prolexis/gemelo-digital-prototipo/tree/v1.0.0/experiments)
 * **Archivo Permanente DOI (Zenodo):** [https://doi.org/10.5281/zenodo.22905230](https://doi.org/10.5281/zenodo.22905230)
