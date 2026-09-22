@@ -234,12 +234,12 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
         }`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
+              <Sliders className="w-4 h-4 text-slate-400" />
               <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-                Atribución Explicable de Factores (SHAP)
+                Descomposición Causal de Factores (TreeSHAP)
               </h3>
             </div>
-            <span className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Fast TreeSHAP v1.2</span>
+            <span className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Norma ISO 21815</span>
           </div>
 
           {/* Recharts Bar Chart of SHAP Contributions */}

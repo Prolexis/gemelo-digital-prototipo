@@ -3,6 +3,8 @@ import { Equipment, CollisionAlert, UserRole, MiningScenario } from '../../types
 import { GeminiApiService } from '../../services/geminiApi';
 import { 
   Bot, 
+  Terminal,
+  MessageSquare,
   Send, 
   Sparkles, 
   X, 
@@ -76,13 +78,13 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
     {
       id: 'msg-welcome',
       sender: 'ai',
-      text: `👋 **¡Hola! Soy MineSafe Copilot**, tu asistente de inteligencia artificial para el Gemelo Digital 3D en Tajo Abierto.\n\n🎙️ **Novedad con Audio:** Ahora puedes hablarme por el micrófono y escucharé tus consultas, o escuchar mis diagnósticos en voz alta.\n\nPuedo responder consultas sobre **telemetría en vivo**, calcular **factores SHAP**, explicar **tiempos de reacción frente al PDS** o ejecutar **protocolos de mitigación en cabina** para la flota mixta.`,
+      text: `**Consola de Monitoreo y Despacho Operativo.**\n\nEnlace de telemetría activo a 1 Hz. Puede consultar parámetros cinemáticos, índices de fatiga biológica (PERCLOS) en operadores, atenuación LiDAR o emitir advertencias de cabina.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      badge: 'IA OPERACIONAL & HSE',
+      badge: 'DESPACHO HSE',
       actions: [
-        { label: 'Analizar equipo más crítico (HT-104)', actionId: 'check_critical', type: 'warning' },
-        { label: '¿Cómo funciona la Hipótesis H1 (+255%)?', actionId: 'explain_h1', type: 'scenario' },
-        { label: 'Protocolo de Fatiga y Relevo', actionId: 'fatigue_protocol', type: 'relief' },
+        { label: 'Telemetría de camión crítico (HT-104)', actionId: 'check_critical', type: 'warning' },
+        { label: 'Ventana de anticipación predictiva (H1)', actionId: 'explain_h1', type: 'scenario' },
+        { label: 'Protocolo de relevo por fatiga', actionId: 'fatigue_protocol', type: 'relief' },
       ],
     },
   ];
@@ -460,54 +462,63 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
 
   return (
     <>
-      {/* Botón flotante para abrir el Chatbot */}
+      {/* Botón flotante sobrio para abrir la Consola de Despacho */}
       {!isOpen && (
         <button
           id="btn-open-copilot"
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 p-3.5 rounded-2xl shadow-2xl shadow-amber-500/30 flex items-center gap-2.5 transition-all transform hover:scale-105 group border border-amber-300/40 cursor-pointer"
+          className={`fixed bottom-6 right-6 z-40 px-3.5 py-2.5 rounded-xl shadow-lg border flex items-center gap-2.5 transition-all cursor-pointer ${
+            isDark
+              ? 'bg-slate-900 hover:bg-slate-800 text-slate-200 border-slate-700 hover:border-slate-600 shadow-slate-950/60'
+              : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-300 shadow-md'
+          }`}
+          title="Abrir Consola de Despacho y Telemetría"
         >
           <div className="relative">
-            <Bot className="w-6 h-6 animate-pulse" />
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-950 absolute -top-1 -right-1" />
+            <Terminal className="w-4 h-4 text-amber-500" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500 absolute -top-0.5 -right-0.5" />
           </div>
-          <div className="text-left pr-1 hidden sm:block">
-            <p className="text-xs font-black tracking-tight leading-none">MineSafe AI</p>
-            <p className="text-[10px] font-bold text-slate-900/80 leading-tight">Copiloto HSE & Audio</p>
+          <div className="text-left hidden sm:block">
+            <p className="text-xs font-bold leading-tight">Consola de Despacho</p>
+            <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'} leading-tight`}>Telemetría 1 Hz</p>
           </div>
         </button>
       )}
 
-      {/* Ventana Flotante del Chatbot */}
+      {/* Ventana de la Consola */}
       {isOpen && (
         <div
-          className={`fixed bottom-4 right-4 z-50 rounded-2xl border shadow-2xl flex flex-col transition-all duration-200 overflow-hidden ${
+          className={`fixed z-50 transition-all duration-200 flex flex-col shadow-2xl border ${
             isExpanded
-              ? 'w-[95vw] sm:w-[680px] h-[86vh]'
-              : 'w-[92vw] sm:w-[460px] h-[580px]'
+              ? 'inset-4 md:inset-10 rounded-2xl'
+              : 'bottom-6 right-6 w-[92vw] sm:w-[420px] h-[580px] max-h-[85vh] rounded-2xl'
           } ${
             isDark
-              ? 'bg-slate-950/98 border-slate-800 text-slate-100 backdrop-blur-xl'
-              : 'bg-white/98 border-slate-300 text-slate-900 shadow-2xl backdrop-blur-xl'
+              ? 'bg-slate-950 border-slate-800 shadow-slate-950/80 text-slate-100'
+              : 'bg-white border-slate-200 shadow-xl text-slate-900'
           }`}
         >
-          {/* Cabecera */}
-          <div className={`px-4 py-3 border-b flex items-center justify-between gap-2 ${
-            isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-100/95 border-slate-200'
+          {/* Header de la Consola */}
+          <div className={`p-3.5 border-b flex items-center justify-between transition-colors ${
+            isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'
           }`}>
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold shadow-md shadow-amber-500/20">
-                <Bot className="w-4 h-4" />
+              <div className={`w-8 h-8 rounded-lg border flex items-center justify-center ${
+                isDark ? 'bg-slate-800 border-slate-700 text-amber-500' : 'bg-white border-slate-300 text-amber-600'
+              }`}>
+                <Terminal className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-xs font-bold tracking-tight">MineSafe AI Copilot</h3>
-                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
-                    VOZ & GEMINI
+                  <h4 className={`text-xs font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+                    Consola de Despacho & Seguridad
+                  </h4>
+                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 rounded">
+                    ACTIVO
                   </span>
                 </div>
                 <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                  Asistente por Voz & Explicabilidad XAI
+                  Monitoreo Predictivo • Canal de Telemetría 1 Hz
                 </p>
               </div>
             </div>
@@ -576,8 +587,10 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
           <div className={`px-3 py-2 border-b overflow-x-auto scrollbar-none flex items-center gap-1.5 ${
             isDark ? 'bg-slate-900/50 border-slate-800/80' : 'bg-slate-50 border-slate-200'
           }`}>
-            <span className="text-[10px] font-bold text-amber-500 flex items-center gap-1 whitespace-nowrap pl-1">
-              <Sparkles className="w-3 h-3" /> Preguntas rápidas:
+            <span className={`text-[10px] font-semibold flex items-center gap-1 whitespace-nowrap pl-1 ${
+              isDark ? 'text-slate-400' : 'text-slate-500'
+            }`}>
+              <HelpCircle className="w-3 h-3" /> Consultas rápidas:
             </span>
             {suggestionChips.map((chip, idx) => (
               <button

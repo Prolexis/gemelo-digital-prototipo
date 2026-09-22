@@ -198,9 +198,9 @@ export const AlertsCenter: React.FC<AlertsCenterProps> = ({
                 <div className={`mt-2.5 p-2.5 rounded-lg border space-y-1 ${
                   isDark ? 'bg-slate-900/80 border-slate-700/60' : 'bg-white border-slate-200 shadow-xs'
                 }`}>
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-500">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Causa Raíz Explicable (XAI):</span>
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-300 dark:text-slate-300">
+                    <Activity className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Diagnóstico Causal de Riesgo (TreeSHAP):</span>
                   </div>
                   <p className={`text-xs leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                     {alert.shapExplanationSummary}

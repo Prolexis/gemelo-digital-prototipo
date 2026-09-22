@@ -301,8 +301,8 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               onClick={handleApplyCustomInjection}
               className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Inyectar en Motor de Inferencia en Tiempo Real</span>
+              <Sliders className="w-4 h-4" />
+              <span>Aplicar Parámetros de Telemetría</span>
             </button>
           </div>
         )}

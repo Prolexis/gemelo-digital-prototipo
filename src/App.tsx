@@ -429,12 +429,14 @@ export default function App() {
                   <h1 className={`text-sm font-extrabold tracking-tight ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
                     MINESAFE 3D
                   </h1>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30">
-                    GEMELO DIGITAL EXPLICABLE (XAI)
+                  <span className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded border ${
+                    isDark ? 'bg-slate-800 text-slate-300 border-slate-700' : 'bg-slate-200 text-slate-700 border-slate-300'
+                  }`}>
+                    CONTROL DE FLOTA
                   </span>
                 </div>
                 <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                  Predicción de Riesgo de Colisión en Tajo Abierto • Flota Mixta (Manual + AHS)
+                  Monitoreo Predictivo de Riesgo de Colisión • Tajo Abierto (Flota Mixta)
                 </p>
               </div>
             </div>
@@ -535,7 +537,7 @@ export default function App() {
             }`}
           >
             <Box className="w-4 h-4" />
-            <span>Gemelo Digital 3D & XAI</span>
+            <span>Gemelo Digital 3D & Telemetría</span>
           </button>
 
           <button
