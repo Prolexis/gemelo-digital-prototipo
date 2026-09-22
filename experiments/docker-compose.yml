@@ -1,0 +1,18 @@
+# experiments/docker-compose.yml
+# Orquestación de servicio único para reproducción experimental autónoma Q1
+# Uso: docker compose -f experiments/docker-compose.yml up --build
+
+services:
+  reproduce:
+    build:
+      context: ..
+      dockerfile: experiments/Dockerfile
+    container_name: minesafe_reproduce_pipeline
+    volumes:
+      # Montar directorios locales para conservar artefactos reproducidos en el host
+      - ./results:/workspace/experiments/results
+      - ./data:/workspace/experiments/data
+      - ./config:/workspace/experiments/config
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["python", "experiments/run_all.py"]

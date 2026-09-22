@@ -1,0 +1,7 @@
+Escenario Omitido,Descripción Operacional,N Test,Recall (TTC Indep.),Precisión (TTC Indep.),F1 (TTC Indep.),AUC-ROC (TTC Indep.),Recall (Nominal),AUC-ROC (Nominal)
+A,"Acarreo rampa principal (alta velocidad, pendiente pronunciada, polvo moderado)",1287,1.0,0.6997,0.8233,0.98,0.9155,0.9969
+B,"Maniobras en zona de cargue y pala (baja velocidad, proximidad estrecha, visibilidad alta)",997,1.0,0.3669,0.5369,0.8898,1.0,0.8995
+C,"Tránsito nocturno con fatiga operador (turno acumulado alto, PERCLOS elevado)",999,1.0,0.673,0.8046,0.9739,0.979,0.9959
+D,"Clima adverso y visibilidad degradada (polvo denso/niebla, atenuación óptica LiDAR)",972,1.0,0.6548,0.7914,0.9463,0.9827,0.9952
+E,Flota mixta autónomo-manual (interacción Komatsu 930E AHS y camioneta de supervisión),745,1.0,0.6937,0.8191,0.9625,0.9841,0.9925
+PROMEDIO MACRO,Rendimiento OOD promedio no sesgado,5000,1.0,0.6176,0.7551,0.9505,0.9723,0.976

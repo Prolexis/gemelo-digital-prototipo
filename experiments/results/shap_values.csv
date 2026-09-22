@@ -1,0 +1,10 @@
+feature,mean_abs_shap,rank
+lidar_obstacle_dist_m,0.3366,1
+gnss_speed_kmh,0.12,2
+gnss_ramp_grade,0.0198,3
+is_autonomous,0.0195,4
+op_steering_jerk_stddev,0.0185,5
+op_perclos_score,0.0116,6
+lidar_visibility_index,0.0108,7
+turno_horas_acumuladas,0.0043,8
+op_harsh_braking_count,0.003,9
