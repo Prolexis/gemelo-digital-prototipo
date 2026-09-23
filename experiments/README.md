@@ -154,6 +154,7 @@ Si deseas auditar o reproducir fases específicas de forma granular:
 | **4. Explicabilidad TreeSHAP** | `python experiments/src/xai/shap_analysis.py` | `experiments/results/shap_values.csv`<br>`experiments/results/fig_shap_global.png`<br>`experiments/results/fig_shap_local.png` |
 | **5. Validación LOSO** | `python experiments/src/validation/leave_scenario_out.py` | `experiments/results/loso_validation.md`<br>`experiments/results/loso_validation.csv` |
 | **6. Pruebas Inferenciales & Curvas PR** | `python experiments/src/stats/inferential_tests.py` | `experiments/results/statistical_tests.md`<br>`experiments/results/fig_pr_curves.png` |
+| **7. Benchmark de Latencia & HW/SW** | `python experiments/src/models/benchmark_latency.py` | `experiments/results/latency_benchmark.md`<br>`experiments/results/latency_benchmark.json` |
 
 ---
 
@@ -234,9 +235,23 @@ Todos los resultados se escriben en rutas relativas deterministas:
   python experiments/src/xai/shap_analysis.py
   ```
 * **Archivo de salida:** [`experiments/results/fig_shap_local.png`](./results/fig_shap_local.png)
+
+### Figura 6: Análisis de Robustez ante Ruido Sensorial y Dropout LiDAR (§5.7)
+* **Comando:**
+  ```bash
+  python experiments/src/robustness/noise_pilot.py
+  ```
+* **Archivos de salida:**
+  * [`experiments/results/fig_robustness_degradation.png`](./results/fig_robustness_degradation.png)
+  * [`experiments/results/robustness_noise.csv`](./results/robustness_noise.csv)
+  * [`experiments/results/robustness_loso_noise.csv`](./results/robustness_loso_noise.csv)
+  * [`experiments/results/robustness_report.md`](./results/robustness_report.md)
+* **Contenido reproducido:**
+  * Evaluación de degradación ante ruido Gaussiano (2%, 5%, 10%) en GNSS y LiDAR, y fallos de Dropout temporal (0.5–2s con LOCF).
+  * Validación de resiliencia OOD por escenario en Leave-One-Scenario-Out (LOSO).
 * **Comprobación:** Gráfico waterfall centrado en el evento crítico de la fila 0 del dataset de prueba.
 
-### Figura 6: Curvas Precision-Recall (AUC-PR)
+### Figura 7: Curvas Precision-Recall (AUC-PR)
 * **Comando:**
   ```bash
   python experiments/src/stats/inferential_tests.py

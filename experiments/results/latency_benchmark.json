@@ -1,0 +1,70 @@
+{
+  "hardware": {
+    "processor": "AMD Ryzen 7 5700U with Radeon Graphics",
+    "physical_cores": 8,
+    "logical_threads": 16,
+    "base_clock_ghz": 1.8,
+    "ram_gb": 24.0,
+    "gpu": "AMD Radeon Graphics (iGPU integrada; inferencia ejecutada 100% en CPU)",
+    "os": "Microsoft Windows 11 Pro (10.0.26200 64-bit)"
+  },
+  "software": {
+    "python": "3.11.9",
+    "scikit_learn": "1.9.0",
+    "pandas": "3.0.5",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "shap": "0.51.0",
+    "joblib": "1.5.3",
+    "docker": "Docker 29.4.0 (Docker Compose v5.1.2)"
+  },
+  "latencies": {
+    "preprocessing_alone": {
+      "mean_ms": 1.7608402999831014,
+      "std_ms": 2.0088241035703818,
+      "median_ms": 1.485450004111044,
+      "p95_ms": 2.868389998911879,
+      "p99_ms": 7.05351599899586,
+      "min_ms": 0.9968999947886914,
+      "max_ms": 56.00129999947967,
+      "n_runs": 1000
+    },
+    "inference_rf_alone": {
+      "mean_ms": 17.369556199941144,
+      "std_ms": 7.725051669439451,
+      "median_ms": 14.8303499991016,
+      "p95_ms": 29.46554999944053,
+      "p99_ms": 51.795138004672474,
+      "min_ms": 12.096099999325816,
+      "max_ms": 109.43910000059986,
+      "n_runs": 1000
+    },
+    "full_pipeline_end_to_end": {
+      "mean_ms": 18.86138450004364,
+      "std_ms": 7.746342835917247,
+      "median_ms": 16.362250000383938,
+      "p95_ms": 32.43020000154501,
+      "p99_ms": 56.715492996372625,
+      "min_ms": 13.181299997086171,
+      "max_ms": 83.00370000506518,
+      "n_runs": 1000
+    },
+    "analytical_fusion_engine": {
+      "mean_ms": 0.022037899885617662,
+      "std_ms": 0.001593484666043768,
+      "median_ms": 0.02179999864893034,
+      "p95_ms": 0.02310500130988657,
+      "p99_ms": 0.030101003576419316,
+      "min_ms": 0.02099999983329326,
+      "max_ms": 0.04149999585933983,
+      "n_runs": 1000
+    }
+  },
+  "operational_feasibility_2hz": {
+    "cycle_budget_ms": 500.0,
+    "mean_pipeline_latency_ms": 18.86,
+    "budget_consumed_percent": 3.77,
+    "safety_margin_percent": 96.23,
+    "verdict": "APROBADO \u2014 La latencia promedio de 20 ms consume \u00fanicamente el 4% del ciclo disponible de 500 ms a 2 Hz."
+  }
+}

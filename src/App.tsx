@@ -405,269 +405,383 @@ export default function App() {
   ]);
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950 transition-colors duration-200 ${
+    <div className={`min-h-screen flex flex-col md:flex-row font-sans selection:bg-amber-500 selection:text-slate-950 transition-colors duration-200 ${
       isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-100 text-slate-900'
     }`}>
-      {/* Top Corporate Navigation Header */}
-      <header className={`backdrop-blur-md border-b sticky top-0 z-40 px-4 py-2.5 transition-colors ${
-        isDark ? 'bg-slate-900/95 border-slate-800' : 'bg-white/95 border-slate-200 shadow-sm'
+      {/* ── BARRA LATERAL IZQUIERDA: DOCK DE NAVEGACIÓN INDUSTRIAL ── */}
+      <aside className={`w-full md:w-64 flex-shrink-0 flex flex-col justify-between border-b md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen z-30 transition-colors ${
+        isDark ? 'bg-slate-900/95 border-slate-800 backdrop-blur-md' : 'bg-white border-slate-200 shadow-sm'
       }`}>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-          {/* Logo & Platform Title */}
-          <div className="flex items-center gap-3 w-full md:w-auto justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center shadow-lg shadow-amber-500/20 text-base flex-shrink-0">
+        {/* Top: Identidad de Marca y Gemelo Digital */}
+        <div>
+          <div className="p-4 border-b border-inherit">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center shadow-lg shadow-amber-500/25 text-base flex-shrink-0 ring-2 ring-amber-500/30">
                 MS
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className={`text-sm font-extrabold tracking-tight ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <h1 className={`text-sm font-extrabold tracking-wider truncate ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
                     MINESAFE 3D
                   </h1>
-                  <span className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded border ${
-                    isDark ? 'bg-slate-800 text-slate-300 border-slate-700' : 'bg-slate-200 text-slate-700 border-slate-300'
-                  }`}>
+                </div>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className={`text-[10px] font-mono font-bold tracking-tight ${isDark ? 'text-amber-400/90' : 'text-amber-600'}`}>
                     CONTROL DE FLOTA
                   </span>
                 </div>
-                <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                  Telemetría & Prevención de Colisiones (Flota Mixta)
-                </p>
               </div>
             </div>
-
-            {/* Quick Live Telemetry Indicator on Mobile */}
-            <div className="flex md:hidden items-center gap-2 text-xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-              <span className="text-emerald-500 font-mono text-[11px]">1 Hz VIVO</span>
-            </div>
+            <p className={`text-[10px] mt-2 font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              Tajo Abierto • Banco 3200
+            </p>
           </div>
 
-          {/* Quick Stats, Theme Toggle & Controls */}
-          <div className="flex flex-wrap items-center gap-2 text-xs w-full md:w-auto justify-end">
-            {/* Theme Toggle (Dark / Light) */}
-            <button
-              id="btn-toggle-theme"
-              onClick={toggleTheme}
-              className={`p-2 rounded-xl border flex items-center gap-1.5 transition-all cursor-pointer ${
-                isDark
-                  ? 'bg-slate-800 hover:bg-slate-700 text-amber-400 border-slate-700'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 shadow-sm'
-              }`}
-              title={isDark ? 'Cambiar a Modo Blanco / Claro' : 'Cambiar a Modo Oscuro'}
-            >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              <span className="text-[11px] font-bold hidden sm:inline">{isDark ? 'Claro' : 'Oscuro'}</span>
-            </button>
+          {/* Menú de Navegación Vertical */}
+          <div className="p-3">
+            <span className={`text-[9px] font-extrabold uppercase tracking-wider px-3 mb-2 block ${
+              isDark ? 'text-slate-500' : 'text-slate-400'
+            }`}>
+              Monitoreo & Vistas
+            </span>
+            <nav className="space-y-1">
+              {/* 1. Gemelo 3D */}
+              <button
+                id="tab-3d-twin"
+                onClick={() => setActiveTab('3D_TWIN')}
+                className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                  activeTab === '3D_TWIN'
+                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                    : isDark
+                    ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Box className={`w-4 h-4 ${activeTab === '3D_TWIN' ? 'text-slate-950' : 'text-amber-500'}`} />
+                  <span>Gemelo 3D</span>
+                </div>
+                <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                  activeTab === '3D_TWIN' 
+                    ? 'bg-slate-950/20 text-slate-950' 
+                    : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                }`}>
+                  EN VIVO
+                </span>
+              </button>
 
-            {/* Simulation Play/Pause */}
+              {/* 2. Alertas */}
+              <button
+                id="tab-alerts"
+                onClick={() => setActiveTab('ALERTS')}
+                className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                  activeTab === 'ALERTS'
+                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                    : isDark
+                    ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <ShieldAlert className={`w-4 h-4 ${activeTab === 'ALERTS' ? 'text-slate-950' : 'text-rose-500'}`} />
+                  <span>Alertas</span>
+                </div>
+                {alerts.some((a) => a.status === 'ACTIVE') && (
+                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full animate-pulse ${
+                    activeTab === 'ALERTS'
+                      ? 'bg-slate-950 text-amber-400'
+                      : 'bg-rose-500 text-white shadow-sm'
+                  }`}>
+                    {alerts.filter((a) => a.status === 'ACTIVE').length} ACTIVAS
+                  </span>
+                )}
+              </button>
+
+              {/* 3. Telemetría & KPIs */}
+              <button
+                id="tab-analytics"
+                onClick={() => setActiveTab('ANALYTICS')}
+                className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                  activeTab === 'ANALYTICS'
+                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                    : isDark
+                    ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <BarChart3 className={`w-4 h-4 ${activeTab === 'ANALYTICS' ? 'text-slate-950' : 'text-cyan-500'}`} />
+                  <span>Telemetría & KPIs</span>
+                </div>
+                <span className={`text-[9px] font-mono ${
+                  activeTab === 'ANALYTICS' ? 'text-slate-950/70' : isDark ? 'text-slate-500' : 'text-slate-400'
+                }`}>
+                  5 Folds
+                </span>
+              </button>
+
+              {/* 4. Escenarios */}
+              <button
+                id="tab-scenarios"
+                onClick={() => setActiveTab('SCENARIOS')}
+                className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                  activeTab === 'SCENARIOS'
+                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                    : isDark
+                    ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Flame className={`w-4 h-4 ${activeTab === 'SCENARIOS' ? 'text-slate-950' : 'text-amber-500'}`} />
+                  <span>Escenarios</span>
+                </div>
+                <span className={`text-[9px] font-mono ${
+                  activeTab === 'SCENARIOS' ? 'text-slate-950/70' : isDark ? 'text-slate-500' : 'text-slate-400'
+                }`}>
+                  A–E OOD
+                </span>
+              </button>
+            </nav>
+          </div>
+
+          {/* Quick Telemetry Status Widget en la Barra Lateral */}
+          <div className="px-3 py-2 hidden md:block">
+            <div className={`p-3 rounded-xl border text-[11px] space-y-2 ${
+              isDark ? 'bg-slate-950/60 border-slate-800/80' : 'bg-slate-50 border-slate-200'
+            }`}>
+              <div className="flex items-center justify-between text-slate-400 font-mono text-[10px]">
+                <span>ESTADO DE FLOTA</span>
+                <span className="flex items-center gap-1 text-emerald-500 font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                  ONLINE
+                </span>
+              </div>
+              <div className="flex items-center justify-between font-medium">
+                <span className={isDark ? 'text-slate-400' : 'text-slate-600'}>Equipos activos:</span>
+                <span className="font-mono font-bold text-amber-500">5 unidades</span>
+              </div>
+              <div className="flex items-center justify-between font-medium">
+                <span className={isDark ? 'text-slate-400' : 'text-slate-600'}>Latencia pipeline:</span>
+                <span className="font-mono text-emerald-500 font-bold">18.9 ms (2 Hz)</span>
+              </div>
+              <div className="flex items-center justify-between font-medium">
+                <span className={isDark ? 'text-slate-400' : 'text-slate-600'}>Clima actual:</span>
+                <span className="font-mono text-slate-300 font-medium">{weatherCondition}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Controles de Sistema y Estado en Footer Lateral */}
+        <div className="p-3 border-t border-inherit space-y-2">
+          {/* Controles: Tema y Simulación */}
+          <div className="grid grid-cols-2 gap-1.5">
+            {/* Simulación Play/Pausa */}
             <button
               id="btn-toggle-sim"
               onClick={() => setIsSimulating(!isSimulating)}
-              className={`px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
+              className={`px-2 py-1.5 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 border transition-all cursor-pointer ${
                 isSimulating
-                  ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'
-                  : 'bg-amber-500/10 text-amber-500 border-amber-500/30'
+                  ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/20'
+                  : 'bg-amber-500/10 text-amber-500 border-amber-500/30 hover:bg-amber-500/20'
               }`}
             >
-              {isSimulating ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-              <span>{isSimulating ? 'Simulación Activa' : 'Pausada'}</span>
+              {isSimulating ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 fill-current" />}
+              <span>{isSimulating ? 'Pausar' : 'Reanudar'}</span>
             </button>
 
-            {/* Backend WebSocket Status Badge */}
-            <div
-              className={`border px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition-all ${
-                isBackendWsActive
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                  : isDark ? 'bg-slate-800/80 border-slate-700 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-500'
+            {/* Tema Claro/Oscuro */}
+            <button
+              id="btn-toggle-theme"
+              onClick={toggleTheme}
+              className={`px-2 py-1.5 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                isDark
+                  ? 'bg-slate-800 hover:bg-slate-700 text-amber-400 border-slate-700'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
               }`}
-              title={isBackendWsActive ? 'Conectado a FastAPI + Redis WebSocket (1 Hz Real-Time)' : 'Modo Autónomo / Fallback Local'}
+              title={isDark ? 'Cambiar a Modo Blanco / Claro' : 'Cambiar a Modo Oscuro'}
             >
+              {isDark ? <Sun className="w-3 h-3" /> : <Moon className="w-3 h-3" />}
+              <span>{isDark ? 'Claro' : 'Oscuro'}</span>
+            </button>
+          </div>
+
+          {/* Badge Conexión WebSocket Backend */}
+          <div
+            className={`border px-2.5 py-1.5 rounded-xl flex items-center justify-between text-[10px] font-mono transition-all ${
+              isBackendWsActive
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                : isDark ? 'bg-slate-800/80 border-slate-700 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-500'
+            }`}
+          >
+            <div className="flex items-center gap-1.5">
               <span className={`w-2 h-2 rounded-full ${isBackendWsActive ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
-              <span className="text-[11px] font-bold">
-                {isBackendWsActive ? 'FastAPI 1 Hz' : 'Sim Local'}
-              </span>
+              <span className="font-bold">{isBackendWsActive ? 'FastAPI 1 Hz' : 'Sim Local'}</span>
+            </div>
+            <span className="text-[9px] opacity-75 font-mono">v1.0.0 Q1</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* ── ÁREA PRINCIPAL DERECHA (HUD + VISTAS) ── */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        {/* Cockpit HUD Header Superior */}
+        <header className={`h-14 border-b flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20 backdrop-blur-md transition-colors ${
+          isDark ? 'bg-slate-950/80 border-slate-800' : 'bg-white/80 border-slate-200 shadow-sm'
+        }`}>
+          {/* Breadcrumb / Contexto Activo */}
+          <div className="flex items-center gap-2 text-xs truncate">
+            <span className={`font-mono hidden sm:inline ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>MINERA ESPERANZA</span>
+            <span className={`hidden sm:inline ${isDark ? 'text-slate-700' : 'text-slate-300'}`}>/</span>
+            <span className={`font-mono text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>TAJO 3200</span>
+            <span className={isDark ? 'text-slate-700' : 'text-slate-300'}>/</span>
+            <span className="font-bold text-amber-500 flex items-center gap-1.5 truncate">
+              {activeTab === '3D_TWIN' && 'GEMELO DIGITAL 3D'}
+              {activeTab === 'ALERTS' && 'CENTRO DE ALERTAS'}
+              {activeTab === 'ANALYTICS' && 'TELEMETRÍA & KPIS (5-FOLD OOF)'}
+              {activeTab === 'SCENARIOS' && 'ESCENARIOS OPERACIONALES (A–E)'}
+            </span>
+          </div>
+
+          {/* Métricas Rápidas HUD a la Derecha */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <div className={`hidden md:flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-xl border ${
+              isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'
+            }`}>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>GNSS + LiDAR 3D</span>
+              <span className="text-slate-500">•</span>
+              <span className="text-amber-500 font-bold">2 Hz</span>
+            </div>
+
+            <div className={`flex items-center gap-2 text-xs px-2.5 py-1 rounded-xl border ${
+              isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'
+            }`}>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="text-[11px] font-bold">Supervisor HSE</span>
             </div>
           </div>
-        </div>
+        </header>
 
-        {/* Navigation Tabs Bar — 4 Pestañas Esenciales */}
-        <div className="max-w-7xl mx-auto flex items-center gap-1.5 mt-2.5 overflow-x-auto pb-1 scrollbar-none">
-          <button
-            id="tab-3d-twin"
-            onClick={() => setActiveTab('3D_TWIN')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === '3D_TWIN'
-                ? 'bg-amber-500 text-slate-950 shadow-sm'
-                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-            }`}
-          >
-            <Box className="w-4 h-4" />
-            <span>Gemelo 3D</span>
-          </button>
+        {/* Main Workspace Area */}
+        <main className="flex-1 p-3 sm:p-5 overflow-y-auto space-y-3">
+          {/* Tab 1: 3D Digital Twin & XAI SHAP Explanation Drawer */}
+          {activeTab === '3D_TWIN' && (
+            <div className="space-y-3">
+              {/* Slim High-Density Alert Strip (Solo si hay alerta crítica activa) */}
+              {alerts.some((a) => a.severity === 'CRITICAL' && a.status === 'ACTIVE') && (
+                <div className={`px-4 py-2 rounded-xl flex items-center justify-between gap-3 text-xs transition-colors ${
+                  isDark 
+                    ? 'bg-rose-950/70 border border-rose-500/50 text-rose-200 shadow-lg shadow-rose-950/40' 
+                    : 'bg-rose-50 border border-rose-300 text-rose-900 shadow-sm'
+                }`}>
+                  <div className="flex items-center gap-2.5 truncate">
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping flex-shrink-0" />
+                    <span className="font-mono font-bold text-rose-500 flex-shrink-0">[ALERTA CRÍTICA]</span>
+                    <span className="truncate">HT-104 vs AHS-02 • Rampa Este (Banco 3200) • Anticipación: 6.2s</span>
+                  </div>
 
-          <button
-            id="tab-alerts"
-            onClick={() => setActiveTab('ALERTS')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all relative cursor-pointer ${
-              activeTab === 'ALERTS'
-                ? 'bg-amber-500 text-slate-950 shadow-sm'
-                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-            }`}
-          >
-            <ShieldAlert className="w-4 h-4" />
-            <span>Alertas</span>
-            {alerts.some((a) => a.status === 'ACTIVE') && (
-              <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-rose-500 text-white">
-                {alerts.filter((a) => a.status === 'ACTIVE').length}
-              </span>
-            )}
-          </button>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => setSelectedEquipmentId('eq-ht-104')}
+                      className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-[11px] px-2.5 py-1 rounded-lg transition-all cursor-pointer"
+                    >
+                      Ver SHAP
+                    </button>
+                    <button
+                      onClick={() => handleAcknowledgeAlert(alerts[0].id, 'Supervisor')}
+                      className={`text-[11px] font-medium px-2.5 py-1 rounded-lg border cursor-pointer transition-colors ${
+                        isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-300'
+                      }`}
+                    >
+                      Reconocer
+                    </button>
+                  </div>
+                </div>
+              )}
 
-          <button
-            id="tab-analytics"
-            onClick={() => setActiveTab('ANALYTICS')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === 'ANALYTICS'
-                ? 'bg-amber-500 text-slate-950 shadow-sm'
-                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            <span>Telemetría & KPIs</span>
-          </button>
-
-          <button
-            id="tab-scenarios"
-            onClick={() => setActiveTab('SCENARIOS')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === 'SCENARIOS'
-                ? 'bg-amber-500 text-slate-950 shadow-sm'
-                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-            }`}
-          >
-            <Flame className="w-4 h-4" />
-            <span>Escenarios</span>
-          </button>
-        </div>
-      </header>
-
-      {/* Main Workspace Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-4">
-        {/* Tab 1: 3D Digital Twin & XAI SHAP Explanation Drawer */}
-        {activeTab === '3D_TWIN' && (
-          <div className="space-y-3">
-            {/* Slim High-Density Alert Strip (Solo si hay alerta crítica activa) */}
-            {alerts.some((a) => a.severity === 'CRITICAL' && a.status === 'ACTIVE') && (
-              <div className={`px-4 py-2 rounded-xl flex items-center justify-between gap-3 text-xs transition-colors ${
-                isDark 
-                  ? 'bg-rose-950/70 border border-rose-500/50 text-rose-200 shadow-lg shadow-rose-950/40' 
-                  : 'bg-rose-50 border border-rose-300 text-rose-900 shadow-sm'
-              }`}>
-                <div className="flex items-center gap-2.5 truncate">
-                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping flex-shrink-0" />
-                  <span className="font-mono font-bold text-rose-500 flex-shrink-0">[ALERTA CRÍTICA]</span>
-                  <span className="truncate">HT-104 vs AHS-02 • Rampa Este (Banco 3200) • Anticipación: 6.2s</span>
+              {/* Split View: 3D Twin Viewport + XAI SHAP Explanation Panel */}
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 min-h-[580px] lg:h-[calc(100vh-140px)]">
+                {/* 3D Canvas (Left Column - 7/12 en pantallas grandes) */}
+                <div className="xl:col-span-7 h-[500px] xl:h-full rounded-2xl overflow-hidden shadow-xl border border-slate-800/80">
+                  <Mine3DViewer
+                    equipments={equipments}
+                    selectedEquipmentId={selectedEquipmentId}
+                    onSelectEquipment={(id) => setSelectedEquipmentId(id)}
+                    weatherCondition={weatherCondition}
+                    isSimulating={isSimulating}
+                    theme={theme}
+                  />
                 </div>
 
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <button
-                    onClick={() => setSelectedEquipmentId('eq-ht-104')}
-                    className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-[11px] px-2.5 py-1 rounded-lg transition-all cursor-pointer"
-                  >
-                    Ver SHAP
-                  </button>
-                  <button
-                    onClick={() => handleAcknowledgeAlert(alerts[0].id, 'Supervisor')}
-                    className={`text-[11px] font-medium px-2.5 py-1 rounded-lg border cursor-pointer transition-colors ${
-                      isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-300'
-                    }`}
-                  >
-                    Reconocer
-                  </button>
+                {/* Explainable AI SHAP Breakdown (Right Column - 5/12) */}
+                <div className="xl:col-span-5 h-full overflow-y-auto">
+                  <ShapExplanationPanel
+                    equipment={selectedEquipment}
+                    onSendCabWarning={handleSendCabWarning}
+                    onRequestRelief={handleRequestRelief}
+                    theme={theme}
+                  />
                 </div>
-              </div>
-            )}
-
-            {/* Split View: 3D Twin Viewport + XAI SHAP Explanation Panel */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[640px]">
-              {/* 3D Canvas (Left Column - 7/12 on large screens) */}
-              <div className="lg:col-span-7 h-[500px] lg:h-full">
-                <Mine3DViewer
-                  equipments={equipments}
-                  selectedEquipmentId={selectedEquipmentId}
-                  onSelectEquipment={(id) => setSelectedEquipmentId(id)}
-                  weatherCondition={weatherCondition}
-                  isSimulating={isSimulating}
-                  theme={theme}
-                />
-              </div>
-
-              {/* Explainable AI SHAP Breakdown (Right Column - 5/12) */}
-              <div className="lg:col-span-5 h-full">
-                <ShapExplanationPanel
-                  equipment={selectedEquipment}
-                  onSendCabWarning={handleSendCabWarning}
-                  onRequestRelief={handleRequestRelief}
-                  theme={theme}
-                />
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Tab 2: Scenarios & Injector */}
-        {activeTab === 'SCENARIOS' && (
-          <div className="h-[680px]">
-            <ScenarioManager
-              activeScenarioId={activeScenarioId}
-              onActivateScenario={handleActivateScenario}
-              onResetToBaseline={handleResetToBaseline}
-              onCustomInject={handleCustomInject}
-              currentEquipment={selectedEquipment}
+          {/* Tab 2: Scenarios & Injector */}
+          {activeTab === 'SCENARIOS' && (
+            <div className="h-[calc(100vh-140px)] min-h-[640px]">
+              <ScenarioManager
+                activeScenarioId={activeScenarioId}
+                onActivateScenario={handleActivateScenario}
+                onResetToBaseline={handleResetToBaseline}
+                onCustomInject={handleCustomInject}
+                currentEquipment={selectedEquipment}
+                theme={theme}
+              />
+            </div>
+          )}
+
+          {/* Tab 3: Alerts Center */}
+          {activeTab === 'ALERTS' && (
+            <div className="h-[calc(100vh-140px)] min-h-[640px]">
+              <AlertsCenter
+                alerts={alerts}
+                equipments={equipments}
+                onAcknowledgeAlert={handleAcknowledgeAlert}
+                onSelectEquipment={(id) => {
+                  setSelectedEquipmentId(id);
+                  setActiveTab('3D_TWIN');
+                }}
+                theme={theme}
+              />
+            </div>
+          )}
+
+          {/* Tab 4: Analytics Dashboard */}
+          {activeTab === 'ANALYTICS' && (
+            <AnalyticsDashboard 
+              mshaIncidents={MSHA_HISTORICAL_INCIDENTS} 
               theme={theme}
             />
-          </div>
-        )}
+          )}
+        </main>
 
-        {/* Tab 3: Alerts Center */}
-        {activeTab === 'ALERTS' && (
-          <div className="h-[680px]">
-            <AlertsCenter
-              alerts={alerts}
-              equipments={equipments}
-              onAcknowledgeAlert={handleAcknowledgeAlert}
-              onSelectEquipment={(id) => {
-                setSelectedEquipmentId(id);
-                setActiveTab('3D_TWIN');
-              }}
-              theme={theme}
-            />
+        {/* Compact Footer */}
+        <footer className={`border-t px-4 py-2 text-[11px] transition-colors mt-auto ${
+          isDark ? 'bg-slate-900/60 border-slate-800 text-slate-500' : 'bg-white border-slate-200 text-slate-600'
+        }`}>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>MineSafe 3D • Sistema de Telemetría y Gemelo Digital</span>
+            <div className="flex items-center gap-3 font-mono text-[10px]">
+              <span>FastAPI 1 Hz</span>
+              <span>Three.js WebGL</span>
+              <span>TreeSHAP v1.2</span>
+            </div>
           </div>
-        )}
-
-        {/* Tab 3: Analytics Dashboard */}
-        {activeTab === 'ANALYTICS' && (
-          <AnalyticsDashboard 
-            mshaIncidents={MSHA_HISTORICAL_INCIDENTS} 
-            theme={theme}
-          />
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer className={`border-t px-4 py-2.5 text-[11px] transition-colors ${
-        isDark ? 'bg-slate-900 border-slate-800 text-slate-500' : 'bg-white border-slate-200 text-slate-600 shadow-inner'
-      }`}>
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>MineSafe 3D • Sistema de Telemetría y Gemelo Digital</span>
-          <div className="flex items-center gap-3 font-mono text-[10px]">
-            <span>FastAPI 1 Hz</span>
-            <span>Three.js WebGL</span>
-            <span>TreeSHAP v1.2</span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }

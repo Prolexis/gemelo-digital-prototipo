@@ -78,3 +78,7 @@ paths:
   pr_curves_png: "experiments/results/fig_pr_curves.png"
   statistical_report_md: "experiments/results/statistical_tests.md"
   loso_report_md: "experiments/results/loso_validation.md"
+  robustness_noise_csv: "experiments/results/robustness_noise.csv"
+  robustness_loso_csv: "experiments/results/robustness_loso_noise.csv"
+  robustness_png: "experiments/results/fig_robustness_degradation.png"
+  robustness_report_md: "experiments/results/robustness_report.md"
