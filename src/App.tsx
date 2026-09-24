@@ -25,6 +25,10 @@ import { ScenarioManager } from './components/scenarios/ScenarioManager';
 import { AlertsCenter } from './components/alerts/AlertsCenter';
 import { AnalyticsDashboard } from './components/dashboard/AnalyticsDashboard';
 import { LangflowStudioModule } from './components/langflow/LangflowStudioModule';
+import { UserRolesModule } from './components/rbac/UserRolesModule';
+import { ReportsModule } from './components/reports/ReportsModule';
+import { EthicsConsentModule } from './components/ethics/EthicsConsentModule';
+import { LoginScreen, AppUser, PRECONFIGURED_USERS } from './components/auth/LoginScreen';
 
 // Icons
 import { 
@@ -47,12 +51,25 @@ import {
   ChevronRight,
   Activity,
   Sun,
-  Moon
+  Moon,
+  LogOut,
+  Lock
 } from 'lucide-react';
+
+export type TabType = '3D_TWIN' | 'SCENARIOS' | 'ALERTS' | 'ANALYTICS' | 'LANGFLOW' | 'ROLES' | 'REPORTS' | 'ETHICS';
+
+// Matriz de permisos de navegación por Rol (RBAC estricto)
+export const ROLE_PERMITTED_TABS: Record<UserRole, TabType[]> = {
+  ADMIN: ['3D_TWIN', 'ALERTS', 'SCENARIOS', 'ANALYTICS', 'LANGFLOW', 'ROLES', 'REPORTS', 'ETHICS'],
+  SAFETY_SUPERVISOR: ['3D_TWIN', 'ALERTS', 'SCENARIOS', 'ANALYTICS', 'ROLES', 'REPORTS', 'ETHICS'],
+  OPERATOR: ['3D_TWIN', 'ALERTS'],
+  DATA_ANALYST: ['3D_TWIN', 'SCENARIOS', 'ANALYTICS', 'LANGFLOW', 'REPORTS'],
+  AUDITOR: ['3D_TWIN', 'ANALYTICS', 'REPORTS', 'ETHICS', 'ROLES'],
+};
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<'3D_TWIN' | 'SCENARIOS' | 'ALERTS' | 'ANALYTICS' | 'LANGFLOW'>('3D_TWIN');
+  const [activeTab, setActiveTab] = useState<TabType>('3D_TWIN');
 
   // Theme State: 'dark' | 'light' con persistencia en localStorage
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -86,6 +103,9 @@ export default function App() {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  // Sesión de Usuario Autenticado (RBAC) - Inicia en null para solicitar Login
+  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
+
   // Application State
   const [equipments, setEquipments] = useState<Equipment[]>(INITIAL_EQUIPMENTS);
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>('eq-ht-104');
@@ -96,6 +116,132 @@ export default function App() {
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
   const [weatherCondition, setWeatherCondition] = useState<'CLEAR' | 'DUST_STORM' | 'HEAVY_FOG' | 'NIGHT_RAIN'>('CLEAR');
   const [isBackendWsActive, setIsBackendWsActive] = useState<boolean>(false);
+
+  // Registro Inmutable de Auditoría (Audit Log / Trazabilidad ISO 27001 & MSHA)
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([
+    {
+      id: 'log-101',
+      timestamp: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+      userEmail: 'supervisor.hse@mineraesperanza.cl',
+      userRole: 'SAFETY_SUPERVISOR',
+      action: 'DISPATCH_CAB_WARNING',
+      resource: 'HT-104 (Rampa Este)',
+      details: 'Aviso acústico de emergencia enviado a cabina por riesgo CRITICAL (84%).',
+      ipAddress: '10.240.12.88',
+    },
+    {
+      id: 'log-102',
+      timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
+      userEmail: 'data.analyst@mineraesperanza.cl',
+      userRole: 'DATA_ANALYST',
+      action: 'INJECT_SCENARIO',
+      resource: 'Escenario B: Tormenta de Polvo',
+      details: 'Calibración de visibilidad de LiDAR 3D en rampa descendente.',
+      ipAddress: '10.240.12.44',
+    },
+    {
+      id: 'log-103',
+      timestamp: new Date(Date.now() - 1000 * 60 * 55).toISOString(),
+      userEmail: 'admin.minesafe@mineraesperanza.cl',
+      userRole: 'ADMIN',
+      action: 'CONFIG_XAI_MODEL',
+      resource: 'TreeSHAP Engine v1.2',
+      details: 'Actualización de umbrales OOD y pesos de fatiga biométrica.',
+      ipAddress: '10.240.12.10',
+    },
+    {
+      id: 'log-104',
+      timestamp: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+      userEmail: 'auditor.externo@msha.gov',
+      userRole: 'AUDITOR',
+      action: 'EXPORT_AUDIT_REPORT',
+      resource: 'Reporte Near-Miss Q1',
+      details: 'Verificación de cumplimiento de estándar de proximidad PDS ISO 21815.',
+      ipAddress: '190.160.88.23',
+    },
+  ]);
+
+  // Verificador de Permisos de Pestaña según Rol Activo (RBAC)
+  const canAccessTab = (tab: TabType): boolean => {
+    if (!currentUser) return false;
+    return ROLE_PERMITTED_TABS[currentUser.role]?.includes(tab) ?? false;
+  };
+
+  // Manejador de Login Exitoso con Registro en Auditoría
+  const handleLoginSuccess = (user: AppUser) => {
+    setCurrentUser(user);
+    setCurrentRole(user.role);
+    // Cambiar automáticamente a la primera pestaña permitida para el rol ingresado
+    const permitted = ROLE_PERMITTED_TABS[user.role] || ['3D_TWIN'];
+    if (!permitted.includes(activeTab)) {
+      setActiveTab(permitted[0]);
+    }
+    const loginLog: AuditLogEntry = {
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      userEmail: user.email,
+      userRole: user.role,
+      action: 'LOGIN_AUTH_SUCCESS',
+      resource: 'PORTAL_MINESAFE_3D',
+      details: `Inicio de sesión exitoso. Usuario: ${user.name} (${user.roleLabel}). Módulos habilitados: ${permitted.join(', ')}.`,
+      ipAddress: '10.240.12.88',
+    };
+    setAuditLogs((prev) => [loginLog, ...prev]);
+  };
+
+  // Manejador de Cierre Seguro de Sesión
+  const handleLogout = () => {
+    if (currentUser) {
+      const logoutLog: AuditLogEntry = {
+        id: `log-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        userEmail: currentUser.email,
+        userRole: currentUser.role,
+        action: 'LOGOUT_USER',
+        resource: 'PORTAL_MINESAFE_3D',
+        details: `Cierre seguro de sesión del usuario ${currentUser.name} (${currentUser.roleLabel}). Token revocado.`,
+        ipAddress: '10.240.12.88',
+      };
+      setAuditLogs((prev) => [logoutLog, ...prev]);
+    }
+    setCurrentUser(null);
+  };
+
+  // Manejador de cambio de rol activo con registro en auditoría
+  const handleRoleChange = (newRole: UserRole) => {
+    setCurrentRole(newRole);
+    if (PRECONFIGURED_USERS[newRole]) {
+      setCurrentUser(PRECONFIGURED_USERS[newRole]);
+    }
+    const newLog: AuditLogEntry = {
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      userEmail: `${newRole.toLowerCase()}@mineraesperanza.cl`,
+      userRole: newRole,
+      action: 'SWITCH_USER_ROLE',
+      resource: 'RBAC Access Controller',
+      details: `Cambio de perfil activo a ${newRole}. Permisos actualizados según matriz RBAC.`,
+      ipAddress: '10.240.12.88',
+    };
+    setAuditLogs((prev) => [newLog, ...prev]);
+  };
+
+  // Manejador de alternancia de anonimización ética (GDPR / Privacidad)
+  const handleToggleAnonymization = () => {
+    const nextVal = !isAnonymized;
+    setIsAnonymized(nextVal);
+    const newLog: AuditLogEntry = {
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      userEmail: `${currentRole.toLowerCase()}@mineraesperanza.cl`,
+      userRole: currentRole,
+      action: nextVal ? 'ENABLE_ANONYMIZATION' : 'DISABLE_ANONYMIZATION',
+      resource: 'Biometric Telemetry Stream',
+      details: nextVal ? 'Datos biométricos anonimizados según GDPR/ISO 27001' : 'Identidad de operadores visible para supervisión directa',
+      ipAddress: '10.240.12.88',
+    };
+    setAuditLogs((prev) => [newLog, ...prev]);
+  };
 
   // Conexión en tiempo real con WebSockets del Backend (/ws/telemetry y /ws/alerts)
   useEffect(() => {
@@ -188,8 +334,24 @@ export default function App() {
 
   const selectedEquipment = equipments.find((e) => e.id === selectedEquipmentId) || null;
 
-  // Acciones de Alertas y Supervisor
+  // Acciones de Alertas y Supervisor con Enforzamiento RBAC
   const handleAcknowledgeAlert = (alertId: string, supervisorName: string) => {
+    if (currentRole !== 'ADMIN' && currentRole !== 'SAFETY_SUPERVISOR') {
+      const deniedLog: AuditLogEntry = {
+        id: `log-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        userEmail: `${currentRole.toLowerCase()}@mineraesperanza.cl`,
+        userRole: currentRole,
+        action: 'ACCESO_DENEGADO_ALERTA',
+        resource: alertId,
+        details: `Intento denegado de reconocer alerta. El rol ${currentRole} solo tiene permisos de lectura.`,
+        ipAddress: '10.240.12.88',
+      };
+      setAuditLogs((prev) => [deniedLog, ...prev]);
+      alert(`[ACCESO DENEGADO (RBAC)]: El rol activo "${currentRole}" no tiene permisos para reconocer alertas. Cambie a 'Supervisor HSE' o 'Administrador' en la barra superior.`);
+      return;
+    }
+
     // 1. Notificar al backend en segundo plano
     backendWsService.acknowledgeAlert(alertId, supervisorName);
 
@@ -199,7 +361,6 @@ export default function App() {
         a.id === alertId ? { ...a, status: 'RESOLVED', isAcknowledged: true, acknowledgedBy: supervisorName } : a
       )
     );
-
 
     // Registrar en Audit Log
     const newLog: AuditLogEntry = {
@@ -216,13 +377,29 @@ export default function App() {
   };
 
   const handleSendCabWarning = (equipmentId: string) => {
+    if (currentRole !== 'ADMIN' && currentRole !== 'SAFETY_SUPERVISOR') {
+      const deniedLog: AuditLogEntry = {
+        id: `log-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        userEmail: `${currentRole.toLowerCase()}@mineraesperanza.cl`,
+        userRole: currentRole,
+        action: 'ACCESO_DENEGADO_CABINA',
+        resource: equipmentId,
+        details: `Intento denegado de aviso a cabina. El rol ${currentRole} no tiene privilegios de despacho HSE.`,
+        ipAddress: '10.240.12.88',
+      };
+      setAuditLogs((prev) => [deniedLog, ...prev]);
+      alert(`[ACCESO DENEGADO (RBAC)]: El rol "${currentRole}" no tiene permisos para emitir avisos acústicos a cabina. Seleccione 'Supervisor HSE' o 'Administrador' en la barra superior.`);
+      return;
+    }
+
     const eq = equipments.find((e) => e.id === equipmentId);
     if (!eq) return;
 
     const newLog: AuditLogEntry = {
       id: `log-${Date.now()}`,
       timestamp: new Date().toISOString(),
-      userEmail: 'supervisor.hse@mineraesperanza.cl',
+      userEmail: `${currentRole.toLowerCase()}@mineraesperanza.cl`,
       userRole: currentRole,
       action: 'DISPATCH_CAB_WARNING',
       resource: eq.code,
@@ -234,10 +411,26 @@ export default function App() {
   };
 
   const handleRequestRelief = (operatorId: string) => {
+    if (currentRole !== 'ADMIN' && currentRole !== 'SAFETY_SUPERVISOR') {
+      const deniedLog: AuditLogEntry = {
+        id: `log-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        userEmail: `${currentRole.toLowerCase()}@mineraesperanza.cl`,
+        userRole: currentRole,
+        action: 'ACCESO_DENEGADO_RELEVO',
+        resource: operatorId,
+        details: `Intento denegado de relevo por fatiga. El rol ${currentRole} no tiene privilegios de gestión de personal.`,
+        ipAddress: '10.240.12.88',
+      };
+      setAuditLogs((prev) => [deniedLog, ...prev]);
+      alert(`[ACCESO DENEGADO (RBAC)]: El rol "${currentRole}" no tiene permisos para solicitar relevos de operadores.`);
+      return;
+    }
+
     const newLog: AuditLogEntry = {
       id: `log-${Date.now()}`,
       timestamp: new Date().toISOString(),
-      userEmail: 'supervisor.hse@mineraesperanza.cl',
+      userEmail: `${currentRole.toLowerCase()}@mineraesperanza.cl`,
       userRole: currentRole,
       action: 'REQUEST_OPERATOR_RELIEF',
       resource: operatorId,
@@ -371,39 +564,18 @@ export default function App() {
     );
   };
 
-  // Audit Logs
-  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([
-    {
-      id: 'log-1',
-      timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-      userEmail: 'supervisor.hse@mineraesperanza.cl',
-      userRole: 'SAFETY_SUPERVISOR',
-      action: 'LOGIN_AUTH',
-      resource: 'SISTEMA_CENTRAL',
-      details: 'Inicio de sesión con credenciales biométricas para Turno Noche.',
-      ipAddress: '10.240.12.88',
-    },
-    {
-      id: 'log-2',
-      timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
-      userEmail: 'supervisor.hse@mineraesperanza.cl',
-      userRole: 'SAFETY_SUPERVISOR',
-      action: 'ACKNOWLEDGE_ALERT',
-      resource: 'HT-108 (Botadero Sur)',
-      details: 'Alerta de proximidad de berma confirmada. Conductor alertado.',
-      ipAddress: '10.240.12.88',
-    },
-    {
-      id: 'log-3',
-      timestamp: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
-      userEmail: 'data.scientist@mineraesperanza.cl',
-      userRole: 'DATA_ANALYST',
-      action: 'INJECT_SCENARIO',
-      resource: 'SCENARIO_BLIND_CORNER',
-      details: 'Inyección de escenario de prueba de fatiga severa en Rampa Este.',
-      ipAddress: '10.240.14.102',
-    },
-  ]);
+
+
+  // Pantalla de Autenticación si no hay usuario autenticado
+  if (!currentUser) {
+    return (
+      <LoginScreen
+        onLoginSuccess={handleLoginSuccess}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+    );
+  }
 
   return (
     <div className={`min-h-screen flex flex-col md:flex-row font-sans selection:bg-amber-500 selection:text-slate-950 transition-colors duration-200 ${
@@ -439,135 +611,276 @@ export default function App() {
             </p>
           </div>
 
-          {/* Menú de Navegación Vertical */}
-          <div className="p-3">
-            <span className={`text-[9px] font-extrabold uppercase tracking-wider px-3 mb-2 block ${
-              isDark ? 'text-slate-500' : 'text-slate-400'
-            }`}>
-              Monitoreo & Vistas
-            </span>
-            <nav className="space-y-1">
-              {/* 1. Gemelo 3D */}
-              <button
-                id="tab-3d-twin"
-                onClick={() => setActiveTab('3D_TWIN')}
-                className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
-                  activeTab === '3D_TWIN'
-                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
-                    : isDark
-                    ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Box className={`w-4 h-4 ${activeTab === '3D_TWIN' ? 'text-slate-950' : 'text-amber-500'}`} />
-                  <span>Gemelo 3D</span>
-                </div>
-                <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                  activeTab === '3D_TWIN' 
-                    ? 'bg-slate-950/20 text-slate-950' 
-                    : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                }`}>
-                  EN VIVO
-                </span>
-              </button>
-
-              {/* 2. Alertas */}
-              <button
-                id="tab-alerts"
-                onClick={() => setActiveTab('ALERTS')}
-                className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
-                  activeTab === 'ALERTS'
-                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
-                    : isDark
-                    ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <ShieldAlert className={`w-4 h-4 ${activeTab === 'ALERTS' ? 'text-slate-950' : 'text-rose-500'}`} />
-                  <span>Alertas</span>
-                </div>
-                {alerts.some((a) => a.status === 'ACTIVE') && (
-                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full animate-pulse ${
-                    activeTab === 'ALERTS'
-                      ? 'bg-slate-950 text-amber-400'
-                      : 'bg-rose-500 text-white shadow-sm'
-                  }`}>
-                    {alerts.filter((a) => a.status === 'ACTIVE').length} ACTIVAS
-                  </span>
+          {/* Menú de Navegación Vertical Condicionado por Rol (RBAC) */}
+          <div className="p-3 space-y-4">
+            {/* 1. SECCIÓN: OPERACIONES (Solo pestañas permitidas) */}
+            <div>
+              <span className={`text-[9px] font-extrabold uppercase tracking-wider px-3 mb-1.5 block ${
+                isDark ? 'text-slate-500' : 'text-slate-400'
+              }`}>
+                Operaciones & Vistas
+              </span>
+              <nav className="space-y-1">
+                {/* 1. Gemelo 3D */}
+                {canAccessTab('3D_TWIN') && (
+                  <button
+                    id="tab-3d-twin"
+                    onClick={() => setActiveTab('3D_TWIN')}
+                    className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                      activeTab === '3D_TWIN'
+                        ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                        : isDark
+                        ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                        : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Box className={`w-4 h-4 ${activeTab === '3D_TWIN' ? 'text-slate-950' : 'text-amber-500'}`} />
+                      <span>Gemelo 3D</span>
+                    </div>
+                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                      activeTab === '3D_TWIN' 
+                        ? 'bg-slate-950/20 text-slate-950' 
+                        : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                    }`}>
+                      EN VIVO
+                    </span>
+                  </button>
                 )}
-              </button>
 
-              {/* 3. Telemetría & KPIs */}
-              <button
-                id="tab-analytics"
-                onClick={() => setActiveTab('ANALYTICS')}
-                className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
-                  activeTab === 'ANALYTICS'
-                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
-                    : isDark
-                    ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <BarChart3 className={`w-4 h-4 ${activeTab === 'ANALYTICS' ? 'text-slate-950' : 'text-cyan-500'}`} />
-                  <span>Telemetría & KPIs</span>
-                </div>
-                <span className={`text-[9px] font-mono ${
-                  activeTab === 'ANALYTICS' ? 'text-slate-950/70' : isDark ? 'text-slate-500' : 'text-slate-400'
-                }`}>
-                  5 Folds
-                </span>
-              </button>
+                {/* 2. Alertas */}
+                {canAccessTab('ALERTS') && (
+                  <button
+                    id="tab-alerts"
+                    onClick={() => setActiveTab('ALERTS')}
+                    className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                      activeTab === 'ALERTS'
+                        ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                        : isDark
+                        ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                        : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <ShieldAlert className={`w-4 h-4 ${activeTab === 'ALERTS' ? 'text-slate-950' : 'text-rose-500'}`} />
+                      <span>Alertas</span>
+                    </div>
+                    {alerts.some((a) => a.status === 'ACTIVE') && (
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full animate-pulse ${
+                        activeTab === 'ALERTS'
+                          ? 'bg-slate-950 text-amber-400'
+                          : 'bg-rose-500 text-white shadow-sm'
+                      }`}>
+                        {alerts.filter((a) => a.status === 'ACTIVE').length} ACTIVAS
+                      </span>
+                    )}
+                  </button>
+                )}
 
-              {/* 4. Escenarios */}
-              <button
-                id="tab-scenarios"
-                onClick={() => setActiveTab('SCENARIOS')}
-                className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
-                  activeTab === 'SCENARIOS'
-                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
-                    : isDark
-                    ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Flame className={`w-4 h-4 ${activeTab === 'SCENARIOS' ? 'text-slate-950' : 'text-amber-500'}`} />
-                  <span>Escenarios</span>
-                </div>
-                <span className={`text-[9px] font-mono ${
-                  activeTab === 'SCENARIOS' ? 'text-slate-950/70' : isDark ? 'text-slate-500' : 'text-slate-400'
-                }`}>
-                  A–E OOD
-                </span>
-              </button>
+                {/* 3. Escenarios */}
+                {canAccessTab('SCENARIOS') && (
+                  <button
+                    id="tab-scenarios"
+                    onClick={() => setActiveTab('SCENARIOS')}
+                    className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                      activeTab === 'SCENARIOS'
+                        ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                        : isDark
+                        ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                        : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Flame className={`w-4 h-4 ${activeTab === 'SCENARIOS' ? 'text-slate-950' : 'text-amber-500'}`} />
+                      <span>Escenarios</span>
+                    </div>
+                    <span className={`text-[9px] font-mono ${
+                      activeTab === 'SCENARIOS' ? 'text-slate-950/70' : isDark ? 'text-slate-500' : 'text-slate-400'
+                    }`}>
+                      A–E OOD
+                    </span>
+                  </button>
+                )}
+              </nav>
+            </div>
 
-              {/* 5. Langflow Studio */}
-              <button
-                id="tab-langflow"
-                onClick={() => setActiveTab('LANGFLOW')}
-                className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
-                  activeTab === 'LANGFLOW'
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30 font-black'
-                    : isDark
-                    ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Sparkles className={`w-4 h-4 ${activeTab === 'LANGFLOW' ? 'text-white' : 'text-purple-400 animate-pulse'}`} />
-                  <span>Langflow Studio</span>
-                </div>
-                <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                  activeTab === 'LANGFLOW' ? 'bg-purple-950 text-purple-200' : 'bg-purple-500/20 text-purple-300'
+            {/* 2. SECCIÓN: IA & TELEMETRÍA (Solo si tiene acceso a ANALYTICS o LANGFLOW) */}
+            {(canAccessTab('ANALYTICS') || canAccessTab('LANGFLOW')) && (
+              <div>
+                <span className={`text-[9px] font-extrabold uppercase tracking-wider px-3 mb-1.5 block ${
+                  isDark ? 'text-slate-500' : 'text-slate-400'
                 }`}>
-                  7860
+                  IA & Telemetría
                 </span>
+                <nav className="space-y-1">
+                  {/* Telemetría & KPIs */}
+                  {canAccessTab('ANALYTICS') && (
+                    <button
+                      id="tab-analytics"
+                      onClick={() => setActiveTab('ANALYTICS')}
+                      className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                        activeTab === 'ANALYTICS'
+                          ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                          : isDark
+                          ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                          : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <BarChart3 className={`w-4 h-4 ${activeTab === 'ANALYTICS' ? 'text-slate-950' : 'text-cyan-500'}`} />
+                        <span>Telemetría & KPIs</span>
+                      </div>
+                      <span className={`text-[9px] font-mono ${
+                        activeTab === 'ANALYTICS' ? 'text-slate-950/70' : isDark ? 'text-slate-500' : 'text-slate-400'
+                      }`}>
+                        5 Folds
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Langflow Studio */}
+                  {canAccessTab('LANGFLOW') && (
+                    <button
+                      id="tab-langflow"
+                      onClick={() => setActiveTab('LANGFLOW')}
+                      className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                        activeTab === 'LANGFLOW'
+                          ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30 font-black'
+                          : isDark
+                          ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                          : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Sparkles className={`w-4 h-4 ${activeTab === 'LANGFLOW' ? 'text-white' : 'text-purple-400 animate-pulse'}`} />
+                        <span>Langflow Studio</span>
+                      </div>
+                      <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                        activeTab === 'LANGFLOW' ? 'bg-purple-950 text-purple-200' : 'bg-purple-500/20 text-purple-300'
+                      }`}>
+                        7860
+                      </span>
+                    </button>
+                  )}
+                </nav>
+              </div>
+            )}
+
+            {/* 3. SECCIÓN: GOBERNANZA & AUDITORÍA (Solo si tiene acceso a ROLES, REPORTS o ETHICS) */}
+            {(canAccessTab('ROLES') || canAccessTab('REPORTS') || canAccessTab('ETHICS')) && (
+              <div>
+                <span className={`text-[9px] font-extrabold uppercase tracking-wider px-3 mb-1.5 block ${
+                  isDark ? 'text-slate-500' : 'text-slate-400'
+                }`}>
+                  Gobernanza & Auditoría
+                </span>
+                <nav className="space-y-1">
+                  {/* Control de Roles (RBAC) */}
+                  {canAccessTab('ROLES') && (
+                    <button
+                      id="tab-roles"
+                      onClick={() => setActiveTab('ROLES')}
+                      className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                        activeTab === 'ROLES'
+                          ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                          : isDark
+                          ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                          : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <UserCheck className={`w-4 h-4 ${activeTab === 'ROLES' ? 'text-slate-950' : 'text-emerald-400'}`} />
+                        <span>Matriz RBAC</span>
+                      </div>
+                      <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                        activeTab === 'ROLES' ? 'bg-slate-950/20 text-slate-950' : 'bg-emerald-500/20 text-emerald-400'
+                      }`}>
+                        {currentRole === 'SAFETY_SUPERVISOR' ? 'HSE' : currentRole}
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Reportes MSHA */}
+                  {canAccessTab('REPORTS') && (
+                    <button
+                      id="tab-reports"
+                      onClick={() => setActiveTab('REPORTS')}
+                      className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                        activeTab === 'REPORTS'
+                          ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                          : isDark
+                          ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                          : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <FileText className={`w-4 h-4 ${activeTab === 'REPORTS' ? 'text-slate-950' : 'text-sky-400'}`} />
+                        <span>Reportes MSHA</span>
+                      </div>
+                      <span className={`text-[9px] font-mono ${
+                        activeTab === 'REPORTS' ? 'text-slate-950/70' : isDark ? 'text-slate-500' : 'text-slate-400'
+                      }`}>
+                        PDF/XLS
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Consentimiento Ético */}
+                  {canAccessTab('ETHICS') && (
+                    <button
+                      id="tab-ethics"
+                      onClick={() => setActiveTab('ETHICS')}
+                      className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                        activeTab === 'ETHICS'
+                          ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                          : isDark
+                          ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                          : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Shield className={`w-4 h-4 ${activeTab === 'ETHICS' ? 'text-slate-950' : 'text-purple-400'}`} />
+                        <span>Consentimiento</span>
+                      </div>
+                      <span className={`text-[9px] font-mono ${
+                        activeTab === 'ETHICS' ? 'text-slate-950/70' : isDark ? 'text-slate-500' : 'text-slate-400'
+                      }`}>
+                        {isAnonymized ? 'Anónimo' : 'GDPR'}
+                      </span>
+                    </button>
+                  )}
+                </nav>
+              </div>
+            )}
+          </div>
+
+          {/* Tarjeta de Sesión Activa en Barra Lateral */}
+          <div className="px-3 pb-1">
+            <div className={`p-2.5 rounded-xl border flex items-center justify-between text-xs transition-colors ${
+              isDark ? 'bg-slate-950/80 border-slate-800' : 'bg-slate-50 border-slate-200'
+            }`}>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center text-xs flex-shrink-0 shadow-sm">
+                  {currentUser.avatarInitials}
+                </div>
+                <div className="min-w-0 truncate">
+                  <p className={`font-bold text-[11px] truncate leading-tight ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+                    {currentUser.name}
+                  </p>
+                  <p className={`text-[9px] truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {currentUser.roleLabel}
+                  </p>
+                </div>
+              </div>
+              <button
+                id="btn-sidebar-logout"
+                onClick={handleLogout}
+                title="Cerrar Sesión para cambiar de usuario"
+                className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 cursor-pointer transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5" />
               </button>
-            </nav>
+            </div>
           </div>
 
           {/* Quick Telemetry Status Widget en la Barra Lateral */}
@@ -666,10 +979,14 @@ export default function App() {
               {activeTab === 'ALERTS' && 'CENTRO DE ALERTAS'}
               {activeTab === 'ANALYTICS' && 'TELEMETRÍA & KPIS (5-FOLD OOF)'}
               {activeTab === 'SCENARIOS' && 'ESCENARIOS OPERACIONALES (A–E)'}
+              {activeTab === 'LANGFLOW' && 'LANGFLOW AGENTS & RAG STUDIO'}
+              {activeTab === 'ROLES' && 'CONTROL DE ACCESO (RBAC) & AUDITORÍA'}
+              {activeTab === 'REPORTS' && 'CENTRO DE REPORTABILIDAD Y AUDITORÍA MSHA'}
+              {activeTab === 'ETHICS' && 'GOBERNANZA ÉTICA & PRIVACIDAD'}
             </span>
           </div>
 
-          {/* Métricas Rápidas HUD a la Derecha */}
+          {/* Métricas Rápidas HUD y Selector de Rol a la Derecha */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <div className={`hidden md:flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-xl border ${
               isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'
@@ -680,19 +997,78 @@ export default function App() {
               <span className="text-amber-500 font-bold">2 Hz</span>
             </div>
 
-            <div className={`flex items-center gap-2 text-xs px-2.5 py-1 rounded-xl border ${
-              isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'
-            }`}>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span className="text-[11px] font-bold">Supervisor HSE</span>
+            {/* Usuario Autenticado & Control de Sesión */}
+            <div className="flex items-center gap-2">
+              <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-xl border transition-colors ${
+                isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-700'
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${
+                  currentUser.role === 'ADMIN' ? 'bg-rose-500' :
+                  currentUser.role === 'SAFETY_SUPERVISOR' ? 'bg-amber-400' :
+                  currentUser.role === 'OPERATOR' ? 'bg-sky-400' :
+                  currentUser.role === 'DATA_ANALYST' ? 'bg-purple-400' : 'bg-emerald-400'
+                }`} />
+                <span className="font-bold text-[11px] truncate max-w-[130px] sm:max-w-none">{currentUser.name}</span>
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border ${currentUser.badgeColor}`}>
+                  {currentUser.roleLabel}
+                </span>
+              </div>
+
+              {canAccessTab('ROLES') && (
+                <button
+                  id="btn-nav-roles"
+                  onClick={() => setActiveTab('ROLES')}
+                  className={`text-[11px] font-bold px-2.5 py-1.5 rounded-xl border transition-colors cursor-pointer ${
+                    activeTab === 'ROLES'
+                      ? 'bg-amber-500 text-slate-950 border-amber-500'
+                      : isDark
+                      ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+                      : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
+                  }`}
+                  title="Inspeccionar Matriz de Permisos y Auditoría (RBAC)"
+                >
+                  Permisos
+                </button>
+              )}
+
+              <button
+                id="btn-header-logout"
+                onClick={handleLogout}
+                className="px-2.5 py-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold text-[11px] flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Cerrar Sesión para ingresar con otro usuario"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Cerrar Sesión</span>
+              </button>
             </div>
           </div>
         </header>
 
         {/* Main Workspace Area */}
         <main className="flex-1 p-3 sm:p-5 overflow-y-auto space-y-3">
+          {/* Protección Guard RBAC si el usuario accede a una pestaña no permitida */}
+          {!canAccessTab(activeTab) && (
+            <div className={`p-8 rounded-2xl border text-center max-w-lg mx-auto mt-12 space-y-3 ${
+              isDark ? 'bg-slate-900 border-rose-500/30 text-slate-200' : 'bg-white border-rose-300 text-slate-800 shadow-lg'
+            }`}>
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-500 flex items-center justify-center mx-auto">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-rose-500">Módulo Restringido por Política RBAC</h3>
+              <p className="text-xs opacity-75">
+                El perfil activo <strong>{currentUser.roleLabel}</strong> ({currentUser.role}) no tiene autorización para acceder a esta vista.
+              </p>
+              <button
+                onClick={() => setActiveTab(ROLE_PERMITTED_TABS[currentUser.role]?.[0] || '3D_TWIN')}
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl cursor-pointer"
+              >
+                Volver a Módulo Autorizado
+              </button>
+            </div>
+          )}
+
           {/* Tab 1: 3D Digital Twin & XAI SHAP Explanation Drawer */}
-          {activeTab === '3D_TWIN' && (
+          {activeTab === '3D_TWIN' && canAccessTab('3D_TWIN') && (
             <div className="space-y-3">
               {/* Slim High-Density Alert Strip (Solo si hay alerta crítica activa) */}
               {alerts.some((a) => a.severity === 'CRITICAL' && a.status === 'ACTIVE') && (
@@ -715,7 +1091,7 @@ export default function App() {
                       Ver SHAP
                     </button>
                     <button
-                      onClick={() => handleAcknowledgeAlert(alerts[0].id, 'Supervisor')}
+                      onClick={() => handleAcknowledgeAlert(alerts[0].id, currentUser.name)}
                       className={`text-[11px] font-medium px-2.5 py-1 rounded-lg border cursor-pointer transition-colors ${
                         isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-300'
                       }`}
@@ -754,7 +1130,7 @@ export default function App() {
           )}
 
           {/* Tab 2: Scenarios & Injector */}
-          {activeTab === 'SCENARIOS' && (
+          {activeTab === 'SCENARIOS' && canAccessTab('SCENARIOS') && (
             <div className="h-[calc(100vh-140px)] min-h-[640px]">
               <ScenarioManager
                 activeScenarioId={activeScenarioId}
@@ -768,7 +1144,7 @@ export default function App() {
           )}
 
           {/* Tab 3: Alerts Center */}
-          {activeTab === 'ALERTS' && (
+          {activeTab === 'ALERTS' && canAccessTab('ALERTS') && (
             <div className="h-[calc(100vh-140px)] min-h-[640px]">
               <AlertsCenter
                 alerts={alerts}
@@ -784,7 +1160,7 @@ export default function App() {
           )}
 
           {/* Tab 4: Analytics Dashboard */}
-          {activeTab === 'ANALYTICS' && (
+          {activeTab === 'ANALYTICS' && canAccessTab('ANALYTICS') && (
             <AnalyticsDashboard 
               mshaIncidents={MSHA_HISTORICAL_INCIDENTS} 
               theme={theme}
@@ -792,9 +1168,47 @@ export default function App() {
           )}
 
           {/* Tab 5: Langflow Studio & Academic Demo */}
-          {activeTab === 'LANGFLOW' && (
+          {activeTab === 'LANGFLOW' && canAccessTab('LANGFLOW') && (
             <div className="min-h-[calc(100vh-140px)] pb-6">
               <LangflowStudioModule isDark={isDark} />
+            </div>
+          )}
+
+          {/* Tab 6: Control de Acceso RBAC & Auditoría Inmutable */}
+          {activeTab === 'ROLES' && canAccessTab('ROLES') && (
+            <div className="min-h-[calc(100vh-140px)] pb-6">
+              <UserRolesModule
+                currentRole={currentRole}
+                userName={currentUser.name}
+                onLogout={handleLogout}
+                auditLogs={auditLogs}
+                theme={theme}
+              />
+            </div>
+          )}
+
+          {/* Tab 7: Reportes Oficiales MSHA (PDF/Excel) */}
+          {activeTab === 'REPORTS' && canAccessTab('REPORTS') && (
+            <div className="min-h-[calc(100vh-140px)] pb-6">
+              <ReportsModule
+                equipments={equipments}
+                alerts={alerts}
+                mshaIncidents={MSHA_HISTORICAL_INCIDENTS}
+                consents={OPERATOR_CONSENTS}
+                theme={theme}
+              />
+            </div>
+          )}
+
+          {/* Tab 8: Consentimiento Ético y Privacidad GDPR */}
+          {activeTab === 'ETHICS' && canAccessTab('ETHICS') && (
+            <div className="min-h-[calc(100vh-140px)] pb-6">
+              <EthicsConsentModule
+                consents={OPERATOR_CONSENTS}
+                isAnonymized={isAnonymized}
+                onToggleAnonymization={handleToggleAnonymization}
+                theme={theme}
+              />
             </div>
           )}
         </main>

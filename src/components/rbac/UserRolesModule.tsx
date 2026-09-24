@@ -10,12 +10,15 @@ import {
   Check, 
   X, 
   History, 
-  Activity 
+  Activity,
+  LogOut 
 } from 'lucide-react';
 
 interface UserRolesModuleProps {
   currentRole: UserRole;
-  onRoleChange: (role: UserRole) => void;
+  onRoleChange?: (role: UserRole) => void;
+  onLogout?: () => void;
+  userName?: string;
   auditLogs: AuditLogEntry[];
   theme?: 'dark' | 'light';
 }
@@ -23,6 +26,8 @@ interface UserRolesModuleProps {
 export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
   currentRole,
   onRoleChange,
+  onLogout,
+  userName,
   auditLogs,
   theme = 'dark',
 }) => {
@@ -76,7 +81,7 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
       isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900 shadow-sm'
     }`}>
       {/* Header */}
-      <div className={`flex items-center justify-between pb-4 border-b transition-colors ${
+      <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b transition-colors ${
         isDark ? 'border-slate-800' : 'border-slate-200'
       }`}>
         <div className="flex items-center gap-3">
@@ -88,21 +93,38 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
               Control de Acceso Basado en Roles (RBAC) & Registro de Auditoría
             </h2>
             <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Gestión de privilegios para supervisores, operadores, científicos de datos y auditores
+              Usuario autenticado: <strong className="text-amber-500">{userName || 'Usuario Corporativo'}</strong> • Perfil: {currentRole}
             </p>
           </div>
         </div>
 
-        <span className="text-xs font-mono text-sky-600 dark:text-sky-400 bg-sky-500/10 px-3 py-1 rounded-full border border-sky-500/30 font-bold">
-          Rol Activo: {currentRole}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono text-sky-600 dark:text-sky-400 bg-sky-500/10 px-3 py-1 rounded-full border border-sky-500/30 font-bold">
+            Rol Activo: {currentRole}
+          </span>
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-bold transition-all cursor-pointer"
+              title="Cerrar sesión actual para entrar con otro usuario"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Cerrar Sesión</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Role Selection Grid */}
       <div className="space-y-2">
-        <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-          Seleccionar Perfil Activo para Probar la Interfaz:
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+            Perfiles de Seguridad del Sistema (RBAC):
+          </h3>
+          <span className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            Autenticado bajo norma ISO 27001
+          </span>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
           {rolesList.map((r) => {
             const isCurrent = currentRole === r.id;
