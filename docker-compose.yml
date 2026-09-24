@@ -73,6 +73,19 @@ services:
       - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
     restart: unless-stopped
 
+  langflow:
+    image: langflowai/langflow:latest
+    container_name: gemelo_digital_langflow
+    ports:
+      - "7860:7860"
+    environment:
+      - LANGFLOW_HOST=0.0.0.0
+      - LANGFLOW_PORT=7860
+      - LANGFLOW_AUTO_LOGIN=true
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
+

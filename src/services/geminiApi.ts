@@ -19,6 +19,8 @@ export interface RiskAnalysisResult {
   analysis?: string;
   error?: string;
   fallback_analysis?: string;
+  langflow_executed?: boolean;
+  engine?: string;
 }
 
 export interface ChatResponse {

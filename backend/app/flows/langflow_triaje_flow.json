@@ -1,0 +1,113 @@
+{
+  "id": "triaje-minero-xai-flow",
+  "name": "Agente de Triaje y Diagnostico XAI Minero - MineSafe 3D",
+  "description": "Flujo de Orquestacion Visual en Langflow para el triaje predictivo, atribucion SHAP y evaluacion de riesgo con Google Gemini AI.",
+  "endpoint_name": "triaje-minero-xai",
+  "is_component": false,
+  "data": {
+    "nodes": [
+      {
+        "id": "ChatInput-1",
+        "type": "genericNode",
+        "position": { "x": 100, "y": 200 },
+        "data": {
+          "id": "ChatInput-1",
+          "type": "ChatInput",
+          "node": {
+            "display_name": "Entrada de Telemetria & SHAP",
+            "description": "Recibe los datos del equipo (ID, severidad, PERCLOS, punto ciego, velocidad)",
+            "base_classes": ["ChatInput", "Message"],
+            "template": {
+              "_type": "ChatInput",
+              "input_value": {
+                "type": "str",
+                "value": "Equipo: HT-104 | Severidad: CRITICAL | Factores SHAP: Fatiga PERCLOS 42%, Punto Ciego 28%, Velocidad 18%",
+                "display_name": "Text Input",
+                "show": true,
+                "required": false
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "Prompt-1",
+        "type": "genericNode",
+        "position": { "x": 450, "y": 200 },
+        "data": {
+          "id": "Prompt-1",
+          "type": "Prompt",
+          "node": {
+            "display_name": "Estructurador de Prompt MSHA",
+            "description": "Ensambla las reglas normativas de seguridad minera",
+            "base_classes": ["Prompt", "str"],
+            "template": {
+              "_type": "Prompt",
+              "template": {
+                "type": "str",
+                "value": "Eres el Agente Inteligente de Triaje Minero (XAI) de MineSafe 3D. Analiza la siguiente telemetria y factores SHAP:\n{input_value}\n\nGenera una explicacion narrativa concisa en espanol con:\n1. Diagnostico Explicable\n2. Accion Inmediata de Mitigacion (protocolo rampa)\n3. Nivel de Escalamiento (INMEDIATO)",
+                "display_name": "Template",
+                "show": true,
+                "required": true
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "GoogleGenerativeAIModel-1",
+        "type": "genericNode",
+        "position": { "x": 800, "y": 200 },
+        "data": {
+          "id": "GoogleGenerativeAIModel-1",
+          "type": "GoogleGenerativeAIModel",
+          "node": {
+            "display_name": "Google Gemini 3.6 Flash Engine",
+            "description": "Inferencia cognitiva con motor Gemini",
+            "base_classes": ["GoogleGenerativeAIModel", "LanguageModel"],
+            "template": {
+              "_type": "GoogleGenerativeAIModel",
+              "model_name": {
+                "type": "str",
+                "value": "gemini-2.5-flash",
+                "display_name": "Model Name",
+                "show": true,
+                "required": true
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "ChatOutput-1",
+        "type": "genericNode",
+        "position": { "x": 1150, "y": 200 },
+        "data": {
+          "id": "ChatOutput-1",
+          "type": "ChatOutput",
+          "node": {
+            "display_name": "Resultado de Triaje XAI",
+            "description": "Retorna la recomendacion estructurada para el Gemelo Digital",
+            "base_classes": ["ChatOutput", "Message"],
+            "template": {
+              "_type": "ChatOutput",
+              "input_value": {
+                "type": "str",
+                "value": "",
+                "display_name": "Input Value",
+                "show": true,
+                "required": false
+              }
+            }
+          }
+        }
+      }
+    ],
+    "edges": [],
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "zoom": 1
+    }
+  }
+}

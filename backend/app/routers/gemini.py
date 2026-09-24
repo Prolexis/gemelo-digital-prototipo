@@ -36,16 +36,44 @@ async def check_gemini_status():
         "client_sdk": gemini_service.client_type or "Desconectado"
     }
 
+from app.services.langflow_service import langflow_service
+
+@router.get("/langflow/health")
+async def check_langflow_status():
+    """
+    Verifica la accesibilidad del orquestador visual Langflow (Puerto 7860).
+    """
+    return await langflow_service.check_health()
+
 @router.post("/analyze-risk")
 async def analyze_risk_endpoint(request: RiskAnalysisRequest):
     """
-    Endpoint para análisis de riesgo y generación de explicaciones XAI con Gemini.
+    Endpoint para análisis de riesgo y generación de explicaciones XAI.
+    Prioriza la ejecución mediante el grafo visual de Langflow (si está activo),
+    con fallback automático a Gemini Direct SDK.
     """
+    # 1. Intentar procesamiento con Langflow Agent Flow
+    langflow_res = await langflow_service.run_triaje_flow(
+        equipment_id=request.equipment_id,
+        alert_data=request.alert_data,
+        shap_factors=request.shap_factors
+    )
+    if langflow_res:
+        return {
+            "success": True,
+            "equipment_id": request.equipment_id,
+            "analysis": langflow_res.get("analysis"),
+            "engine": "Langflow Agent Flow (Visual DAG)",
+            "langflow_executed": True
+        }
+
+    # 2. Fallback transparente a Gemini Direct Engine
     result = await gemini_service.analyze_risk(
         equipment_id=request.equipment_id,
         alert_data=request.alert_data,
         shap_factors=request.shap_factors
     )
+    result["langflow_executed"] = False
     return result
 
 @router.post("/generate-summary")

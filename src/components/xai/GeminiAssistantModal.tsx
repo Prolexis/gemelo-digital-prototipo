@@ -95,6 +95,9 @@ export const GeminiAssistantModal: React.FC<GeminiAssistantModalProps> = ({
           <div className="flex items-center gap-2">
             <Cpu className="w-3.5 h-3.5 text-indigo-400" />
             <span>FastAPI: <code className="text-amber-300">http://localhost:8000/api/gemini</code></span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 ml-2">
+              ⚡ Langflow Agent: http://localhost:7860
+            </span>
           </div>
           <div className="flex items-center gap-2">
             {isCheckingHealth ? (
