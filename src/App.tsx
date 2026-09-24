@@ -24,6 +24,7 @@ import { ShapExplanationPanel } from './components/xai/ShapExplanationPanel';
 import { ScenarioManager } from './components/scenarios/ScenarioManager';
 import { AlertsCenter } from './components/alerts/AlertsCenter';
 import { AnalyticsDashboard } from './components/dashboard/AnalyticsDashboard';
+import { LangflowStudioModule } from './components/langflow/LangflowStudioModule';
 
 // Icons
 import { 
@@ -51,7 +52,7 @@ import {
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<'3D_TWIN' | 'SCENARIOS' | 'ALERTS' | 'ANALYTICS'>('3D_TWIN');
+  const [activeTab, setActiveTab] = useState<'3D_TWIN' | 'SCENARIOS' | 'ALERTS' | 'ANALYTICS' | 'LANGFLOW'>('3D_TWIN');
 
   // Theme State: 'dark' | 'light' con persistencia en localStorage
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -543,6 +544,29 @@ export default function App() {
                   A–E OOD
                 </span>
               </button>
+
+              {/* 5. Langflow Studio */}
+              <button
+                id="tab-langflow"
+                onClick={() => setActiveTab('LANGFLOW')}
+                className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer group ${
+                  activeTab === 'LANGFLOW'
+                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30 font-black'
+                    : isDark
+                    ? 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className={`w-4 h-4 ${activeTab === 'LANGFLOW' ? 'text-white' : 'text-purple-400 animate-pulse'}`} />
+                  <span>Langflow Studio</span>
+                </div>
+                <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                  activeTab === 'LANGFLOW' ? 'bg-purple-950 text-purple-200' : 'bg-purple-500/20 text-purple-300'
+                }`}>
+                  7860
+                </span>
+              </button>
             </nav>
           </div>
 
@@ -765,6 +789,13 @@ export default function App() {
               mshaIncidents={MSHA_HISTORICAL_INCIDENTS} 
               theme={theme}
             />
+          )}
+
+          {/* Tab 5: Langflow Studio & Academic Demo */}
+          {activeTab === 'LANGFLOW' && (
+            <div className="min-h-[calc(100vh-140px)] pb-6">
+              <LangflowStudioModule isDark={isDark} />
+            </div>
           )}
         </main>
 

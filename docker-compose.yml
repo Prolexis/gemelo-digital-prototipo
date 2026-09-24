@@ -82,6 +82,9 @@ services:
       - LANGFLOW_HOST=0.0.0.0
       - LANGFLOW_PORT=7860
       - LANGFLOW_AUTO_LOGIN=true
+      - LANGFLOW_SKIP_AUTH_AUTO_LOGIN=true
+      - LANGFLOW_SUPERUSER_USERNAME=admin
+      - LANGFLOW_SUPERUSER_PASSWORD=admin
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     restart: unless-stopped
 

@@ -1,113 +1,167 @@
 {
-  "id": "triaje-minero-xai-flow",
-  "name": "Agente de Triaje y Diagnostico XAI Minero - MineSafe 3D",
-  "description": "Flujo de Orquestacion Visual en Langflow para el triaje predictivo, atribucion SHAP y evaluacion de riesgo con Google Gemini AI.",
-  "endpoint_name": "triaje-minero-xai",
-  "is_component": false,
   "data": {
-    "nodes": [
+    "edges": [
       {
-        "id": "ChatInput-1",
-        "type": "genericNode",
-        "position": { "x": 100, "y": 200 },
+        "animated": false,
+        "className": "",
         "data": {
-          "id": "ChatInput-1",
-          "type": "ChatInput",
-          "node": {
-            "display_name": "Entrada de Telemetria & SHAP",
-            "description": "Recibe los datos del equipo (ID, severidad, PERCLOS, punto ciego, velocidad)",
-            "base_classes": ["ChatInput", "Message"],
-            "template": {
-              "_type": "ChatInput",
-              "input_value": {
-                "type": "str",
-                "value": "Equipo: HT-104 | Severidad: CRITICAL | Factores SHAP: Fatiga PERCLOS 42%, Punto Ciego 28%, Velocidad 18%",
-                "display_name": "Text Input",
-                "show": true,
-                "required": false
-              }
-            }
+          "sourceHandle": {
+            "dataType": "ChatInput",
+            "id": "ChatInput-xn7HS",
+            "name": "message",
+            "output_types": [
+              "Message"
+            ]
+          },
+          "targetHandle": {
+            "fieldName": "input_value",
+            "id": "Prompt Template-bbXOO",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
           }
-        }
+        },
+        "id": "xy-edge__ChatInput-xn7HS{œdataTypeœ:œChatInputœ,œidœ:œChatInput-xn7HSœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}-Prompt Template-bbXOO{œfieldNameœ:œinput_valueœ,œidœ:œPrompt Template-bbXOOœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "selected": false,
+        "source": "ChatInput-xn7HS",
+        "sourceHandle": "{œdataTypeœ:œChatInputœ,œidœ:œChatInput-xn7HSœ,œnameœ:œmessageœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "Prompt Template-bbXOO",
+        "targetHandle": "{œfieldNameœ:œinput_valueœ,œidœ:œPrompt Template-bbXOOœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}"
       },
       {
-        "id": "Prompt-1",
-        "type": "genericNode",
-        "position": { "x": 450, "y": 200 },
+        "animated": false,
+        "className": "",
         "data": {
-          "id": "Prompt-1",
-          "type": "Prompt",
-          "node": {
-            "display_name": "Estructurador de Prompt MSHA",
-            "description": "Ensambla las reglas normativas de seguridad minera",
-            "base_classes": ["Prompt", "str"],
-            "template": {
-              "_type": "Prompt",
-              "template": {
-                "type": "str",
-                "value": "Eres el Agente Inteligente de Triaje Minero (XAI) de MineSafe 3D. Analiza la siguiente telemetria y factores SHAP:\n{input_value}\n\nGenera una explicacion narrativa concisa en espanol con:\n1. Diagnostico Explicable\n2. Accion Inmediata de Mitigacion (protocolo rampa)\n3. Nivel de Escalamiento (INMEDIATO)",
-                "display_name": "Template",
-                "show": true,
-                "required": true
-              }
-            }
+          "sourceHandle": {
+            "dataType": "Prompt Template",
+            "id": "Prompt Template-bbXOO",
+            "name": "prompt",
+            "output_types": [
+              "Message"
+            ]
+          },
+          "targetHandle": {
+            "fieldName": "system_prompt",
+            "id": "Agent-cLoil",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
           }
-        }
+        },
+        "id": "xy-edge__Prompt Template-bbXOO{œdataTypeœ:œPrompt Templateœ,œidœ:œPrompt Template-bbXOOœ,œnameœ:œpromptœ,œoutput_typesœ:[œMessageœ]}-Agent-cLoil{œfieldNameœ:œsystem_promptœ,œidœ:œAgent-cLoilœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "selected": false,
+        "source": "Prompt Template-bbXOO",
+        "sourceHandle": "{œdataTypeœ:œPrompt Templateœ,œidœ:œPrompt Template-bbXOOœ,œnameœ:œpromptœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "Agent-cLoil",
+        "targetHandle": "{œfieldNameœ:œsystem_promptœ,œidœ:œAgent-cLoilœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}"
       },
       {
-        "id": "GoogleGenerativeAIModel-1",
-        "type": "genericNode",
-        "position": { "x": 800, "y": 200 },
+        "animated": false,
+        "className": "",
         "data": {
-          "id": "GoogleGenerativeAIModel-1",
-          "type": "GoogleGenerativeAIModel",
-          "node": {
-            "display_name": "Google Gemini 3.6 Flash Engine",
-            "description": "Inferencia cognitiva con motor Gemini",
-            "base_classes": ["GoogleGenerativeAIModel", "LanguageModel"],
-            "template": {
-              "_type": "GoogleGenerativeAIModel",
-              "model_name": {
-                "type": "str",
-                "value": "gemini-2.5-flash",
-                "display_name": "Model Name",
-                "show": true,
-                "required": true
-              }
-            }
+          "sourceHandle": {
+            "dataType": "Agent",
+            "id": "Agent-cLoil",
+            "name": "response",
+            "output_types": [
+              "Message"
+            ]
+          },
+          "targetHandle": {
+            "fieldName": "input_value",
+            "id": "ChatOutput-UIpOt",
+            "inputTypes": [
+              "Data",
+              "JSON",
+              "DataFrame",
+              "Table",
+              "Message"
+            ],
+            "type": "other"
           }
-        }
-      },
-      {
-        "id": "ChatOutput-1",
-        "type": "genericNode",
-        "position": { "x": 1150, "y": 200 },
-        "data": {
-          "id": "ChatOutput-1",
-          "type": "ChatOutput",
-          "node": {
-            "display_name": "Resultado de Triaje XAI",
-            "description": "Retorna la recomendacion estructurada para el Gemelo Digital",
-            "base_classes": ["ChatOutput", "Message"],
-            "template": {
-              "_type": "ChatOutput",
-              "input_value": {
-                "type": "str",
-                "value": "",
-                "display_name": "Input Value",
-                "show": true,
-                "required": false
-              }
-            }
-          }
-        }
+        },
+        "id": "xy-edge__Agent-cLoil{œdataTypeœ:œAgentœ,œidœ:œAgent-cLoilœ,œnameœ:œresponseœ,œoutput_typesœ:[œMessageœ]}-ChatOutput-UIpOt{œfieldNameœ:œinput_valueœ,œidœ:œChatOutput-UIpOtœ,œinputTypesœ:[œDataœ,œJSONœ,œDataFrameœ,œTableœ,œMessageœ],œtypeœ:œotherœ}",
+        "selected": false,
+        "source": "Agent-cLoil",
+        "sourceHandle": "{œdataTypeœ:œAgentœ,œidœ:œAgent-cLoilœ,œnameœ:œresponseœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "ChatOutput-UIpOt",
+        "targetHandle": "{œfieldNameœ:œinput_valueœ,œidœ:œChatOutput-UIpOtœ,œinputTypesœ:[œDataœ,œJSONœ,œDataFrameœ,œTableœ,œMessageœ],œtypeœ:œotherœ}"
       }
     ],
-    "edges": [],
-    "viewport": {
-      "x": 0,
-      "y": 0,
-      "zoom": 1
-    }
-  }
+    "nodes": [
+      {
+        "data": {
+          "id": "ChatInput-xn7HS",
+          "node": {
+            "base_classes": ["Message"],
+            "display_name": "Chat Input",
+            "minimized": true
+          },
+          "type": "ChatInput"
+        },
+        "id": "ChatInput-xn7HS",
+        "position": { "x": -111, "y": 166 },
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "Prompt Template-bbXOO",
+          "node": {
+            "base_classes": ["Message"],
+            "display_name": "Prompt Template",
+            "template": {
+              "template": {
+                "value": "Eres el Agente Inteligente de Triaje Minero (XAI) de MineSafe 3D. Analiza la telemetría:\n{input_value}\n\nGenera un diagnóstico breve en español y el protocolo de mitigación."
+              }
+            }
+          },
+          "type": "Prompt Template"
+        },
+        "id": "Prompt Template-bbXOO",
+        "position": { "x": 176, "y": 106 },
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "Agent-cLoil",
+          "node": {
+            "base_classes": ["Data", "JSON", "Message"],
+            "display_name": "Agent",
+            "model": [
+              {
+                "name": "gemini-3.1-flash-lite-preview",
+                "provider": "Google Generative AI"
+              }
+            ]
+          },
+          "type": "Agent"
+        },
+        "id": "Agent-cLoil",
+        "position": { "x": 578, "y": 80 },
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "ChatOutput-UIpOt",
+          "node": {
+            "base_classes": ["Message"],
+            "display_name": "Chat Output",
+            "minimized": true
+          },
+          "type": "ChatOutput"
+        },
+        "id": "ChatOutput-UIpOt",
+        "position": { "x": 1018, "y": 237 },
+        "type": "genericNode"
+      }
+    ],
+    "viewport": { "x": 129, "y": 93, "zoom": 0.8 }
+  },
+  "description": "Agente XAI de Triaje Minero MineSafe 3D en Langflow",
+  "endpoint_name": "triaje-minero-xai",
+  "id": "d08d5df3-d4b9-4031-a5fb-bfb329812b20",
+  "is_component": false,
+  "name": "Diagrama Triaje Minero XAI"
 }
