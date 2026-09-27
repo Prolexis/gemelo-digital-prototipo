@@ -62,17 +62,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
   // Risk by Mining Bench
   const benchRiskData = [
-    { name: 'Banco 3600 (Top)', risk: 18, color: '#10b981' },
-    { name: 'Banco 3500', risk: 24, color: '#38bdf8' },
-    { name: 'Banco 3400 (Pala)', risk: 42, color: '#f59e0b' },
-    { name: 'Banco 3300 (Rampa)', risk: 68, color: '#f97316' },
-    { name: 'Banco 3200 (Curva)', risk: 88, color: '#ef4444' },
-    { name: 'Banco 3100 (Fondo)', risk: 35, color: '#eab308' },
+    { name: 'Banco 3600 (Top)', risk: 18, color: 'var(--success)' },
+    { name: 'Banco 3500', risk: 24, color: 'var(--success)' },
+    { name: 'Banco 3400 (Pala)', risk: 42, color: 'var(--warning)' },
+    { name: 'Banco 3300 (Rampa)', risk: 68, color: 'var(--warning)' },
+    { name: 'Banco 3200 (Curva)', risk: 88, color: 'var(--danger)' },
+    { name: 'Banco 3100 (Fondo)', risk: 35, color: 'var(--warning)' },
   ];
 
   const shiftDistributionData = [
-    { name: 'Turno Día (07:00-19:00)', value: 32, color: '#38bdf8' },
-    { name: 'Turno Noche (19:00-07:00)', value: 68, color: '#f43f5e' },
+    { name: 'Turno Día (07:00-19:00)', value: 32, color: 'var(--success)' },
+    { name: 'Turno Noche (19:00-07:00)', value: 68, color: 'var(--danger)' },
   ];
 
   return (
@@ -83,17 +83,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <div className="absolute -right-2 -bottom-2 opacity-10">
-            <ShieldCheck className="w-16 h-16 text-emerald-500" />
+            <ShieldCheck className="w-16 h-16 text-slate-500" />
           </div>
           <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
             isDark ? 'text-slate-400' : 'text-slate-500'
           }`}>
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <ShieldCheck className="w-4 h-4 text-slate-400" />
             Cuasi-Colisiones Evitadas
           </span>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-emerald-500">142</span>
-            <span className="text-[11px] font-medium text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+            <span className="text-2xl font-bold font-mono text-slate-200">142</span>
+            <span className="ms-badge-neutral text-[11px] font-medium px-2 py-0.5 rounded-full">
               100% efectividad
             </span>
           </div>
@@ -103,17 +103,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <div className="absolute -right-2 -bottom-2 opacity-10">
-            <Clock className="w-16 h-16 text-amber-500" />
+            <Clock className="w-16 h-16 text-slate-500" />
           </div>
           <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
             isDark ? 'text-slate-400' : 'text-slate-500'
           }`}>
-            <Clock className="w-4 h-4 text-amber-500" />
+            <Clock className="w-4 h-4 text-slate-400" />
             Anticipación Media
           </span>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-amber-500">6.4s</span>
-            <span className="text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+            <span className="text-2xl font-bold font-mono text-slate-200">6.4s</span>
+            <span className="ms-badge-neutral text-[11px] font-medium px-2 py-0.5 rounded-full">
               vs 1.8s (+255%)
             </span>
           </div>
@@ -123,17 +123,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <div className="absolute -right-2 -bottom-2 opacity-10">
-            <Activity className="w-16 h-16 text-sky-500" />
+            <Activity className="w-16 h-16 text-slate-500" />
           </div>
           <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
             isDark ? 'text-slate-400' : 'text-slate-500'
           }`}>
-            <Activity className="w-4 h-4 text-sky-500" />
+            <Activity className="w-4 h-4 text-slate-400" />
             AUC-ROC
           </span>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-sky-500">0.978</span>
-            <span className="text-[11px] font-medium text-sky-700 dark:text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20">
+            <span className="text-2xl font-bold font-mono text-slate-200">0.978</span>
+            <span className="ms-badge-neutral text-[11px] font-medium px-2 py-0.5 rounded-full">
               F1: 0.932
             </span>
           </div>
@@ -143,17 +143,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <div className="absolute -right-2 -bottom-2 opacity-10">
-            <Users className="w-16 h-16 text-purple-500" />
+            <Users className="w-16 h-16 text-slate-500" />
           </div>
           <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
             isDark ? 'text-slate-400' : 'text-slate-500'
           }`}>
-            <Users className="w-4 h-4 text-purple-500" />
+            <Users className="w-4 h-4 text-slate-400" />
             Aceptación Operador
           </span>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-purple-500">89.6%</span>
-            <span className="text-[11px] font-medium text-purple-700 dark:text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+            <span className="text-2xl font-bold font-mono text-slate-200">89.6%</span>
+            <span className="ms-badge-neutral text-[11px] font-medium px-2 py-0.5 rounded-full">
               FPR: 4.8%
             </span>
           </div>
@@ -168,10 +168,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         }`}>
           <div className="flex items-center justify-between">
             <h3 className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-              <Clock className="w-4 h-4 text-amber-500" />
+              <Clock className="w-4 h-4 text-slate-400" />
               Tiempo de Anticipación vs PDS Estándar
             </h3>
-            <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
+            <span className="ms-badge-neutral text-[10px] px-2 py-0.5 rounded">
               +255%
             </span>
           </div>
@@ -179,9 +179,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="h-60 w-full min-h-[240px] min-w-0 pt-1">
             <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <BarChart data={warningTimeData} margin={{ top: 10, right: 10, left: -15, bottom: 25 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1e293b' : '#e2e8f0'} />
-                <XAxis dataKey="event" tick={{ fill: isDark ? '#94a3b8' : '#64748b', fontSize: 9.5 }} angle={-15} textAnchor="end" interval={0} />
-                <YAxis tick={{ fill: isDark ? '#94a3b8' : '#64748b', fontSize: 10 }} unit="s" domain={[0, 8]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="event" tick={{ fill: 'var(--text-tertiary)', fontSize: 9.5 }} angle={-15} textAnchor="end" interval={0} />
+                <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} unit="s" domain={[0, 8]} />
                 <Tooltip
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
@@ -190,7 +190,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                           isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-200 text-slate-900 shadow-md'
                         }`}>
                           <p className="font-bold">{label}</p>
-                          <p className="text-amber-500 font-mono">Gemelo Digital: {payload[0]?.value}s</p>
+                          <p className="text-slate-300 font-mono">Gemelo Digital: {payload[0]?.value}s</p>
                           <p className={`font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>PDS Estándar: {payload[1]?.value}s</p>
                         </div>
                       );
@@ -199,8 +199,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
-                <Bar dataKey="twin" name="Gemelo Digital" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="pds" name="PDS Tradicional" fill={isDark ? '#475569' : '#94a3b8'} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="twin" name="Gemelo Digital" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="pds" name="PDS Tradicional" fill="var(--text-tertiary)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -212,10 +212,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         }`}>
           <div className="flex items-center justify-between">
             <h3 className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-              <Activity className="w-4 h-4 text-sky-500" />
+              <Activity className="w-4 h-4 text-slate-400" />
               Curva ROC (Sensibilidad vs FPR)
             </h3>
-            <span className="text-[10px] text-sky-600 dark:text-sky-400 font-mono bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/30">
+            <span className="text-[10px] text-slate-400 font-mono bg-slate-500/10 px-2 py-0.5 rounded border border-slate-500/30">
               AUC: 0.978
             </span>
           </div>
@@ -223,9 +223,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="h-64 w-full min-h-[256px] min-w-0 pt-2">
             <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <LineChart data={rocCurveData} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1e293b' : '#e2e8f0'} />
-                <XAxis dataKey="fpr" tick={{ fill: isDark ? '#94a3b8' : '#64748b', fontSize: 10 }} label={{ value: 'Tasa Falsos Positivos (FPR)', position: 'insideBottom', offset: -10, fill: isDark ? '#64748b' : '#94a3b8', fontSize: 10 }} />
-                <YAxis tick={{ fill: isDark ? '#94a3b8' : '#64748b', fontSize: 10 }} domain={[0, 1]} unit="" label={{ value: 'Sensibilidad (TPR)', angle: -90, position: 'insideLeft', fill: isDark ? '#64748b' : '#94a3b8', fontSize: 10 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="fpr" tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} label={{ value: 'Tasa Falsos Positivos (FPR)', position: 'insideBottom', offset: -10, fill: 'var(--text-soft)', fontSize: 10 }} />
+                <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} domain={[0, 1]} unit="" label={{ value: 'Sensibilidad (TPR)', angle: -90, position: 'insideLeft', fill: 'var(--text-soft)', fontSize: 10 }} />
                 <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
@@ -234,7 +234,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                           isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-200 text-slate-900 shadow-md'
                         }`}>
                           <p className={`font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>FPR: {payload[0]?.payload.fpr}</p>
-                          <p className="text-sky-500 font-bold">TPR Gemelo Digital: {payload[0]?.value}</p>
+                          <p className="text-[var(--accent)] font-bold">TPR Gemelo Digital: {payload[0]?.value}</p>
                           <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>TPR PDS Estándar: {payload[1]?.value}</p>
                         </div>
                       );
@@ -243,8 +243,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
-                <Line type="monotone" dataKey="twinTpr" name="Gemelo Digital (AUC = 0.942)" stroke="#38bdf8" strokeWidth={3} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="pdsTpr" name="PDS Tradicional (AUC = 0.710)" stroke={isDark ? '#94a3b8' : '#64748b'} strokeDasharray="4 4" strokeWidth={2} />
+                <Line type="monotone" dataKey="twinTpr" name="Gemelo Digital (AUC = 0.942)" stroke="var(--accent)" strokeWidth={3} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="pdsTpr" name="PDS Tradicional (AUC = 0.710)" stroke="var(--text-tertiary)" strokeDasharray="4 4" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -258,7 +258,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <h3 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-            <Layers className="w-4 h-4 text-amber-500" />
+            <Layers className="w-4 h-4 text-[var(--accent)]" />
             Índice de Riesgo por Banco de Explotación y Rampas
           </h3>
           <div className="space-y-2 pt-1">
@@ -288,7 +288,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <h3 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-            <Users className="w-4 h-4 text-purple-500" />
+            <Users className="w-4 h-4 text-slate-400" />
             Riesgo por Turno Operacional
           </h3>
           <div className="h-40 w-full min-h-[160px] min-w-0 flex items-center justify-center">
@@ -306,17 +306,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="space-y-1.5 text-xs">
             <div className="flex items-center justify-between">
               <span className={`flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--danger)]" />
                 Turno Noche (Fatiga crítica)
               </span>
-              <span className="font-mono font-bold text-rose-500">68%</span>
+              <span className="font-mono font-bold text-[var(--danger)]">68%</span>
             </div>
             <div className="flex items-center justify-between">
               <span className={`flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--success)]" />
                 Turno Día (Normal)
               </span>
-              <span className="font-mono font-bold text-sky-500">32%</span>
+              <span className="font-mono font-bold text-[var(--success)]">32%</span>
             </div>
           </div>
         </div>

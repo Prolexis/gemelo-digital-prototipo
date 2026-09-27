@@ -33,36 +33,31 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
 }) => {
   const isDark = theme === 'dark';
 
-  const rolesList: { id: UserRole; name: string; description: string; badgeColor: string }[] = [
+  const rolesList: { id: UserRole; name: string; description: string }[] = [
     {
       id: 'ADMIN',
       name: 'Administrador del Sistema',
       description: 'Acceso total a configuración de servidores, modelos ML y usuarios.',
-      badgeColor: 'bg-rose-500/20 text-rose-500 border-rose-500/40',
     },
     {
       id: 'SAFETY_SUPERVISOR',
       name: 'Supervisor de Seguridad (HSE)',
       description: 'Gestión de alertas de cabina, relevos por fatiga y reportabilidad.',
-      badgeColor: 'bg-amber-500/20 text-amber-500 border-amber-500/40',
     },
     {
       id: 'OPERATOR',
       name: 'Operador de Camión',
       description: 'Vista simplificada de cabina con alertas de proximidad y audio.',
-      badgeColor: 'bg-sky-500/20 text-sky-500 border-sky-500/40',
     },
     {
       id: 'DATA_ANALYST',
       name: 'Analista de Datos / Data Scientist',
       description: 'Inspección de telemetría, calibración de pesos SHAP y benchmarks.',
-      badgeColor: 'bg-purple-500/20 text-purple-500 border-purple-500/40',
     },
     {
       id: 'AUDITOR',
       name: 'Auditor Externo (MSHA)',
       description: 'Acceso de solo lectura para fiscalización y compliance ético.',
-      badgeColor: 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40',
     },
   ];
 
@@ -85,27 +80,27 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
         isDark ? 'border-slate-800' : 'border-slate-200'
       }`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center">
-            <UserCheck className="w-5 h-5 text-sky-500" />
+          <div className="w-10 h-10 rounded-xl bg-[var(--accent-soft)] border border-[var(--accent-border)] flex items-center justify-center">
+            <UserCheck className="w-5 h-5 text-[var(--accent)]" />
           </div>
           <div>
             <h2 className={`text-base font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
               Control de Acceso Basado en Roles (RBAC) & Registro de Auditoría
             </h2>
             <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Usuario autenticado: <strong className="text-amber-500">{userName || 'Usuario Corporativo'}</strong> • Perfil: {currentRole}
+              Usuario autenticado: <strong className="text-slate-300">{userName || 'Usuario Corporativo'}</strong> • Perfil: {currentRole}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-sky-600 dark:text-sky-400 bg-sky-500/10 px-3 py-1 rounded-full border border-sky-500/30 font-bold">
+          <span className="ms-badge-neutral text-xs px-3 py-1 rounded-full font-bold">
             Rol Activo: {currentRole}
           </span>
           {onLogout && (
             <button
               onClick={onLogout}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-bold transition-all cursor-pointer"
+              className="ms-button-neutral flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold cursor-pointer"
               title="Cerrar sesión actual para entrar con otro usuario"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -133,21 +128,14 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
                 key={r.id}
                 id={`btn-role-${r.id}`}
                 onClick={() => onRoleChange(r.id)}
-                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                  isCurrent
-                    ? isDark 
-                      ? 'bg-amber-500/15 border-amber-500 shadow-lg shadow-amber-950/40' 
-                      : 'bg-amber-50 border-amber-500 shadow-xs'
-                    : isDark 
-                      ? 'bg-slate-800/60 border-slate-700/80 hover:border-slate-600' 
-                      : 'bg-slate-50 border-slate-200 hover:border-slate-300'
-                }`}
+                aria-pressed={isCurrent}
+                className="ms-button-neutral p-3 rounded-xl text-left cursor-pointer"
               >
                 <div className="flex items-center justify-between">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${r.badgeColor}`}>
+                  <span className="ms-badge-neutral text-[10px] font-bold px-2 py-0.5 rounded-full">
                     {r.id}
                   </span>
-                  {isCurrent && <Check className="w-4 h-4 text-amber-500" />}
+                  {isCurrent && <Check className="w-4 h-4 text-[var(--accent)]" />}
                 </div>
                 <h4 className={`text-xs font-bold mt-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>{r.name}</h4>
                 <p className={`text-[11px] mt-1 leading-snug ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{r.description}</p>
@@ -166,7 +154,7 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
           isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <table className="w-full text-left text-xs">
-            <thead className={`border-b font-mono text-[11px] transition-colors ${
+            <thead className={`border-b text-[11px] transition-colors ${
               isDark ? 'bg-slate-900 text-slate-400 border-slate-800' : 'bg-slate-100 text-slate-600 border-slate-200'
             }`}>
               <tr>
@@ -184,11 +172,11 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
               {permissionsMatrix.map((perm, idx) => (
                 <tr key={idx} className={isDark ? 'hover:bg-slate-900/60' : 'hover:bg-slate-50'}>
                   <td className={`p-3 font-medium ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{perm.feature}</td>
-                  <td className="p-3 text-center">{perm.ADMIN ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
-                  <td className="p-3 text-center">{perm.SAFETY_SUPERVISOR ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
-                  <td className="p-3 text-center">{perm.OPERATOR ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
-                  <td className="p-3 text-center">{perm.DATA_ANALYST ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
-                  <td className="p-3 text-center">{perm.AUDITOR ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
+                  <td className="p-3 text-center">{perm.ADMIN ? <Check className="w-4 h-4 text-slate-400 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
+                  <td className="p-3 text-center">{perm.SAFETY_SUPERVISOR ? <Check className="w-4 h-4 text-slate-400 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
+                  <td className="p-3 text-center">{perm.OPERATOR ? <Check className="w-4 h-4 text-slate-400 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
+                  <td className="p-3 text-center">{perm.DATA_ANALYST ? <Check className="w-4 h-4 text-slate-400 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
+                  <td className="p-3 text-center">{perm.AUDITOR ? <Check className="w-4 h-4 text-slate-400 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
                 </tr>
               ))}
             </tbody>
@@ -202,17 +190,17 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
           <h3 className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
             isDark ? 'text-slate-200' : 'text-slate-800'
           }`}>
-            <History className="w-4 h-4 text-amber-500" />
+            <History className="w-4 h-4 text-[var(--accent)]" />
             Registro Inmutable de Auditoría (Audit Log)
           </h3>
-          <span className={`text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Trazabilidad ISO 27001 / SOC2</span>
+          <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Trazabilidad ISO 27001 / SOC2</span>
         </div>
 
         <div className={`overflow-x-auto rounded-xl border max-h-56 transition-colors ${
           isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
           <table className="w-full text-left text-xs">
-            <thead className={`border-b font-mono text-[11px] sticky top-0 transition-colors ${
+            <thead className={`border-b text-[11px] sticky top-0 transition-colors ${
               isDark ? 'bg-slate-900 text-slate-400 border-slate-800' : 'bg-slate-100 text-slate-600 border-slate-200'
             }`}>
               <tr>
@@ -223,15 +211,15 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
                 <th className="p-2.5">Detalles</th>
               </tr>
             </thead>
-            <tbody className={`divide-y font-mono text-[11px] transition-colors ${
+            <tbody className={`divide-y text-[11px] transition-colors ${
               isDark ? 'divide-slate-800 text-slate-300' : 'divide-slate-200 text-slate-700'
             }`}>
               {auditLogs.map((log) => (
                 <tr key={log.id} className={isDark ? 'hover:bg-slate-900/60' : 'hover:bg-slate-50'}>
                   <td className={`p-2.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{new Date(log.timestamp).toLocaleTimeString()}</td>
-                  <td className="p-2.5 font-bold text-amber-500">{log.userRole}</td>
+                  <td className="p-2.5 font-bold text-slate-400">{log.userRole}</td>
                   <td className={`p-2.5 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{log.action}</td>
-                  <td className="p-2.5 text-sky-600 dark:text-sky-400 font-semibold">{log.resource}</td>
+                  <td className="p-2.5 text-slate-300 font-semibold">{log.resource}</td>
                   <td className={`p-2.5 font-sans text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{log.details}</td>
                 </tr>
               ))}

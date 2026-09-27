@@ -15,6 +15,29 @@ import {
   Navigation
 } from 'lucide-react';
 
+const getSceneColor = (token: string): THREE.Color =>
+  new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue(token).trim());
+
+const getSceneColorHex = (token: string): number => getSceneColor(token).getHex();
+
+const createSceneMaterial = (
+  token: string,
+  options: THREE.MeshStandardMaterialParameters = {}
+): THREE.MeshStandardMaterial => {
+  const material = new THREE.MeshStandardMaterial({ ...options, color: getSceneColor(token) });
+  material.userData.sceneColorToken = token;
+  return material;
+};
+
+const createSceneBasicMaterial = (
+  token: string,
+  options: THREE.MeshBasicMaterialParameters = {}
+): THREE.MeshBasicMaterial => {
+  const material = new THREE.MeshBasicMaterial({ ...options, color: getSceneColor(token) });
+  material.userData.sceneColorToken = token;
+  return material;
+};
+
 interface Mine3DViewerProps {
   equipments: Equipment[];
   selectedEquipmentId: string | null;
@@ -68,8 +91,8 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
 
     // Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(isDark ? 0x0b1120 : 0xdbeafe); // Dynamic daylight vs night sky
-    scene.fog = new THREE.FogExp2(isDark ? 0x0f172a : 0xe2e8f0, 0.0018);
+    scene.background = getSceneColor('--scene-bg');
+    scene.fog = new THREE.FogExp2(getSceneColor('--scene-fog'), 0.00045);
     sceneRef.current = scene;
 
     // Camera
@@ -81,20 +104,23 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(getSceneColor('--scene-bg'));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.05;
 
     containerRef.current.innerHTML = '';
     containerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xfff7ed, 0.75); // Warm desert sunlight ambient
+    const ambientLight = new THREE.AmbientLight(getSceneColor('--scene-light'), 1.15);
+    ambientLight.userData.sceneColorToken = '--scene-light';
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xffedd5, 1.6);
+    const sunLight = new THREE.DirectionalLight(getSceneColor('--scene-light'), 1.75);
+    sunLight.userData.sceneColorToken = '--scene-light';
     sunLight.position.set(400, 600, 300);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 2048;
@@ -107,8 +133,10 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
     sunLight.shadow.camera.bottom = -500;
     scene.add(sunLight);
 
-    const blueHemisphere = new THREE.HemisphereLight(0x38bdf8, 0x78350f, 0.4);
-    scene.add(blueHemisphere);
+    const hemisphereLight = new THREE.HemisphereLight(getSceneColor('--scene-light'), getSceneColor('--scene-road'), 0.45);
+    hemisphereLight.userData.sceneColorToken = '--scene-light';
+    hemisphereLight.userData.sceneGroundToken = '--scene-road';
+    scene.add(hemisphereLight);
 
     // Build Open-Pit Terraced Benches (Geometría del Tajo de Explotación)
     buildTerracedOpenPit(scene);
@@ -265,10 +293,37 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
 
   // React to theme changes in 3D scene (daylight vs night/slate)
   useEffect(() => {
-    if (sceneRef.current) {
-      sceneRef.current.background = new THREE.Color(isDark ? 0x0b1120 : 0xdbeafe);
-      sceneRef.current.fog = new THREE.FogExp2(isDark ? 0x0f172a : 0xe2e8f0, 0.0018);
-    }
+    const frameId = requestAnimationFrame(() => {
+      const scene = sceneRef.current;
+      if (!scene) return;
+
+      scene.background = getSceneColor('--scene-bg');
+      scene.fog = new THREE.FogExp2(getSceneColor('--scene-fog'), 0.00045);
+      rendererRef.current?.setClearColor(getSceneColor('--scene-bg'));
+      scene.traverse((object) => {
+        const light = object as THREE.Light & { userData: Record<string, string> };
+        if (light.isLight && light.userData.sceneColorToken) {
+          light.color.set(getSceneColor(light.userData.sceneColorToken));
+        }
+        if (light instanceof THREE.HemisphereLight && light.userData.sceneGroundToken) {
+          light.groundColor.set(getSceneColor(light.userData.sceneGroundToken));
+        }
+
+        const renderable = object as THREE.Mesh & { userData: Record<string, string> };
+        if (!renderable.isMesh && !(object instanceof THREE.Points)) return;
+        const materials = Array.isArray(renderable.material) ? renderable.material : [renderable.material];
+        materials.forEach((material) => {
+          const token = material.userData.sceneColorToken;
+          if (token && 'color' in material) {
+            (material as THREE.MeshStandardMaterial | THREE.MeshBasicMaterial).color.set(getSceneColor(token));
+          }
+        });
+      });
+      if (rendererRef.current && cameraRef.current) {
+        rendererRef.current.render(scene, cameraRef.current);
+      }
+    });
+    return () => cancelAnimationFrame(frameId);
   }, [isDark]);
 
   // Update camera coordinates
@@ -290,19 +345,18 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
 
     // Concentric Benches (Bancos de explotación)
     const benchLevels = [
-      { radiusTop: 520, radiusBottom: 460, height: 28, yPos: 90, color: 0xb45309 }, // Banco 3600 (Top)
-      { radiusTop: 450, radiusBottom: 390, height: 28, yPos: 62, color: 0x92400e }, // Banco 3500
-      { radiusTop: 380, radiusBottom: 310, height: 28, yPos: 34, color: 0x78350f }, // Banco 3400 (Pala)
-      { radiusTop: 300, radiusBottom: 220, height: 28, yPos: 6, color: 0x854d0e },  // Banco 3300 (Hilux)
-      { radiusTop: 210, radiusBottom: 120, height: 28, yPos: -22, color: 0x713f12 }, // Banco 3200 (Curva Ciega HT-104)
-      { radiusTop: 110, radiusBottom: 30, height: 28, yPos: -50, color: 0x451a03 },  // Fondo de Tajo 3100
+      { radiusTop: 520, radiusBottom: 460, height: 28, yPos: 90 },
+      { radiusTop: 450, radiusBottom: 390, height: 28, yPos: 62 },
+      { radiusTop: 380, radiusBottom: 310, height: 28, yPos: 34 },
+      { radiusTop: 300, radiusBottom: 220, height: 28, yPos: 6 },
+      { radiusTop: 210, radiusBottom: 120, height: 28, yPos: -22 },
+      { radiusTop: 110, radiusBottom: 30, height: 28, yPos: -50 },
     ];
 
     benchLevels.forEach((bench, index) => {
       // Sloped bench wall
       const wallGeom = new THREE.CylinderGeometry(bench.radiusTop, bench.radiusBottom, bench.height, 64, 2, true);
-      const wallMat = new THREE.MeshStandardMaterial({
-        color: bench.color,
+      const wallMat = createSceneMaterial(index % 2 === 0 ? '--scene-bench' : '--scene-bench-alt', {
         roughness: 0.92,
         metalness: 0.08,
         flatShading: true,
@@ -316,8 +370,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
       const roadInner = bench.radiusBottom - 4;
       const roadOuter = bench.radiusTop + 8;
       const ringGeom = new THREE.RingGeometry(roadInner, roadOuter, 64);
-      const ringMat = new THREE.MeshStandardMaterial({
-        color: 0x475569, // Asfalto compactado de acarreo
+      const ringMat = createSceneMaterial('--scene-road', {
         roughness: 0.85,
         metalness: 0.1,
         side: THREE.DoubleSide,
@@ -330,7 +383,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
 
       // Safety Berms (Bermas de seguridad de 2.5m)
       const bermGeom = new THREE.TorusGeometry((roadInner + roadOuter) / 2 + 18, 1.4, 8, 48);
-      const bermMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.9 });
+      const bermMat = createSceneMaterial('--scene-berm', { roughness: 0.9 });
       const bermMesh = new THREE.Mesh(bermGeom, bermMat);
       bermMesh.rotation.x = Math.PI / 2;
       bermMesh.position.y = bench.yPos - bench.height / 2 + 1.2;
@@ -347,7 +400,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
       new THREE.Vector3(50, -50, -50),
     ]);
     const rampGeom = new THREE.TubeGeometry(rampCurve, 80, 8, 12, false);
-    const rampMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 });
+    const rampMat = createSceneMaterial('--scene-road', { roughness: 0.8 });
     const rampMesh = new THREE.Mesh(rampGeom, rampMat);
     rampMesh.position.y = 1;
     rampMesh.receiveShadow = true;
@@ -358,14 +411,14 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
     crusherGroup.position.set(-380, 105, -280);
     const crusherBuilding = new THREE.Mesh(
       new THREE.BoxGeometry(45, 35, 60),
-      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.4 })
+      createSceneMaterial('--scene-equipment', { roughness: 0.5, metalness: 0.4 })
     );
     crusherBuilding.position.y = 17.5;
     crusherGroup.add(crusherBuilding);
 
     const hopper = new THREE.Mesh(
       new THREE.ConeGeometry(18, 16, 8),
-      new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.4, metalness: 0.3 })
+      createSceneMaterial('--scene-berm', { roughness: 0.4, metalness: 0.3 })
     );
     hopper.rotation.x = Math.PI;
     hopper.position.set(0, 38, 0);
@@ -374,7 +427,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
     pitGroup.add(crusherGroup);
 
     // Grid helper on bottom
-    const grid = new THREE.GridHelper(1200, 40, 0xd97706, 0x1e293b);
+    const grid = new THREE.GridHelper(1200, 40, getSceneColorHex('--scene-detail'), getSceneColorHex('--scene-grid'));
     grid.position.y = -65;
     pitGroup.add(grid);
 
@@ -394,11 +447,10 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
     }
 
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const material = new THREE.PointsMaterial({
-      color: 0xd97706,
-      size: 3.5,
+    const material = createSceneBasicMaterial('--scene-particle', {
+      size: 2.2,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.16,
       blending: THREE.AdditiveBlending,
     });
 
@@ -427,7 +479,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
           color: getRiskColorHex(eq.currentPrediction.riskLevel),
           side: THREE.DoubleSide,
           transparent: true,
-          opacity: 0.75,
+          opacity: 0.45,
         });
         const haloMesh = new THREE.Mesh(haloGeom, haloMat);
         haloMesh.rotation.x = Math.PI / 2;
@@ -473,7 +525,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
       // Main Chassis
       const chassis = new THREE.Mesh(
         new THREE.BoxGeometry(14, 6, 22),
-        new THREE.MeshStandardMaterial({ color: eq.isAutonomous ? 0x2563eb : 0xca8a04, roughness: 0.4, metalness: 0.5 })
+        createSceneMaterial(eq.isAutonomous ? '--scene-equipment' : '--accent', { roughness: 0.4, metalness: 0.5 })
       );
       chassis.position.y = 6;
       chassis.castShadow = true;
@@ -482,7 +534,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
       // Dump Bed (Tolva)
       const dumpBed = new THREE.Mesh(
         new THREE.BoxGeometry(15, 7, 20),
-        new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8, metalness: 0.3 })
+        createSceneMaterial('--scene-equipment', { roughness: 0.8, metalness: 0.3 })
       );
       dumpBed.position.set(0, 11, -2);
       dumpBed.castShadow = true;
@@ -493,7 +545,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
         // Autonomous AHS Sensor Dome
         const dome = new THREE.Mesh(
           new THREE.SphereGeometry(2.2, 16, 16),
-          new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, metalness: 0.8, emissive: 0x0284c7, emissiveIntensity: 0.5 })
+          createSceneMaterial('--scene-sensor', { roughness: 0.5, metalness: 0.4 })
         );
         dome.position.set(0, 12, 7);
         group.add(dome);
@@ -501,7 +553,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
         // Antenna
         const antenna = new THREE.Mesh(
           new THREE.CylinderGeometry(0.2, 0.2, 5),
-          new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+          createSceneBasicMaterial('--scene-sensor')
         );
         antenna.position.set(0, 15, 7);
         group.add(antenna);
@@ -509,7 +561,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
         // Manual Operator Cabin (Side cab)
         const cab = new THREE.Mesh(
           new THREE.BoxGeometry(4.5, 4.5, 5.5),
-          new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.2, metalness: 0.1 })
+          createSceneMaterial('--scene-light', { roughness: 0.5, metalness: 0.1 })
         );
         cab.position.set(-4.5, 11, 6.5);
         cab.castShadow = true;
@@ -518,7 +570,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
 
       // 6 Massive 4-Meter Mining Tires
       const tireGeom = new THREE.CylinderGeometry(4.2, 4.2, 3.2, 24);
-      const tireMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.95 });
+      const tireMat = createSceneMaterial('--scene-tire', { roughness: 0.95 });
       const tirePositions = [
         [-6.8, 4.2, 7], [6.8, 4.2, 7],
         [-7.2, 4.2, -4], [7.2, 4.2, -4],
@@ -536,7 +588,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
       // P&H 4100XPC Electric Rope Shovel
       const body = new THREE.Mesh(
         new THREE.BoxGeometry(24, 16, 26),
-        new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4, metalness: 0.4 })
+        createSceneMaterial('--scene-equipment', { roughness: 0.6, metalness: 0.3 })
       );
       body.position.y = 12;
       body.castShadow = true;
@@ -545,14 +597,14 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
       // Boom & Bucket arm
       const boom = new THREE.Mesh(
         new THREE.CylinderGeometry(1.5, 2.2, 32),
-        new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.6 })
+        createSceneMaterial('--scene-berm', { metalness: 0.4 })
       );
       boom.rotation.x = -Math.PI / 3.2;
       boom.position.set(0, 22, 14);
       group.add(boom);
 
       // Crawler Tracks
-      const trackL = new THREE.Mesh(new THREE.BoxGeometry(6, 6, 30), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+      const trackL = new THREE.Mesh(new THREE.BoxGeometry(6, 6, 30), createSceneMaterial('--scene-tire'));
       trackL.position.set(-11, 3, 0);
       const trackR = trackL.clone();
       trackR.position.set(11, 3, 0);
@@ -561,7 +613,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
       // Light Pickup Truck (Hilux)
       const truckBody = new THREE.Mesh(
         new THREE.BoxGeometry(5.5, 3.2, 11),
-        new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 })
+        createSceneMaterial('--scene-light', { roughness: 0.5 })
       );
       truckBody.position.y = 2.4;
       truckBody.castShadow = true;
@@ -570,14 +622,14 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
       // 4.2m Mining Safety Pole with Flashing Amber LED
       const pole = new THREE.Mesh(
         new THREE.CylinderGeometry(0.1, 0.1, 8.5),
-        new THREE.MeshBasicMaterial({ color: 0x94a3b8 })
+        createSceneBasicMaterial('--scene-sensor')
       );
       pole.position.set(2, 7, -3);
       group.add(pole);
 
       const beacon = new THREE.Mesh(
         new THREE.SphereGeometry(0.6, 12, 12),
-        new THREE.MeshBasicMaterial({ color: 0xf59e0b })
+        createSceneBasicMaterial('--warning')
       );
       beacon.position.set(2, 11.2, -3);
       group.add(beacon);
@@ -590,12 +642,11 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
   function createLidarScanningCone(eq: Equipment): THREE.Group {
     const group = new THREE.Group();
     const coneGeom = new THREE.ConeGeometry(24, 48, 16, 1, true, -Math.PI / 3, (2 * Math.PI) / 3);
-    const coneMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
+    const coneMat = createSceneBasicMaterial('--scene-lidar', {
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.07,
       side: THREE.DoubleSide,
-      wireframe: true,
+      wireframe: false,
     });
     const coneMesh = new THREE.Mesh(coneGeom, coneMat);
     coneMesh.rotation.x = Math.PI / 2;
@@ -607,10 +658,10 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
 
   function getRiskColorHex(level: RiskLevel): number {
     switch (level) {
-      case 'CRITICAL': return 0xef4444; // Red
-      case 'HIGH': return 0xf97316;     // Orange
-      case 'MEDIUM': return 0xeab308;   // Yellow
-      case 'LOW': return 0x10b981;      // Emerald
+      case 'CRITICAL':
+      case 'HIGH': return getSceneColorHex('--danger');
+      case 'MEDIUM': return getSceneColorHex('--warning');
+      case 'LOW': return getSceneColorHex('--success');
     }
   }
 
@@ -650,12 +701,12 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
         <div className={`backdrop-blur-md border px-3.5 py-1.5 rounded-full flex items-center gap-2.5 shadow-lg pointer-events-auto transition-colors ${
           isDark ? 'bg-slate-900/90 border-slate-700/80' : 'bg-white/95 border-slate-300 text-slate-900'
         }`}>
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--success)] animate-ping" />
           <span className={`text-xs font-semibold tracking-wide ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
             GEMELO DIGITAL 3D EN VIVO (1 Hz GNSS + LiDAR)
           </span>
-          <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full font-medium ${
-            isDark ? 'bg-slate-800 text-amber-400' : 'bg-amber-100 text-amber-800'
+          <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
+            'ms-badge-neutral'
           }`}>
             {equipments.length} EQUIPOS
           </span>
@@ -668,11 +719,8 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
           <button
             id="btn-cam-orbit"
             onClick={handleResetCamera}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
-              cameraMode === 'ORBIT' 
-                ? 'bg-amber-500 text-slate-950 font-semibold shadow' 
-                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
-            }`}
+            aria-pressed={cameraMode === 'ORBIT'}
+            className="ms-button-neutral px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer"
             title="Vista Libre Orbital 3D"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -682,11 +730,8 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
           <button
             id="btn-cam-topdown"
             onClick={handleTopDownCamera}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
-              cameraMode === 'TOP_DOWN' 
-                ? 'bg-amber-500 text-slate-950 font-semibold shadow' 
-                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
-            }`}
+            aria-pressed={cameraMode === 'TOP_DOWN'}
+            className="ms-button-neutral px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer"
             title="Vista Cenital 2D GIS"
           >
             <Compass className="w-3.5 h-3.5" />
@@ -696,14 +741,11 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
           <button
             id="btn-cam-hotspot"
             onClick={handleFocusHotspot}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
-              cameraMode === 'HOTSPOT' 
-                ? 'bg-rose-500 text-white font-semibold shadow animate-pulse' 
-                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
-            }`}
+            aria-pressed={cameraMode === 'HOTSPOT'}
+            className="ms-button-neutral px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer"
             title="Enfocar Zona de Riesgo Crítico"
           >
-            <ShieldAlert className="w-3.5 h-3.5 text-amber-300" />
+            <ShieldAlert className="w-3.5 h-3.5 text-[var(--accent)]" />
             <span>Foco Riesgo</span>
           </button>
         </div>
@@ -718,11 +760,8 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
           <button
             id="btn-toggle-lidar"
             onClick={() => setShowLidarCones(!showLidarCones)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
-              showLidarCones 
-                ? 'bg-sky-500/20 text-sky-500 border border-sky-500/40 font-bold' 
-                : isDark ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'
-            }`}
+            aria-pressed={showLidarCones}
+            className="ms-button-neutral px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer"
           >
             <Radio className="w-3.5 h-3.5" />
             <span>Haz LiDAR</span>
@@ -731,11 +770,8 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
           <button
             id="btn-toggle-halos"
             onClick={() => setShowSafetyHalos(!showSafetyHalos)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
-              showSafetyHalos 
-                ? 'bg-amber-500/20 text-amber-500 border border-amber-500/40 font-bold' 
-                : isDark ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'
-            }`}
+            aria-pressed={showSafetyHalos}
+            className="ms-button-neutral px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer"
           >
             <Layers className="w-3.5 h-3.5" />
             <span>Halos de Seguridad</span>
@@ -750,20 +786,20 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
             Nivel de Riesgo:
           </span>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--success)]" />
             <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Bajo (&lt;0.3)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--warning)]" />
             <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Medio</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--warning)]" />
             <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Alto</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
-            <span className="text-rose-500 font-bold">Crítico (≥0.8)</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--danger)] animate-ping" />
+            <span className="text-[var(--danger)] font-bold">Crítico (≥0.8)</span>
           </div>
         </div>
       </div>

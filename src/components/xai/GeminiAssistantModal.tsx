@@ -69,13 +69,13 @@ export const GeminiAssistantModal: React.FC<GeminiAssistantModalProps> = ({
         {/* Header */}
         <div className="px-5 py-4 bg-slate-800/80 border-b border-slate-700 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+            <div className="w-10 h-10 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-border)] flex items-center justify-center text-[var(--accent)]">
               <Sparkles className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 Motor Gemini AI (FastAPI Backend)
-                <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-normal">
+                <span className="ms-badge-neutral text-xs px-2 py-0.5 rounded-full font-normal">
                   v1.0 Online
                 </span>
               </h3>
@@ -93,9 +93,9 @@ export const GeminiAssistantModal: React.FC<GeminiAssistantModalProps> = ({
         {/* Connection Bar */}
         <div className="px-5 py-2 bg-slate-950/60 border-b border-slate-800 text-xs flex items-center justify-between text-slate-300">
           <div className="flex items-center gap-2">
-            <Cpu className="w-3.5 h-3.5 text-indigo-400" />
-            <span>FastAPI: <code className="text-amber-300">http://localhost:8000/api/gemini</code></span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 ml-2">
+            <Cpu className="w-3.5 h-3.5 text-slate-400" />
+            <span>FastAPI: <code className="text-slate-300">http://localhost:8000/api/gemini</code></span>
+            <span className="ms-badge-neutral text-[10px] px-1.5 py-0.5 rounded ml-2">
               ⚡ Langflow Agent: http://localhost:7860
             </span>
           </div>
@@ -103,17 +103,17 @@ export const GeminiAssistantModal: React.FC<GeminiAssistantModalProps> = ({
             {isCheckingHealth ? (
               <RefreshCw className="w-3.5 h-3.5 animate-spin text-slate-400" />
             ) : health?.gemini_api_key_configured ? (
-              <span className="flex items-center gap-1 text-emerald-400">
+              <span className="flex items-center gap-1 text-[var(--success)]">
                 <CheckCircle2 className="w-3.5 h-3.5" /> API Key Gemini Conectada ({health.model})
               </span>
             ) : (
-              <span className="flex items-center gap-1 text-amber-400">
+              <span className="flex items-center gap-1 text-slate-400">
                 <AlertCircle className="w-3.5 h-3.5" /> Backend accesible / API Key lista
               </span>
             )}
             <button
               onClick={checkHealthStatus}
-              className="text-slate-400 hover:text-indigo-400 ml-1"
+              className="ms-button-neutral ml-1 rounded p-1"
               title="Revisar conexión"
             >
               <RefreshCw className="w-3 h-3" />
@@ -129,19 +129,19 @@ export const GeminiAssistantModal: React.FC<GeminiAssistantModalProps> = ({
               className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.sender === 'gemini' && (
-                <div className="w-8 h-8 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 shrink-0">
+                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 shrink-0">
                   <Bot className="w-4 h-4" />
                 </div>
               )}
               <div
                 className={`max-w-[80%] rounded-xl px-4 py-3 text-sm leading-relaxed ${
                   msg.sender === 'user'
-                    ? 'bg-indigo-600 text-white rounded-tr-none'
+                    ? 'bg-slate-800 border border-slate-700 text-slate-100 rounded-tr-none'
                     : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-none shadow-md'
                 }`}
               >
                 <div className="whitespace-pre-wrap">{msg.text}</div>
-                <div className={`text-[10px] mt-1 text-right ${msg.sender === 'user' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                <div className="text-[10px] mt-1 text-right text-slate-500">
                   {msg.time}
                 </div>
               </div>
@@ -150,7 +150,7 @@ export const GeminiAssistantModal: React.FC<GeminiAssistantModalProps> = ({
 
           {isLoading && (
             <div className="flex gap-3 items-center text-slate-400 text-sm">
-              <div className="w-8 h-8 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300">
+              <div className="w-8 h-8 rounded-full bg-[var(--accent-soft)] border border-[var(--accent-border)] flex items-center justify-center text-[var(--accent)]">
                 <RefreshCw className="w-4 h-4 animate-spin" />
               </div>
               <span className="animate-pulse">Gemini FastAPI procesando respuesta...</span>
@@ -165,12 +165,12 @@ export const GeminiAssistantModal: React.FC<GeminiAssistantModalProps> = ({
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Pregunta sobre la telemetría, alertas SHAP o estado de la mina..."
-            className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+            className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[var(--accent)] transition-colors"
           />
           <button
             type="submit"
             disabled={isLoading || !inputMessage.trim()}
-            className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-5 py-2.5 rounded-lg flex items-center gap-2 font-medium text-sm transition-colors shadow-lg shadow-indigo-600/20"
+            className="ms-button-primary disabled:opacity-50 px-5 py-2.5 rounded-lg flex items-center gap-2 font-medium text-sm"
           >
             <Send className="w-4 h-4" />
             <span>Enviar</span>

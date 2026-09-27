@@ -68,8 +68,8 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
         isDark ? 'border-slate-800' : 'border-slate-200'
       }`}>
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-            <Flame className="w-3.5 h-3.5 text-amber-500" />
+          <div className="w-7 h-7 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-border)] flex items-center justify-center">
+            <Flame className="w-3.5 h-3.5 text-[var(--accent)]" />
           </div>
           <h2 className={`text-sm font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
             Simulador de Escenarios
@@ -79,11 +79,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
         <button
           id="btn-reset-baseline"
           onClick={onResetToBaseline}
-          className={`text-xs px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors border cursor-pointer ${
-            isDark 
-              ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700' 
-              : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
-          }`}
+          className="ms-button-neutral text-xs px-2.5 py-1 rounded-lg flex items-center gap-1.5 cursor-pointer"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           <span>Restablecer</span>
@@ -97,22 +93,16 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
         <button
           id="tab-preset-scenarios"
           onClick={() => setActiveTab('PRESET')}
-          className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-            activeTab === 'PRESET'
-              ? 'bg-amber-500 text-slate-950 shadow-sm font-bold'
-              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
-          }`}
+          aria-pressed={activeTab === 'PRESET'}
+          className="ms-button-neutral flex-1 py-1.5 text-xs font-semibold rounded-lg cursor-pointer"
         >
           Escenarios Canónicos (A–E)
         </button>
         <button
           id="tab-custom-injector"
           onClick={() => setActiveTab('INJECTOR')}
-          className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-            activeTab === 'INJECTOR'
-              ? 'bg-amber-500 text-slate-950 shadow-sm font-bold'
-              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
-          }`}
+          aria-pressed={activeTab === 'INJECTOR'}
+          className="ms-button-neutral flex-1 py-1.5 text-xs font-semibold rounded-lg cursor-pointer"
         >
           Inyector Manual
         </button>
@@ -131,8 +121,8 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                   className={`p-3 rounded-xl border transition-all ${
                     isActive
                       ? isDark 
-                        ? 'bg-amber-500/10 border-amber-500/60 shadow-lg shadow-amber-950/40' 
-                        : 'bg-amber-50 border-amber-400 shadow-xs'
+                        ? 'bg-[var(--accent-soft)] border-[var(--accent)]'
+                        : 'bg-slate-800/60 border-slate-700/70'
                       : isDark 
                         ? 'bg-slate-800/60 border-slate-700/70 hover:border-slate-600' 
                         : 'bg-slate-50 border-slate-200 hover:border-slate-300'
@@ -142,8 +132,8 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                     <div className="flex items-center gap-2 truncate">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                         scenario.severityLevel === 'CRITICAL' 
-                          ? 'bg-rose-500/20 text-rose-500 border-rose-500/40' 
-                          : 'bg-orange-500/20 text-orange-500 border-orange-500/40'
+                          ? 'bg-[var(--danger)]/10 text-[var(--danger)] border-[var(--danger)]/40'
+                          : 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/40'
                       }`}>
                         {scenario.severityLevel}
                       </span>
@@ -155,11 +145,8 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                     <button
                       id={`btn-run-scenario-${scenario.id}`}
                       onClick={() => onActivateScenario(scenario)}
-                      className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all flex-shrink-0 cursor-pointer ${
-                        isActive
-                          ? 'bg-emerald-500 text-slate-950 font-bold'
-                          : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
-                      }`}
+                      aria-pressed={isActive}
+                      className="ms-button-neutral px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 flex-shrink-0 cursor-pointer"
                     >
                       <Play className="w-3 h-3 fill-current" />
                       <span>{isActive ? 'Activo' : 'Cargar'}</span>
@@ -170,7 +157,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                     isDark ? 'text-slate-400' : 'text-slate-500'
                   }`}>
                     <span>{scenario.zone}</span>
-                    <span className="font-mono text-sky-500 font-medium">TTC: {scenario.initialTtcSec}s</span>
+                    <span className="font-mono text-[var(--warning)] font-medium">TTC: {scenario.initialTtcSec}s</span>
                   </div>
                 </div>
               );
@@ -184,17 +171,17 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               <h3 className={`text-xs font-bold uppercase tracking-wide ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
                 Modulador Dinámico de Telemetría
               </h3>
-              <span className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Equipo: HT-104</span>
+              <span className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Equipo: HT-104</span>
             </div>
 
             {/* Slider 1: Horas de Turno */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
                 <span className={`flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                  <Clock className="w-3.5 h-3.5 text-amber-500" />
+                  <Clock className="w-3.5 h-3.5 text-[var(--warning)]" />
                   Horas de Turno Continuas:
                 </span>
-                <span className="font-mono font-bold text-amber-500">{shiftHours.toFixed(1)} hrs</span>
+                <span className="font-mono font-bold text-[var(--warning)]">{shiftHours.toFixed(1)} hrs</span>
               </div>
               <input
                 type="range"
@@ -210,7 +197,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               <div className={`flex justify-between text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                 <span>1h (Descansado)</span>
                 <span>8h (Límite normal)</span>
-                <span className="text-rose-500">14h (Fatiga extrema)</span>
+                <span className="text-[var(--danger)]">14h (Fatiga extrema)</span>
               </div>
             </div>
 
@@ -218,10 +205,10 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
                 <span className={`flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                  <Eye className="w-3.5 h-3.5 text-purple-500" />
+                  <Eye className="w-3.5 h-3.5 text-[var(--warning)]" />
                   Índice PERCLOS (Somnolencia):
                 </span>
-                <span className="font-mono font-bold text-purple-500">{perclos}%</span>
+                <span className="font-mono font-bold text-[var(--warning)]">{perclos}%</span>
               </div>
               <input
                 type="range"
@@ -237,7 +224,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               <div className={`flex justify-between text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                 <span>0-12% (Normal)</span>
                 <span>25% (Umbral Fatiga)</span>
-                <span className="text-rose-500">&gt;40% (Micro-sueño)</span>
+                <span className="text-[var(--danger)]">&gt;40% (Micro-sueño)</span>
               </div>
             </div>
 
@@ -245,10 +232,10 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
                 <span className={`flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                  <Gauge className="w-3.5 h-3.5 text-sky-500" />
+                  <Gauge className="w-3.5 h-3.5 text-slate-400" />
                   Velocidad de Descenso:
                 </span>
-                <span className="font-mono font-bold text-sky-500">{speed} km/h</span>
+                <span className="font-mono font-bold text-slate-300">{speed} km/h</span>
               </div>
               <input
                 type="range"
@@ -266,7 +253,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             {/* Weather & Road Condition */}
             <div className="space-y-1.5">
               <label className={`text-xs flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                <CloudSun className="w-3.5 h-3.5 text-amber-500" />
+                <CloudSun className="w-3.5 h-3.5 text-[var(--accent)]" />
                 Condición Ambiental y Visibilidad:
               </label>
               <select
@@ -274,8 +261,8 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                 onChange={(e) => setWeather(e.target.value as any)}
                 className={`w-full text-xs rounded-lg p-2 outline-none border transition-colors ${
                   isDark 
-                    ? 'bg-slate-900 border-slate-700 text-slate-200 focus:border-amber-500' 
-                    : 'bg-white border-slate-300 text-slate-900 focus:border-amber-500'
+                    ? 'bg-slate-900 border-slate-700 text-slate-200 focus:border-[var(--accent)]'
+                    : 'bg-white border-slate-300 text-slate-900 focus:border-[var(--accent)]'
                 }`}
               >
                 <option value="CLEAR">Despejado (Visibilidad 100%)</option>
@@ -289,7 +276,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             <button
               id="btn-apply-injection"
               onClick={handleApplyCustomInjection}
-              className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="ms-button-primary w-full font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
             >
               <Sliders className="w-4 h-4" />
               <span>Aplicar Parámetros de Telemetría</span>

@@ -107,8 +107,8 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
         isDark ? 'border-slate-800' : 'border-slate-200'
       }`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center flex-shrink-0">
-            <FileText className="w-5 h-5 text-amber-500" />
+          <div className="w-10 h-10 rounded-xl bg-[var(--accent-soft)] border border-[var(--accent-border)] flex items-center justify-center flex-shrink-0">
+            <FileText className="w-5 h-5 text-[var(--accent)]" />
           </div>
           <div>
             <h2 className="text-base font-bold">Módulo de Reportabilidad y Auditoría de Seguridad Minera</h2>
@@ -119,7 +119,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
+          <span className="ms-badge-neutral text-xs px-3 py-1 rounded-full font-bold">
             ISO 45001 / MSHA Certified
           </span>
         </div>
@@ -127,8 +127,8 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
 
       {/* Success Notification Banner */}
       {generatedSuccess && (
-        <div className="bg-emerald-950/60 border border-emerald-500/40 p-3 rounded-xl flex items-center gap-2.5 text-emerald-300 text-xs shadow-lg animate-fade-in">
-          <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+        <div className="bg-slate-800 border border-slate-700 p-3 rounded-xl flex items-center gap-2.5 text-slate-300 text-xs animate-fade-in">
+          <CheckCircle className="w-4 h-4 text-slate-400 flex-shrink-0" />
           <span>{generatedSuccess}</span>
         </div>
       )}
@@ -140,14 +140,14 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
           isDark ? 'bg-slate-800/60 border-slate-700/80' : 'bg-slate-50 border-slate-200'
         }`}>
           <label className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-            <Building2 className="w-3.5 h-3.5 text-amber-500" />
+            <Building2 className="w-3.5 h-3.5 text-[var(--accent)]" />
             Faena Minera / Tajo:
           </label>
           <input
             type="text"
             value={mineName}
             onChange={(e) => setMineName(e.target.value)}
-            className={`w-full text-xs rounded-lg p-2 outline-none border focus:border-amber-500 ${
+            className={`w-full text-xs rounded-lg p-2 outline-none border focus:border-[var(--accent)] ${
               isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800'
             }`}
           />
@@ -159,13 +159,13 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
           isDark ? 'bg-slate-800/60 border-slate-700/80' : 'bg-slate-50 border-slate-200'
         }`}>
           <label className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-            <Clock className="w-3.5 h-3.5 text-purple-500" />
+            <Clock className="w-3.5 h-3.5 text-[var(--accent)]" />
             Turno Operacional:
           </label>
           <select
             value={shift}
             onChange={(e) => setShift(e.target.value as any)}
-            className={`w-full text-xs rounded-lg p-2 outline-none border focus:border-purple-500 ${
+            className={`w-full text-xs rounded-lg p-2 outline-none border focus:border-[var(--accent)] ${
               isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800'
             }`}
           >
@@ -180,13 +180,13 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
           isDark ? 'bg-slate-800/60 border-slate-700/80' : 'bg-slate-50 border-slate-200'
         }`}>
           <label className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-            <Filter className="w-3.5 h-3.5 text-sky-500" />
+            <Filter className="w-3.5 h-3.5 text-[var(--accent)]" />
             Plantilla de Reporte:
           </label>
           <select
             value={reportType}
             onChange={(e) => setReportType(e.target.value as any)}
-            className={`w-full text-xs rounded-lg p-2 outline-none border focus:border-sky-500 ${
+            className={`w-full text-xs rounded-lg p-2 outline-none border focus:border-[var(--accent)] ${
               isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800'
             }`}
           >
@@ -203,7 +203,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
         <button
           id="btn-export-pdf"
           onClick={handleExportPdf}
-          className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+          className="ms-button-primary font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
         >
           <FileDown className="w-4 h-4" />
           <span>Descargar PDF (.pdf)</span>
@@ -212,7 +212,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
         <button
           id="btn-export-word"
           onClick={handleExportWord}
-          className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+          className="ms-button-neutral font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
         >
           <FileText className="w-4 h-4" />
           <span>Descargar Word (.docx / .doc)</span>
@@ -221,7 +221,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
         <button
           id="btn-export-excel"
           onClick={handleExportExcel}
-          className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+          className="ms-button-neutral font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
         >
           <FileSpreadsheet className="w-4 h-4" />
           <span>Descargar Excel (.xlsx)</span>
@@ -237,7 +237,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
           isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
         }`}>
           <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-amber-500" />
+            <Eye className="w-4 h-4 text-[var(--accent)]" />
             <span className="text-xs font-bold uppercase tracking-wider">
               Previsualización en Vivo del Documento
             </span>
@@ -251,11 +251,8 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
               <button
                 id="btn-preview-pdf"
                 onClick={() => setPreviewFormat('PDF')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
-                  previewFormat === 'PDF'
-                    ? 'bg-rose-600 text-white shadow-sm'
-                    : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
-                }`}
+                aria-pressed={previewFormat === 'PDF'}
+                className="ms-button-neutral px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               >
                 <FileDown className="w-3.5 h-3.5" />
                 <span>Vista PDF</span>
@@ -264,11 +261,8 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
               <button
                 id="btn-preview-word"
                 onClick={() => setPreviewFormat('WORD')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
-                  previewFormat === 'WORD'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
-                }`}
+                aria-pressed={previewFormat === 'WORD'}
+                className="ms-button-neutral px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>Vista Word</span>
@@ -277,11 +271,8 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
               <button
                 id="btn-preview-excel"
                 onClick={() => setPreviewFormat('EXCEL')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
-                  previewFormat === 'EXCEL'
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
-                }`}
+                aria-pressed={previewFormat === 'EXCEL'}
+                className="ms-button-neutral px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5" />
                 <span>Vista Excel (.xlsx)</span>
@@ -289,12 +280,12 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
             </div>
 
             {/* Zoom controls */}
-            <div className={`hidden sm:flex items-center gap-1 px-2 py-1 rounded-xl border text-xs font-mono ${
+            <div className={`hidden sm:flex items-center gap-1 px-2 py-1 rounded-xl border text-xs ${
               isDark ? 'bg-slate-950 border-slate-800 text-slate-400' : 'bg-slate-100 border-slate-200 text-slate-600'
             }`}>
               <button 
                 onClick={() => setZoomLevel(Math.max(75, zoomLevel - 15))}
-                className="hover:text-amber-500 px-1"
+                className="ms-button-neutral px-1 rounded"
                 title="Reducir zoom"
               >
                 <ZoomOut className="w-3.5 h-3.5" />
@@ -302,7 +293,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
               <span>{zoomLevel}%</span>
               <button 
                 onClick={() => setZoomLevel(Math.min(125, zoomLevel + 15))}
-                className="hover:text-amber-500 px-1"
+                className="ms-button-neutral px-1 rounded"
                 title="Aumentar zoom"
               >
                 <ZoomIn className="w-3.5 h-3.5" />
@@ -322,14 +313,14 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
               <div className="bg-slate-900 text-white p-5 rounded-md flex justify-between items-start">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center">MS</span>
+                    <span className="w-6 h-6 rounded bg-[var(--accent)] text-white font-black text-xs flex items-center justify-center">MS</span>
                     <h1 className="text-base font-black tracking-tight text-white uppercase">MINESAFE 3D | INFORME DE SEGURIDAD OPERACIONAL</h1>
                   </div>
                   <p className="text-[10px] text-slate-300 mt-1">GEMELO DIGITAL EXPLICABLE (XAI) • TAJO ABIERTO • FLOTA MIXTA</p>
-                  <p className="text-[9px] text-amber-400 mt-0.5">Mina: {mineName} | {shiftTitle} | Fecha: {dateFormatted}</p>
+                  <p className="text-[9px] text-slate-300 mt-0.5">Mina: {mineName} | {shiftTitle} | Fecha: {dateFormatted}</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-[9px] font-mono bg-slate-800 text-slate-200 px-2 py-1 rounded border border-slate-700">
+                  <span className="text-[9px] bg-slate-800 text-slate-200 px-2 py-1 rounded border border-slate-700">
                     DOC: MS3D-RPT-{Date.now().toString().slice(-6)}
                   </span>
                   <p className="text-[8px] text-slate-400 mt-1">Página 1 de 2</p>
@@ -338,7 +329,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
 
               {/* PDF Section 1: Resumen Ejecutivo */}
               <div className="space-y-2">
-                <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider border-b-2 border-amber-500 pb-1">
+                <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider border-b-2 border-[var(--accent)] pb-1">
                   1. Resumen Ejecutivo de Predicción y Prevención de Colisiones (H1)
                 </h2>
                 <p className="text-[11px] text-slate-700 leading-relaxed text-justify">
@@ -358,29 +349,29 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                   <tbody className="divide-y divide-slate-200">
                     <tr className="bg-slate-50">
                       <td className="p-2 font-bold border border-slate-200">Tiempo de Anticipación (H1)</td>
-                      <td className="p-2 font-mono text-emerald-700 font-bold border border-slate-200">6.4 segundos antes</td>
+                      <td className="p-2 font-mono text-slate-700 font-bold border border-slate-200">6.4 segundos antes</td>
                       <td className="p-2 font-mono text-slate-600 border border-slate-200">1.8 segundos</td>
-                      <td className="p-2 font-bold text-emerald-600 border border-slate-200">+4.6 seg (+255%)</td>
+                      <td className="p-2 font-bold text-slate-700 border border-slate-200">+4.6 seg (+255%)</td>
                     </tr>
                     <tr>
                       <td className="p-2 font-bold border border-slate-200">Área bajo Curva ROC (AUC)</td>
-                      <td className="p-2 font-mono text-emerald-700 font-bold border border-slate-200">0.942</td>
+                      <td className="p-2 font-mono text-slate-700 font-bold border border-slate-200">0.942</td>
                       <td className="p-2 font-mono text-slate-600 border border-slate-200">0.710</td>
-                      <td className="p-2 font-bold text-emerald-600 border border-slate-200">+0.232</td>
+                      <td className="p-2 font-bold text-slate-700 border border-slate-200">+0.232</td>
                     </tr>
                     <tr className="bg-slate-50">
                       <td className="p-2 font-bold border border-slate-200">Tasa de Falsas Alarmas (FPR)</td>
-                      <td className="p-2 font-mono text-emerald-700 font-bold border border-slate-200">4.8%</td>
+                      <td className="p-2 font-mono text-slate-700 font-bold border border-slate-200">4.8%</td>
                       <td className="p-2 font-mono text-slate-600 border border-slate-200">24.2%</td>
-                      <td className="p-2 font-bold text-emerald-600 border border-slate-200">-80.1% reducción</td>
+                      <td className="p-2 font-bold text-slate-700 border border-slate-200">-80.1% reducción</td>
                     </tr>
                     <tr>
                       <td className="p-2 font-bold border border-slate-200">Cuasi-Colisiones Mitigadas</td>
-                      <td className="p-2 font-mono text-emerald-700 font-bold border border-slate-200">
+                      <td className="p-2 font-mono text-slate-700 font-bold border border-slate-200">
                         {alerts.filter(a => a.severity === 'CRITICAL').length} eventos prevenidos
                       </td>
                       <td className="p-2 font-mono text-slate-600 border border-slate-200">N/D</td>
-                      <td className="p-2 font-bold text-emerald-600 border border-slate-200">100% efectividad</td>
+                      <td className="p-2 font-bold text-slate-700 border border-slate-200">100% efectividad</td>
                     </tr>
                   </tbody>
                 </table>
@@ -388,27 +379,27 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
 
               {/* PDF Section 2: Log de Alertas y SHAP */}
               <div className="space-y-2 pt-2">
-                <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider border-b-2 border-amber-500 pb-1">
+                <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider border-b-2 border-[var(--accent)] pb-1">
                   2. Registro de Cuasi-Colisiones y Atribución Explicable Fast TreeSHAP
                 </h2>
                 <table className="w-full text-[9.5px] border-collapse">
                   <thead>
-                    <tr className="bg-amber-600 text-white">
-                      <th className="p-1.5 text-left border border-amber-700">Código</th>
-                      <th className="p-1.5 text-left border border-amber-700">Severidad</th>
-                      <th className="p-1.5 text-left border border-amber-700">Equipos</th>
-                      <th className="p-1.5 text-left border border-amber-700">Riesgo</th>
-                      <th className="p-1.5 text-left border border-amber-700">Anticipación</th>
-                      <th className="p-1.5 text-left border border-amber-700">Desglose Factores SHAP</th>
+                    <tr className="bg-[var(--accent)] text-white">
+                      <th className="p-1.5 text-left border border-[var(--accent-border)]">Código</th>
+                      <th className="p-1.5 text-left border border-[var(--accent-border)]">Severidad</th>
+                      <th className="p-1.5 text-left border border-[var(--accent-border)]">Equipos</th>
+                      <th className="p-1.5 text-left border border-[var(--accent-border)]">Riesgo</th>
+                      <th className="p-1.5 text-left border border-[var(--accent-border)]">Anticipación</th>
+                      <th className="p-1.5 text-left border border-[var(--accent-border)]">Desglose Factores SHAP</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
                     {alerts.slice(0, 4).map((alt) => (
                       <tr key={alt.id} className="hover:bg-slate-50">
-                        <td className="p-1.5 font-mono font-bold border border-slate-200">{alt.alertCode}</td>
+                        <td className="p-1.5 font-bold border border-slate-200">{alt.alertCode}</td>
                         <td className="p-1.5 border border-slate-200">
                           <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${
-                            alt.severity === 'CRITICAL' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                            alt.severity === 'CRITICAL' ? 'bg-[var(--danger)]/10 text-[var(--danger)]' : 'bg-[var(--warning)]/10 text-[var(--warning)]'
                           }`}>
                             {alt.severity}
                           </span>
@@ -416,10 +407,10 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                         <td className="p-1.5 font-bold border border-slate-200">
                           {alt.sourceEquipmentCode} {alt.targetEquipmentCode ? `vs ${alt.targetEquipmentCode}` : ''}
                         </td>
-                        <td className="p-1.5 font-mono font-bold text-rose-700 border border-slate-200">
+                        <td className="p-1.5 font-mono font-bold text-[var(--danger)] border border-slate-200">
                           {(alt.riskScore * 100).toFixed(0)}%
                         </td>
-                        <td className="p-1.5 font-mono font-bold text-emerald-700 border border-slate-200">
+                        <td className="p-1.5 font-mono font-bold text-slate-700 border border-slate-200">
                           +{alt.earlyWarningAnticipationSec}s
                         </td>
                         <td className="p-1.5 text-slate-700 border border-slate-200 text-[8.5px]">
@@ -453,15 +444,15 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
           <div className="p-4 sm:p-6 flex justify-center overflow-x-auto">
             <div 
               style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top center' }}
-              className="w-full max-w-[800px] bg-white text-slate-900 shadow-2xl rounded-sm border border-slate-300 p-8 sm:p-12 space-y-6 font-serif min-h-[900px]"
+              className="w-full max-w-[800px] bg-white text-slate-900 shadow-2xl rounded-sm border border-slate-300 p-8 sm:p-12 space-y-6 font-sans min-h-[900px]"
             >
               {/* Word Ribbon Header */}
-              <div className="border-b-4 border-blue-600 pb-3">
+              <div className="border-b-4 border-[var(--accent)] pb-3">
                 <div className="flex items-center justify-between">
                   <h1 className="text-xl font-bold text-slate-900 tracking-tight">
                     MINESAFE 3D — INFORME DE AUDITORÍA Y SEGURIDAD
                   </h1>
-                  <span className="text-xs font-mono bg-blue-50 text-blue-800 px-2.5 py-1 rounded border border-blue-200">
+                  <span className="ms-badge-neutral text-xs px-2.5 py-1 rounded">
                     Microsoft Word (.docx) View
                   </span>
                 </div>
@@ -480,7 +471,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
 
               {/* Word Section 1 */}
               <div className="space-y-3 font-sans">
-                <h2 className="text-sm font-bold text-slate-900 border-l-4 border-blue-600 pl-2">
+                <h2 className="text-sm font-bold text-slate-900 border-l-4 border-[var(--accent)] pl-2">
                   1. ANTECEDENTES Y VALIDACIÓN DE LA HIPÓTESIS H1
                 </h2>
                 <p className="text-xs text-slate-700 leading-relaxed">
@@ -493,7 +484,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
 
               {/* Word Fleet Status Table */}
               <div className="space-y-2 font-sans">
-                <h2 className="text-sm font-bold text-slate-900 border-l-4 border-blue-600 pl-2">
+                <h2 className="text-sm font-bold text-slate-900 border-l-4 border-[var(--accent)] pl-2">
                   2. ESTADO DE FLOTA Y RECOMENDACIONES CONTRAFÁCTICAS
                 </h2>
                 <table className="w-full text-xs border border-slate-300">
@@ -537,11 +528,8 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
                 <button
                   onClick={() => setExcelActiveSheet('FLEET')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 border transition-all ${
-                    excelActiveSheet === 'FLEET'
-                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
-                      : isDark ? 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200' : 'bg-white border-slate-300 text-slate-700'
-                  }`}
+                  aria-pressed={excelActiveSheet === 'FLEET'}
+                  className="ms-button-neutral px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"
                 >
                   <TableIcon className="w-3.5 h-3.5" />
                   <span>Hoja 1: Telemetría y Riesgo Flota</span>
@@ -549,11 +537,8 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
 
                 <button
                   onClick={() => setExcelActiveSheet('ALERTS')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 border transition-all ${
-                    excelActiveSheet === 'ALERTS'
-                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
-                      : isDark ? 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200' : 'bg-white border-slate-300 text-slate-700'
-                  }`}
+                  aria-pressed={excelActiveSheet === 'ALERTS'}
+                  className="ms-button-neutral px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"
                 >
                   <TableIcon className="w-3.5 h-3.5" />
                   <span>Hoja 2: Registro de Alertas SHAP</span>
@@ -561,11 +546,8 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
 
                 <button
                   onClick={() => setExcelActiveSheet('BENCHMARK')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 border transition-all ${
-                    excelActiveSheet === 'BENCHMARK'
-                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
-                      : isDark ? 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200' : 'bg-white border-slate-300 text-slate-700'
-                  }`}
+                  aria-pressed={excelActiveSheet === 'BENCHMARK'}
+                  className="ms-button-neutral px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"
                 >
                   <TableIcon className="w-3.5 h-3.5" />
                   <span>Hoja 3: Benchmark Twin vs PDS</span>
@@ -573,11 +555,8 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
 
                 <button
                   onClick={() => setExcelActiveSheet('CONSENTS')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 border transition-all ${
-                    excelActiveSheet === 'CONSENTS'
-                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
-                      : isDark ? 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200' : 'bg-white border-slate-300 text-slate-700'
-                  }`}
+                  aria-pressed={excelActiveSheet === 'CONSENTS'}
+                  className="ms-button-neutral px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"
                 >
                   <TableIcon className="w-3.5 h-3.5" />
                   <span>Hoja 4: Consentimientos Éticos</span>
@@ -600,7 +579,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
             </div>
 
             {/* Excel Grid Viewer */}
-            <div className={`border rounded-xl overflow-hidden shadow-inner font-mono text-xs ${
+            <div className={`border rounded-xl overflow-hidden shadow-inner text-xs ${
               isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
             }`}>
               <div className="overflow-x-auto max-h-[500px]">
@@ -608,7 +587,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                 {excelActiveSheet === 'FLEET' && (
                   <table className="w-full border-collapse text-left">
                     <thead>
-                      <tr className={isDark ? 'bg-slate-800 text-emerald-400' : 'bg-emerald-700 text-white'}>
+                      <tr className={isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-800'}>
                         <th className="p-2 border border-slate-700/50 w-10 text-center font-bold">#</th>
                         <th className="p-2 border border-slate-700/50">Código</th>
                         <th className="p-2 border border-slate-700/50">Modelo</th>
@@ -628,7 +607,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                         .map((eq, idx) => (
                           <tr key={eq.id} className={isDark ? 'hover:bg-slate-800/60' : 'hover:bg-slate-50'}>
                             <td className="p-2 border border-slate-800/40 text-center text-slate-500 font-bold">{idx + 1}</td>
-                            <td className="p-2 border border-slate-800/40 font-bold text-amber-500">{eq.code}</td>
+                            <td className="p-2 border border-slate-800/40 font-bold text-slate-300">{eq.code}</td>
                             <td className="p-2 border border-slate-800/40">{eq.model}</td>
                             <td className="p-2 border border-slate-800/40">
                               {eq.isAutonomous ? 'AHS Autónomo' : eq.assignedOperator?.operatorName}
@@ -637,10 +616,10 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                             <td className="p-2 border border-slate-800/40 text-center">{((eq.assignedOperator?.perclosScore ?? 0) * 100).toFixed(0)}%</td>
                             <td className="p-2 border border-slate-800/40 text-right">{eq.position.speedKmh.toFixed(1)} km/h</td>
                             <td className="p-2 border border-slate-800/40 text-right">{eq.lidarFeatures.nearestObstacleDistM.toFixed(1)} m</td>
-                            <td className="p-2 border border-slate-800/40 font-bold text-rose-500">
+                            <td className="p-2 border border-slate-800/40 font-bold text-[var(--danger)]">
                               {(eq.currentPrediction.overallRiskScore * 100).toFixed(0)}% ({eq.currentPrediction.riskLevel})
                             </td>
-                            <td className="p-2 border border-slate-800/40 text-right text-emerald-400 font-bold">{eq.currentPrediction.timeToCollisionSec.toFixed(1)}s</td>
+                            <td className="p-2 border border-slate-800/40 text-right text-[var(--warning)] font-bold">{eq.currentPrediction.timeToCollisionSec.toFixed(1)}s</td>
                             <td className="p-2 border border-slate-800/40 text-slate-400 truncate max-w-xs">{eq.currentPrediction.primaryRiskDriver}</td>
                           </tr>
                         ))}
@@ -652,7 +631,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                 {excelActiveSheet === 'ALERTS' && (
                   <table className="w-full border-collapse text-left">
                     <thead>
-                      <tr className={isDark ? 'bg-slate-800 text-emerald-400' : 'bg-emerald-700 text-white'}>
+                      <tr className={isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-800'}>
                         <th className="p-2 border border-slate-700/50 w-10 text-center font-bold">#</th>
                         <th className="p-2 border border-slate-700/50">Código Alerta</th>
                         <th className="p-2 border border-slate-700/50">Severidad</th>
@@ -671,14 +650,14 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                         .map((alt, idx) => (
                           <tr key={alt.id} className={isDark ? 'hover:bg-slate-800/60' : 'hover:bg-slate-50'}>
                             <td className="p-2 border border-slate-800/40 text-center text-slate-500 font-bold">{idx + 1}</td>
-                            <td className="p-2 border border-slate-800/40 font-bold text-amber-500">{alt.alertCode}</td>
+                            <td className="p-2 border border-slate-800/40 font-bold text-slate-300">{alt.alertCode}</td>
                             <td className="p-2 border border-slate-800/40 font-bold">{alt.severity}</td>
                             <td className="p-2 border border-slate-800/40">{alt.sourceEquipmentCode}</td>
                             <td className="p-2 border border-slate-800/40">{alt.targetEquipmentCode ?? 'Berma / Fijo'}</td>
                             <td className="p-2 border border-slate-800/40">{alt.zone}</td>
-                            <td className="p-2 border border-slate-800/40 text-rose-500 font-bold">{(alt.riskScore * 100).toFixed(0)}%</td>
+                            <td className="p-2 border border-slate-800/40 text-[var(--danger)] font-bold">{(alt.riskScore * 100).toFixed(0)}%</td>
                             <td className="p-2 border border-slate-800/40 text-right">{alt.timeToCollision.toFixed(1)}s</td>
-                            <td className="p-2 border border-slate-800/40 text-emerald-400 font-bold">+{alt.earlyWarningAnticipationSec}s</td>
+                            <td className="p-2 border border-slate-800/40 text-slate-300 font-bold">+{alt.earlyWarningAnticipationSec}s</td>
                             <td className="p-2 border border-slate-800/40 text-slate-400">{alt.shapExplanationSummary}</td>
                           </tr>
                         ))}
@@ -690,7 +669,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                 {excelActiveSheet === 'BENCHMARK' && (
                   <table className="w-full border-collapse text-left">
                     <thead>
-                      <tr className={isDark ? 'bg-slate-800 text-emerald-400' : 'bg-emerald-700 text-white'}>
+                      <tr className={isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-800'}>
                         <th className="p-2 border border-slate-700/50 w-10 text-center font-bold">#</th>
                         <th className="p-2 border border-slate-700/50">Métrica Operacional</th>
                         <th className="p-2 border border-slate-700/50">Gemelo Digital IA (Multi-Modal)</th>
@@ -702,30 +681,30 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                       <tr>
                         <td className="p-2 border border-slate-800/40 text-center text-slate-500 font-bold">1</td>
                         <td className="p-2 border border-slate-800/40 font-bold">AUC-ROC (Discriminación de Riesgo)</td>
-                        <td className="p-2 border border-slate-800/40 font-bold text-emerald-400">0.942</td>
+                        <td className="p-2 border border-slate-800/40 font-bold text-slate-300">0.942</td>
                         <td className="p-2 border border-slate-800/40 text-slate-400">0.710</td>
-                        <td className="p-2 border border-slate-800/40 font-bold text-emerald-400">+32.7%</td>
+                        <td className="p-2 border border-slate-800/40 font-bold text-slate-300">+32.7%</td>
                       </tr>
                       <tr>
                         <td className="p-2 border border-slate-800/40 text-center text-slate-500 font-bold">2</td>
                         <td className="p-2 border border-slate-800/40 font-bold">F1-Score Global</td>
-                        <td className="p-2 border border-slate-800/40 font-bold text-emerald-400">0.890</td>
+                        <td className="p-2 border border-slate-800/40 font-bold text-slate-300">0.890</td>
                         <td className="p-2 border border-slate-800/40 text-slate-400">0.640</td>
-                        <td className="p-2 border border-slate-800/40 font-bold text-emerald-400">+39.1%</td>
+                        <td className="p-2 border border-slate-800/40 font-bold text-slate-300">+39.1%</td>
                       </tr>
                       <tr>
                         <td className="p-2 border border-slate-800/40 text-center text-slate-500 font-bold">3</td>
                         <td className="p-2 border border-slate-800/40 font-bold">Tiempo Medio de Anticipación de Alerta (H1)</td>
-                        <td className="p-2 border border-slate-800/40 font-bold text-emerald-400">6.4 segundos</td>
+                        <td className="p-2 border border-slate-800/40 font-bold text-slate-300">6.4 segundos</td>
                         <td className="p-2 border border-slate-800/40 text-slate-400">1.8 segundos</td>
-                        <td className="p-2 border border-slate-800/40 font-bold text-emerald-400">+255%</td>
+                        <td className="p-2 border border-slate-800/40 font-bold text-slate-300">+255%</td>
                       </tr>
                       <tr>
                         <td className="p-2 border border-slate-800/40 text-center text-slate-500 font-bold">4</td>
                         <td className="p-2 border border-slate-800/40 font-bold">Tasa de Falsas Alarmas (FPR)</td>
-                        <td className="p-2 border border-slate-800/40 font-bold text-emerald-400">4.8%</td>
+                        <td className="p-2 border border-slate-800/40 font-bold text-slate-300">4.8%</td>
                         <td className="p-2 border border-slate-800/40 text-slate-400">24.2%</td>
-                        <td className="p-2 border border-slate-800/40 font-bold text-emerald-400">-80.1% reducción</td>
+                        <td className="p-2 border border-slate-800/40 font-bold text-slate-300">-80.1% reducción</td>
                       </tr>
                     </tbody>
                   </table>
@@ -735,7 +714,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                 {excelActiveSheet === 'CONSENTS' && (
                   <table className="w-full border-collapse text-left">
                     <thead>
-                      <tr className={isDark ? 'bg-slate-800 text-emerald-400' : 'bg-emerald-700 text-white'}>
+                      <tr className={isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-800'}>
                         <th className="p-2 border border-slate-700/50 w-10 text-center font-bold">#</th>
                         <th className="p-2 border border-slate-700/50">ID Operador</th>
                         <th className="p-2 border border-slate-700/50">Nombre</th>
@@ -754,14 +733,14 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                         .map((c, idx) => (
                           <tr key={c.operatorId} className={isDark ? 'hover:bg-slate-800/60' : 'hover:bg-slate-50'}>
                             <td className="p-2 border border-slate-800/40 text-center text-slate-500 font-bold">{idx + 1}</td>
-                            <td className="p-2 border border-slate-800/40 font-bold text-amber-500">{c.operatorId}</td>
+                            <td className="p-2 border border-slate-800/40 font-bold text-slate-300">{c.operatorId}</td>
                             <td className="p-2 border border-slate-800/40">{c.operatorName}</td>
                             <td className="p-2 border border-slate-800/40">{c.employeeCode}</td>
                             <td className="p-2 border border-slate-800/40">{c.consentDate}</td>
-                            <td className="p-2 border border-slate-800/40 font-bold text-emerald-400">{c.status}</td>
-                            <td className="p-2 border border-slate-800/40 text-slate-400 font-mono text-[10px]">{c.anonymizationHash.slice(0, 16)}...</td>
-                            <td className="p-2 border border-slate-800/40 text-center text-emerald-400">SI</td>
-                            <td className="p-2 border border-slate-800/40 text-center text-emerald-400">SI</td>
+                            <td className="p-2 border border-slate-800/40 font-bold text-slate-300">{c.status}</td>
+                            <td className="p-2 border border-slate-800/40 text-slate-400 text-[10px]">{c.anonymizationHash.slice(0, 16)}...</td>
+                            <td className="p-2 border border-slate-800/40 text-center text-slate-300">SI</td>
+                            <td className="p-2 border border-slate-800/40 text-center text-slate-300">SI</td>
                             <td className="p-2 border border-slate-800/40 text-slate-500 text-[10px]">{c.digitalSignatureRef}</td>
                           </tr>
                         ))}
