@@ -76,84 +76,56 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   ];
 
   return (
-    <div className={`space-y-4 transition-colors ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+    <div className="space-y-4 text-[var(--text)]">
       {/* Top High-Impact KPI Banners */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className={`p-3.5 rounded-2xl border relative overflow-hidden transition-colors ${
-          isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-        }`}>
-          <div className="absolute -right-2 -bottom-2 opacity-10">
-            <ShieldCheck className="w-16 h-16 text-slate-500" />
-          </div>
-          <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
-            isDark ? 'text-slate-400' : 'text-slate-500'
-          }`}>
-            <ShieldCheck className="w-4 h-4 text-slate-400" />
-            Cuasi-Colisiones Evitadas
+        <div className="ms-card p-3.5 space-y-1">
+          <span className="text-[11px] font-medium text-[var(--text-faint)] flex items-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-[var(--text-faint)]" />
+            Cuasi-colisiones mitigadas
           </span>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-slate-200">142</span>
-            <span className="ms-badge-neutral text-[11px] font-medium px-2 py-0.5 rounded-full">
-              100% efectividad
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-bold font-mono text-[var(--text)]">142</span>
+            <span className="ms-badge-risk-low">
+              100%
             </span>
           </div>
         </div>
 
-        <div className={`p-3.5 rounded-2xl border relative overflow-hidden transition-colors ${
-          isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-        }`}>
-          <div className="absolute -right-2 -bottom-2 opacity-10">
-            <Clock className="w-16 h-16 text-slate-500" />
-          </div>
-          <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
-            isDark ? 'text-slate-400' : 'text-slate-500'
-          }`}>
-            <Clock className="w-4 h-4 text-slate-400" />
-            Anticipación Media
+        <div className="ms-card p-3.5 space-y-1">
+          <span className="text-[11px] font-medium text-[var(--text-faint)] flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-[var(--text-faint)]" />
+            Anticipación promedio
           </span>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-slate-200">6.4s</span>
-            <span className="ms-badge-neutral text-[11px] font-medium px-2 py-0.5 rounded-full">
-              vs 1.8s (+255%)
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-bold font-mono text-[var(--text)]">6.4s</span>
+            <span className="ms-badge-neutral text-[10px]">
+              vs 1.8s
             </span>
           </div>
         </div>
 
-        <div className={`p-3.5 rounded-2xl border relative overflow-hidden transition-colors ${
-          isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-        }`}>
-          <div className="absolute -right-2 -bottom-2 opacity-10">
-            <Activity className="w-16 h-16 text-slate-500" />
-          </div>
-          <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
-            isDark ? 'text-slate-400' : 'text-slate-500'
-          }`}>
-            <Activity className="w-4 h-4 text-slate-400" />
+        <div className="ms-card p-3.5 space-y-1">
+          <span className="text-[11px] font-medium text-[var(--text-faint)] flex items-center gap-1.5">
+            <Activity className="w-3.5 h-3.5 text-[var(--text-faint)]" />
             AUC-ROC
           </span>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-slate-200">0.978</span>
-            <span className="ms-badge-neutral text-[11px] font-medium px-2 py-0.5 rounded-full">
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-bold font-mono text-[var(--text)]">0.978</span>
+            <span className="ms-badge-neutral text-[10px]">
               F1: 0.932
             </span>
           </div>
         </div>
 
-        <div className={`p-3.5 rounded-2xl border relative overflow-hidden transition-colors ${
-          isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-        }`}>
-          <div className="absolute -right-2 -bottom-2 opacity-10">
-            <Users className="w-16 h-16 text-slate-500" />
-          </div>
-          <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
-            isDark ? 'text-slate-400' : 'text-slate-500'
-          }`}>
-            <Users className="w-4 h-4 text-slate-400" />
-            Aceptación Operador
+        <div className="ms-card p-3.5 space-y-1">
+          <span className="text-[11px] font-medium text-[var(--text-faint)] flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5 text-[var(--text-faint)]" />
+            Aceptación operador
           </span>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-slate-200">89.6%</span>
-            <span className="ms-badge-neutral text-[11px] font-medium px-2 py-0.5 rounded-full">
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-bold font-mono text-[var(--text)]">89.6%</span>
+            <span className="ms-badge-neutral text-[10px]">
               FPR: 4.8%
             </span>
           </div>
@@ -163,88 +135,80 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       {/* Main Comparative Benchmark Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* H1 Benchmark: Warning Time Comparison */}
-        <div className={`p-4 rounded-2xl border space-y-3 transition-colors ${
-          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-        }`}>
+        <div className="ms-card p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-              <Clock className="w-4 h-4 text-slate-400" />
-              Tiempo de Anticipación vs PDS Estándar
+            <h3 className="text-xs font-semibold flex items-center gap-1.5 text-[var(--text)]">
+              <Clock className="w-3.5 h-3.5 text-[var(--text-faint)]" />
+              Tiempo de anticipación vs PDS reactivo
             </h3>
-            <span className="ms-badge-neutral text-[10px] px-2 py-0.5 rounded">
+            <span className="ms-badge-neutral text-[10px]">
               +255%
             </span>
           </div>
 
-          <div className="h-60 w-full min-h-[240px] min-w-0 pt-1">
+          <div className="h-56 w-full min-h-[220px] min-w-0 pt-1">
             <ResponsiveContainer width="100%" height="100%" debounce={50}>
-              <BarChart data={warningTimeData} margin={{ top: 10, right: 10, left: -15, bottom: 25 }}>
+              <BarChart data={warningTimeData} margin={{ top: 10, right: 10, left: -15, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="event" tick={{ fill: 'var(--text-tertiary)', fontSize: 9.5 }} angle={-15} textAnchor="end" interval={0} />
-                <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} unit="s" domain={[0, 8]} />
+                <XAxis dataKey="event" tick={{ fill: 'var(--text-faint)', fontSize: 10 }} angle={-15} textAnchor="end" interval={0} />
+                <YAxis tick={{ fill: 'var(--text-faint)', fontSize: 10 }} unit="s" domain={[0, 8]} />
                 <Tooltip
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className={`p-2.5 rounded-lg text-xs shadow-xl space-y-1 border ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-200 text-slate-900 shadow-md'
-                        }`}>
-                          <p className="font-bold">{label}</p>
-                          <p className="text-slate-300 font-mono">Gemelo Digital: {payload[0]?.value}s</p>
-                          <p className={`font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>PDS Estándar: {payload[1]?.value}s</p>
+                        <div className="p-2.5 rounded-control text-xs border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] shadow-xs space-y-1">
+                          <p className="font-semibold">{label}</p>
+                          <p className="text-[var(--accent)] font-mono">Gemelo digital: {payload[0]?.value}s</p>
+                          <p className="text-[var(--text-muted)] font-mono">PDS estándar: {payload[1]?.value}s</p>
                         </div>
                       );
                     }
                     return null;
                   }}
                 />
-                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
-                <Bar dataKey="twin" name="Gemelo Digital" fill="var(--accent)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="pds" name="PDS Tradicional" fill="var(--text-tertiary)" radius={[4, 4, 0, 0]} />
+                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
+                <Bar dataKey="twin" name="Gemelo digital (s)" fill="var(--accent)" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="pds" name="PDS tradicional (s)" fill="var(--border-strong)" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* ROC Curve: Discriminative Power */}
-        <div className={`p-4 rounded-2xl border space-y-3 transition-colors ${
-          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-        }`}>
+        <div className="ms-card p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-              <Activity className="w-4 h-4 text-slate-400" />
+            <h3 className="text-xs font-semibold flex items-center gap-1.5 text-[var(--text)]">
+              <Activity className="w-3.5 h-3.5 text-[var(--text-faint)]" />
               Curva ROC (Sensibilidad vs FPR)
             </h3>
-            <span className="text-[10px] text-slate-400 font-mono bg-slate-500/10 px-2 py-0.5 rounded border border-slate-500/30">
+            <span className="ms-badge-neutral font-mono text-[10px]">
               AUC: 0.978
             </span>
           </div>
 
-          <div className="h-64 w-full min-h-[256px] min-w-0 pt-2">
+          <div className="h-56 w-full min-h-[220px] min-w-0 pt-1">
             <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <LineChart data={rocCurveData} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="fpr" tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} label={{ value: 'Tasa Falsos Positivos (FPR)', position: 'insideBottom', offset: -10, fill: 'var(--text-soft)', fontSize: 10 }} />
-                <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} domain={[0, 1]} unit="" label={{ value: 'Sensibilidad (TPR)', angle: -90, position: 'insideLeft', fill: 'var(--text-soft)', fontSize: 10 }} />
+                <XAxis dataKey="fpr" tick={{ fill: 'var(--text-faint)', fontSize: 10 }} label={{ value: 'Tasa Falsos Positivos (FPR)', position: 'insideBottom', offset: -10, fill: 'var(--text-faint)', fontSize: 10 }} />
+                <YAxis tick={{ fill: 'var(--text-faint)', fontSize: 10 }} domain={[0, 1]} label={{ value: 'Sensibilidad (TPR)', angle: -90, position: 'insideLeft', fill: 'var(--text-faint)', fontSize: 10 }} />
                 <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className={`p-2.5 rounded-lg text-xs shadow-xl space-y-1 border ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-200 text-slate-900 shadow-md'
-                        }`}>
-                          <p className={`font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>FPR: {payload[0]?.payload.fpr}</p>
-                          <p className="text-[var(--accent)] font-bold">TPR Gemelo Digital: {payload[0]?.value}</p>
-                          <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>TPR PDS Estándar: {payload[1]?.value}</p>
+                        <div className="p-2.5 rounded-control text-xs border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] shadow-xs space-y-1">
+                          <p className="font-mono text-[var(--text-faint)]">FPR: {payload[0]?.payload.fpr}</p>
+                          <p className="text-[var(--accent)] font-semibold">TPR Gemelo: {payload[0]?.value}</p>
+                          <p className="text-[var(--text-muted)]">TPR PDS: {payload[1]?.value}</p>
                         </div>
                       );
                     }
                     return null;
                   }}
                 />
-                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
-                <Line type="monotone" dataKey="twinTpr" name="Gemelo Digital (AUC = 0.942)" stroke="var(--accent)" strokeWidth={3} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="pdsTpr" name="PDS Tradicional (AUC = 0.710)" stroke="var(--text-tertiary)" strokeDasharray="4 4" strokeWidth={2} />
+                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
+                <Line type="monotone" dataKey="twinTpr" name="Gemelo digital (AUC = 0.942)" stroke="var(--accent)" strokeWidth={2.5} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="pdsTpr" name="PDS tradicional (AUC = 0.710)" stroke="var(--border-strong)" strokeDasharray="4 4" strokeWidth={1.5} dot={{ r: 2 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -254,25 +218,21 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       {/* Bench Risk & Shift Distribution Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Risk by Bench */}
-        <div className={`md:col-span-2 p-4 rounded-2xl border shadow-xl space-y-3 transition-colors ${
-          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-        }`}>
-          <h3 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-            <Layers className="w-4 h-4 text-[var(--accent)]" />
-            Índice de Riesgo por Banco de Explotación y Rampas
+        <div className="md:col-span-2 ms-card p-4 space-y-3">
+          <h3 className="text-xs font-semibold flex items-center gap-1.5 text-[var(--text)]">
+            <Layers className="w-3.5 h-3.5 text-[var(--text-faint)]" />
+            Índice de riesgo por banco de explotación y rampas
           </h3>
           <div className="space-y-2 pt-1">
             {benchRiskData.map((bench, idx) => (
               <div key={idx} className="space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>{bench.name}</span>
-                  <span className="font-mono font-bold" style={{ color: bench.color }}>
-                    Score: {bench.risk}%
+                  <span className="text-[var(--text-muted)]">{bench.name}</span>
+                  <span className="font-mono font-medium text-[var(--text)]">
+                    {bench.risk}%
                   </span>
                 </div>
-                <div className={`w-full h-2 rounded-full overflow-hidden ${
-                  isDark ? 'bg-slate-800' : 'bg-slate-100'
-                }`}>
+                <div className="w-full h-1.5 rounded-full overflow-hidden bg-[var(--border)]">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{ width: `${bench.risk}%`, backgroundColor: bench.color }}
@@ -284,17 +244,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </div>
 
         {/* Shift Distribution */}
-        <div className={`p-4 rounded-2xl border shadow-xl space-y-3 flex flex-col justify-between transition-colors ${
-          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-        }`}>
-          <h3 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-            <Users className="w-4 h-4 text-slate-400" />
-            Riesgo por Turno Operacional
+        <div className="ms-card p-4 space-y-3 flex flex-col justify-between">
+          <h3 className="text-xs font-semibold flex items-center gap-1.5 text-[var(--text)]">
+            <Users className="w-3.5 h-3.5 text-[var(--text-faint)]" />
+            Distribución por turno
           </h3>
-          <div className="h-40 w-full min-h-[160px] min-w-0 flex items-center justify-center">
+          <div className="h-36 w-full min-h-[140px] min-w-0 flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <PieChart>
-                <Pie data={shiftDistributionData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={55} innerRadius={35} paddingAngle={4}>
+                <Pie data={shiftDistributionData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={50} innerRadius={32} paddingAngle={4}>
                   {shiftDistributionData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
@@ -303,20 +261,20 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="space-y-1.5 text-xs">
+          <div className="space-y-1 text-xs">
             <div className="flex items-center justify-between">
-              <span className={`flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                <span className="w-2.5 h-2.5 rounded-full bg-[var(--danger)]" />
-                Turno Noche (Fatiga crítica)
+              <span className="flex items-center gap-1.5 text-[var(--text-muted)]">
+                <span className="w-2 h-2 rounded-full bg-[var(--danger)]" />
+                Turno noche (fatiga crítica)
               </span>
-              <span className="font-mono font-bold text-[var(--danger)]">68%</span>
+              <span className="font-mono text-[var(--text)] font-semibold">68%</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className={`flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                <span className="w-2.5 h-2.5 rounded-full bg-[var(--success)]" />
-                Turno Día (Normal)
+              <span className="flex items-center gap-1.5 text-[var(--text-muted)]">
+                <span className="w-2 h-2 rounded-full bg-[var(--success)]" />
+                Turno día (normal)
               </span>
-              <span className="font-mono font-bold text-[var(--success)]">32%</span>
+              <span className="font-mono text-[var(--text)] font-semibold">32%</span>
             </div>
           </div>
         </div>

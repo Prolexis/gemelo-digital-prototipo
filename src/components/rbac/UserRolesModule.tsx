@@ -72,52 +72,48 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
   ];
 
   return (
-    <div className={`rounded-2xl border shadow-xl p-5 space-y-5 transition-colors ${
-      isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900 shadow-sm'
-    }`}>
+    <div className="ms-card p-5 space-y-6 text-[var(--text)]">
       {/* Header */}
-      <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b transition-colors ${
-        isDark ? 'border-slate-800' : 'border-slate-200'
-      }`}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-[var(--border)]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[var(--accent-soft)] border border-[var(--accent-border)] flex items-center justify-center">
-            <UserCheck className="w-5 h-5 text-[var(--accent)]" />
+          <div className="w-9 h-9 rounded-[var(--radius-control)] bg-[var(--accent-soft)] border border-[var(--border)] flex items-center justify-center text-[var(--accent)]">
+            <UserCheck className="w-4 h-4" />
           </div>
           <div>
-            <h2 className={`text-base font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-              Control de Acceso Basado en Roles (RBAC) & Registro de Auditoría
+            <h2 className="text-sm font-semibold text-[var(--text)]">
+              Control de acceso basado en roles (RBAC)
             </h2>
-            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Usuario autenticado: <strong className="text-slate-300">{userName || 'Usuario Corporativo'}</strong> • Perfil: {currentRole}
+            <p className="text-xs text-[var(--text-muted)]">
+              Usuario: <span className="font-mono text-[var(--text)]">{userName || 'Usuario Corporativo'}</span> • Rol activo: <span className="font-mono text-[var(--text)]">{currentRole}</span>
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="ms-badge-neutral text-xs px-3 py-1 rounded-full font-bold">
-            Rol Activo: {currentRole}
+          <span className="ms-badge-neutral text-xs font-mono">
+            {currentRole}
           </span>
           {onLogout && (
             <button
               onClick={onLogout}
-              className="ms-button-neutral flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold cursor-pointer"
-              title="Cerrar sesión actual para entrar con otro usuario"
+              className="ms-button-neutral flex items-center gap-1.5 px-3 py-1 text-xs"
+              title="Cerrar sesión actual"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Cerrar Sesión</span>
+              <span>Cerrar sesión</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Role Selection Grid */}
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         <div className="flex items-center justify-between">
-          <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-            Perfiles de Seguridad del Sistema (RBAC):
+          <h3 className="text-xs font-medium text-[var(--text-faint)]">
+            Perfiles de seguridad disponibles:
           </h3>
-          <span className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            Autenticado bajo norma ISO 27001
+          <span className="text-[11px] text-[var(--text-faint)] font-mono">
+            ISO 27001 / SOC2
           </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
@@ -129,16 +125,22 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
                 id={`btn-role-${r.id}`}
                 onClick={() => onRoleChange(r.id)}
                 aria-pressed={isCurrent}
-                className="ms-button-neutral p-3 rounded-xl text-left cursor-pointer"
+                className={`p-3 rounded-[var(--radius-card)] text-left border transition-colors cursor-pointer ${
+                  isCurrent
+                    ? 'border-[var(--accent)] bg-[var(--accent-soft)]'
+                    : 'border-[var(--border)] bg-[var(--surface-2)] hover:border-[var(--border-strong)]'
+                }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="ms-badge-neutral text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-[var(--radius-control)] border ${
+                    isCurrent ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--surface)]' : 'border-[var(--border)] text-[var(--text-faint)]'
+                  }`}>
                     {r.id}
                   </span>
-                  {isCurrent && <Check className="w-4 h-4 text-[var(--accent)]" />}
+                  {isCurrent && <Check className="w-3.5 h-3.5 text-[var(--accent)]" />}
                 </div>
-                <h4 className={`text-xs font-bold mt-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>{r.name}</h4>
-                <p className={`text-[11px] mt-1 leading-snug ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{r.description}</p>
+                <h4 className="text-xs font-semibold mt-2 text-[var(--text)]">{r.name}</h4>
+                <p className="text-[11px] mt-1 leading-snug text-[var(--text-muted)]">{r.description}</p>
               </button>
             );
           })}
@@ -146,37 +148,41 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
       </div>
 
       {/* Granular Permissions Table */}
-      <div className="space-y-2 pt-2">
-        <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-          Matriz de Permisos por Módulo
+      <div className="space-y-2.5">
+        <h3 className="text-xs font-medium text-[var(--text-faint)]">
+          Matriz de permisos por funcionalidad
         </h3>
-        <div className={`overflow-x-auto rounded-xl border transition-colors ${
-          isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-        }`}>
+        <div className="overflow-x-auto rounded-[var(--radius-card)] border border-[var(--border)]">
           <table className="w-full text-left text-xs">
-            <thead className={`border-b text-[11px] transition-colors ${
-              isDark ? 'bg-slate-900 text-slate-400 border-slate-800' : 'bg-slate-100 text-slate-600 border-slate-200'
-            }`}>
+            <thead className="border-b border-[var(--border)] text-[11px] bg-[var(--surface-2)] text-[var(--text-faint)]">
               <tr>
-                <th className="p-3">Funcionalidad / Módulo</th>
-                <th className="p-3 text-center">ADMIN</th>
-                <th className="p-3 text-center">SUPERVISOR</th>
-                <th className="p-3 text-center">OPERADOR</th>
-                <th className="p-3 text-center">DATA ANALYST</th>
-                <th className="p-3 text-center">AUDITOR</th>
+                <th className="p-3 font-medium">Funcionalidad</th>
+                <th className={`p-3 text-center font-medium ${currentRole === 'ADMIN' ? 'text-[var(--accent)] bg-[var(--accent-soft)]' : ''}`}>ADMIN</th>
+                <th className={`p-3 text-center font-medium ${currentRole === 'SAFETY_SUPERVISOR' ? 'text-[var(--accent)] bg-[var(--accent-soft)]' : ''}`}>SUPERVISOR</th>
+                <th className={`p-3 text-center font-medium ${currentRole === 'OPERATOR' ? 'text-[var(--accent)] bg-[var(--accent-soft)]' : ''}`}>OPERADOR</th>
+                <th className={`p-3 text-center font-medium ${currentRole === 'DATA_ANALYST' ? 'text-[var(--accent)] bg-[var(--accent-soft)]' : ''}`}>DATA ANALYST</th>
+                <th className={`p-3 text-center font-medium ${currentRole === 'AUDITOR' ? 'text-[var(--accent)] bg-[var(--accent-soft)]' : ''}`}>AUDITOR</th>
               </tr>
             </thead>
-            <tbody className={`divide-y transition-colors ${
-              isDark ? 'divide-slate-800 text-slate-300' : 'divide-slate-200 text-slate-700'
-            }`}>
+            <tbody className="divide-y divide-[var(--border)] text-[var(--text)]">
               {permissionsMatrix.map((perm, idx) => (
-                <tr key={idx} className={isDark ? 'hover:bg-slate-900/60' : 'hover:bg-slate-50'}>
-                  <td className={`p-3 font-medium ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{perm.feature}</td>
-                  <td className="p-3 text-center">{perm.ADMIN ? <Check className="w-4 h-4 text-slate-400 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
-                  <td className="p-3 text-center">{perm.SAFETY_SUPERVISOR ? <Check className="w-4 h-4 text-slate-400 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
-                  <td className="p-3 text-center">{perm.OPERATOR ? <Check className="w-4 h-4 text-slate-400 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
-                  <td className="p-3 text-center">{perm.DATA_ANALYST ? <Check className="w-4 h-4 text-slate-400 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
-                  <td className="p-3 text-center">{perm.AUDITOR ? <Check className="w-4 h-4 text-slate-400 mx-auto" /> : <X className="w-4 h-4 text-slate-400 mx-auto" />}</td>
+                <tr key={idx} className="hover:bg-[var(--surface-2)] transition-colors">
+                  <td className="p-3 font-medium text-[var(--text)]">{perm.feature}</td>
+                  <td className={`p-3 text-center ${currentRole === 'ADMIN' ? 'bg-[var(--accent-soft)]/50' : ''}`}>
+                    {perm.ADMIN ? <Check className="w-3.5 h-3.5 text-[var(--text-muted)] mx-auto" /> : <span className="text-[var(--text-faint)]">—</span>}
+                  </td>
+                  <td className={`p-3 text-center ${currentRole === 'SAFETY_SUPERVISOR' ? 'bg-[var(--accent-soft)]/50' : ''}`}>
+                    {perm.SAFETY_SUPERVISOR ? <Check className="w-3.5 h-3.5 text-[var(--text-muted)] mx-auto" /> : <span className="text-[var(--text-faint)]">—</span>}
+                  </td>
+                  <td className={`p-3 text-center ${currentRole === 'OPERATOR' ? 'bg-[var(--accent-soft)]/50' : ''}`}>
+                    {perm.OPERATOR ? <Check className="w-3.5 h-3.5 text-[var(--text-muted)] mx-auto" /> : <span className="text-[var(--text-faint)]">—</span>}
+                  </td>
+                  <td className={`p-3 text-center ${currentRole === 'DATA_ANALYST' ? 'bg-[var(--accent-soft)]/50' : ''}`}>
+                    {perm.DATA_ANALYST ? <Check className="w-3.5 h-3.5 text-[var(--text-muted)] mx-auto" /> : <span className="text-[var(--text-faint)]">—</span>}
+                  </td>
+                  <td className={`p-3 text-center ${currentRole === 'AUDITOR' ? 'bg-[var(--accent-soft)]/50' : ''}`}>
+                    {perm.AUDITOR ? <Check className="w-3.5 h-3.5 text-[var(--text-muted)] mx-auto" /> : <span className="text-[var(--text-faint)]">—</span>}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -185,42 +191,34 @@ export const UserRolesModule: React.FC<UserRolesModuleProps> = ({
       </div>
 
       {/* Audit Log Table */}
-      <div className="space-y-2 pt-2">
+      <div className="space-y-2.5">
         <div className="flex items-center justify-between">
-          <h3 className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
-            isDark ? 'text-slate-200' : 'text-slate-800'
-          }`}>
-            <History className="w-4 h-4 text-[var(--accent)]" />
-            Registro Inmutable de Auditoría (Audit Log)
+          <h3 className="text-xs font-medium text-[var(--text-faint)] flex items-center gap-1.5">
+            <History className="w-3.5 h-3.5 text-[var(--accent)]" />
+            Registro de auditoría
           </h3>
-          <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Trazabilidad ISO 27001 / SOC2</span>
+          <span className="text-[11px] font-mono text-[var(--text-faint)]">Trazabilidad ISO 27001</span>
         </div>
 
-        <div className={`overflow-x-auto rounded-xl border max-h-56 transition-colors ${
-          isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-        }`}>
+        <div className="overflow-x-auto rounded-[var(--radius-card)] border border-[var(--border)] max-h-56">
           <table className="w-full text-left text-xs">
-            <thead className={`border-b text-[11px] sticky top-0 transition-colors ${
-              isDark ? 'bg-slate-900 text-slate-400 border-slate-800' : 'bg-slate-100 text-slate-600 border-slate-200'
-            }`}>
+            <thead className="border-b border-[var(--border)] text-[11px] sticky top-0 bg-[var(--surface-2)] text-[var(--text-faint)]">
               <tr>
-                <th className="p-2.5">Timestamp</th>
-                <th className="p-2.5">Usuario / Rol</th>
-                <th className="p-2.5">Acción</th>
-                <th className="p-2.5">Recurso / Equipo</th>
-                <th className="p-2.5">Detalles</th>
+                <th className="p-2.5 font-medium">Timestamp</th>
+                <th className="p-2.5 font-medium">Rol</th>
+                <th className="p-2.5 font-medium">Acción</th>
+                <th className="p-2.5 font-medium">Recurso</th>
+                <th className="p-2.5 font-medium">Detalles</th>
               </tr>
             </thead>
-            <tbody className={`divide-y text-[11px] transition-colors ${
-              isDark ? 'divide-slate-800 text-slate-300' : 'divide-slate-200 text-slate-700'
-            }`}>
+            <tbody className="divide-y divide-[var(--border)] text-[11px]">
               {auditLogs.map((log) => (
-                <tr key={log.id} className={isDark ? 'hover:bg-slate-900/60' : 'hover:bg-slate-50'}>
-                  <td className={`p-2.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{new Date(log.timestamp).toLocaleTimeString()}</td>
-                  <td className="p-2.5 font-bold text-slate-400">{log.userRole}</td>
-                  <td className={`p-2.5 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{log.action}</td>
-                  <td className="p-2.5 text-slate-300 font-semibold">{log.resource}</td>
-                  <td className={`p-2.5 font-sans text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{log.details}</td>
+                <tr key={log.id} className="hover:bg-[var(--surface-2)] transition-colors">
+                  <td className="p-2.5 font-mono text-[var(--text-muted)]">{new Date(log.timestamp).toLocaleTimeString()}</td>
+                  <td className="p-2.5 font-mono text-[var(--text-muted)]">{log.userRole}</td>
+                  <td className="p-2.5 font-medium text-[var(--text)]">{log.action}</td>
+                  <td className="p-2.5 font-mono text-[var(--text)]">{log.resource}</td>
+                  <td className="p-2.5 text-[var(--text-muted)]">{log.details}</td>
                 </tr>
               ))}
             </tbody>

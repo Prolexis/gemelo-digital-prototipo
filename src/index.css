@@ -2,175 +2,358 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ==========================================================================
+   MINESAFE 3D DESIGN TOKENS
+   Critical industrial safety UI: sober, precise, silent.
+   ========================================================================== */
+
 :root {
-  color-scheme: light dark;
-  --bg: #f1f5f9;
-  --bg-elev: #ffffff;
-  --bg-elev-2: #f8fafc;
-  --border: #cbd5e1;
-  --text: #0f172a;
-  --text-soft: #475569;
-  --text-tertiary: #94a3b8;
-  --accent: #b8863a;
-  --accent-foreground: #101820;
-  --accent-soft: rgba(184, 134, 58, 0.12);
-  --accent-hover: rgba(184, 134, 58, 0.18);
-  --accent-border: rgba(184, 134, 58, 0.36);
-  --accent-text: #966723;
-  --danger: #dc4c4c;
-  --warning: #c58a2b;
-  --success: #3b8b66;
-  --scene-bg: #e9eef4;
-  --scene-fog: #e9eef4;
-  --scene-light: #f8fafc;
-  --scene-bench: #94a3b8;
-  --scene-bench-alt: #64748b;
-  --scene-bench-alt: #cbd5e1;
-  --scene-road: #94a3b8;
-  --scene-berm: #64748b;
-  --scene-grid: #cbd5e1;
-  --scene-detail: #94a3b8;
-  --scene-equipment: #475569;
-  --scene-tire: #334155;
-  --scene-sensor: #64748b;
-  --scene-particle: #64748b;
-  --scene-lidar: #64748b;
+  color-scheme: light;
+  
+  /* Core surfaces & borders */
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #f0f1f3;
+  --border: #e3e5e8;
+  --border-strong: #cfd3d8;
+
+  /* Typography */
+  --text: #16181c;
+  --text-muted: #5a606a;
+  --text-faint: #8b919b;
+
+  /* Accent (Steel Blue - frees amber exclusively for hazard) */
+  --accent: #3f5f85;
+  --accent-soft: rgba(63, 95, 133, 0.12);
+  --accent-hover: rgba(63, 95, 133, 0.18);
+  --accent-border: rgba(63, 95, 133, 0.35);
+  --accent-text: #2f4b6d;
+  --accent-foreground: #ffffff;
+
+  /* Semantics (Strictly risk, sensors and SHAP attribution) */
+  --success: #2f8558;
+  --success-soft: rgba(47, 133, 88, 0.12);
+  --warning: #a86b00; /* Level 2 - Medio (Amarillo) */
+  --warning-soft: rgba(168, 107, 0, 0.12);
+  --risk-high: #c85a17; /* Level 3 - Alto (Naranja claro distinguible) */
+  --risk-high-soft: rgba(200, 90, 23, 0.12);
+  --danger: #c93a3f; /* Level 4 - Crítico */
+  --danger-soft: rgba(201, 58, 63, 0.12);
+
+  /* Three.js 3D Scene tokens - Warm light grey */
+  --scene-bg: #eaecee;
+  --scene-fog: #eaecee;
+  --scene-light: #ffffff;
+  --scene-bench: #cbd0d6;
+  --scene-bench-alt: #b8bec7;
+  --scene-road: #9da6b2;
+  --scene-berm: #838e9c;
+  --scene-grid: #d3d8df;
+  --scene-detail: #b4bac3;
+  --scene-equipment: #495463;
+  --scene-tire: #20242b;
+  --scene-sensor: #5f6c7d;
+  --scene-particle: #8d98a7;
+  --scene-lidar: #3f5f85;
 }
 
 html.dark {
   color-scheme: dark;
-  --bg: #090d12;
-  --bg-elev: #111821;
-  --bg-elev-2: #18212c;
-  --border: #293544;
-  --text: #e2e8f0;
-  --text-soft: #a5b1c0;
-  --text-tertiary: #64748b;
-  --accent-soft: rgba(184, 134, 58, 0.12);
-  --accent-hover: rgba(184, 134, 58, 0.18);
-  --accent-border: rgba(184, 134, 58, 0.36);
-  --accent-text: #d4a359;
-  --danger: #f06b6b;
-  --warning: #e1ae55;
-  --success: #62b88c;
-  --scene-bg: #111821;
-  --scene-fog: #111821;
-  --scene-light: #e2e8f0;
-  --scene-bench: #94a3b8;
-  --scene-bench-alt: #475569;
-  --scene-bench-alt: #64748b;
-  --scene-road: #334155;
-  --scene-berm: #64748b;
-  --scene-grid: #475569;
-  --scene-detail: #64748b;
-  --scene-equipment: #94a3b8;
-  --scene-tire: #090d12;
-  --scene-sensor: #94a3b8;
-  --scene-particle: #94a3b8;
-  --scene-lidar: #94a3b8;
+
+  /* Core surfaces & borders */
+  --bg: #0c0d0f;
+  --surface: #131518;
+  --surface-2: #1a1c20;
+  --border: #26292e;
+  --border-strong: #33373d;
+
+  /* Typography */
+  --text: #e7e8ea;
+  --text-muted: #9a9fa7;
+  --text-faint: #666b73;
+
+  /* Accent (Steel Blue) */
+  --accent: #7ba0c4;
+  --accent-soft: rgba(123, 160, 196, 0.12);
+  --accent-hover: rgba(123, 160, 196, 0.18);
+  --accent-border: rgba(123, 160, 196, 0.35);
+  --accent-text: #96bbdf;
+  --accent-foreground: #0c0d0f;
+
+  /* Semantics */
+  --success: #4cae7a;
+  --success-soft: rgba(76, 174, 122, 0.12);
+  --warning: #e0a030; /* Level 2 - Medio */
+  --warning-soft: rgba(224, 160, 48, 0.12);
+  --risk-high: #e67e22; /* Level 3 - Alto */
+  --risk-high-soft: rgba(230, 126, 34, 0.12);
+  --danger: #f0625a; /* Level 4 - Crítico */
+  --danger-soft: rgba(240, 98, 90, 0.12);
+
+  /* Three.js 3D Scene tokens - Neutral graphite */
+  --scene-bg: #111317;
+  --scene-fog: #111317;
+  --scene-light: #e7e8ea;
+  --scene-bench: #2b3038;
+  --scene-bench-alt: #22262d;
+  --scene-road: #1c1f24;
+  --scene-berm: #383e48;
+  --scene-grid: #282d35;
+  --scene-detail: #3a414c;
+  --scene-equipment: #8a94a2;
+  --scene-tire: #07080a;
+  --scene-sensor: #7ba0c4;
+  --scene-particle: #4e5765;
+  --scene-lidar: #7ba0c4;
 }
 
-html:not(.dark) {
-  color-scheme: light;
-}
+/* ==========================================================================
+   BASE & TYPOGRAPHY
+   ========================================================================== */
 
-/* Base typography */
 body {
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--text);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-button,
-input,
-select,
-textarea {
-  font-family: inherit;
-}
-
-:where(button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.ms-button-neutral {
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-soft);
-  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
-}
-
-.ms-button-neutral:hover {
-  border-color: var(--border);
-  background: var(--bg-elev-2);
-  color: var(--text);
-}
-
-.ms-button-neutral[aria-pressed='true'],
-.ms-button-neutral[aria-selected='true'] {
-  border-color: var(--accent-border);
-  background: var(--accent-soft);
-  color: var(--accent-text);
-}
-
-.ms-button-primary {
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: var(--accent-foreground);
-  transition: filter 140ms ease, transform 140ms ease;
-}
-
-.ms-button-primary:hover {
-  filter: brightness(1.08);
-}
-
-.ms-button-danger {
-  border: 1px solid var(--danger);
-  background: var(--danger);
-  color: #fff;
-}
-
-.ms-badge-neutral {
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-soft);
-}
-
-.rounded-xl,
-.rounded-2xl,
-.rounded-3xl {
-  border-radius: 8px;
-}
-
-/* Numerical and code telemetry */
+/* Monospace restricted to telemetry, timers, coordinates, alerts, TTC */
 .font-mono,
 code,
 pre {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
+
+/* Radii tokens */
+.rounded-control {
+  border-radius: 6px;
+}
+.rounded-card {
+  border-radius: 8px;
+}
+
+/* Focus visibility rule */
+:where(button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   STANDARDIZED BUTTONS & CONTROLS
+   ========================================================================== */
+
+/* Primary Button: Solid steel accent (MAX 1 per view/panel) */
+.ms-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+  font-weight: 500;
+  font-size: 13px;
+  transition: opacity 120ms ease, background-color 120ms ease;
+  cursor: pointer;
+}
+.ms-button-primary:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+/* Secondary Button: Neutral outline */
+.ms-button-neutral {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background-color: transparent;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 13px;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  cursor: pointer;
+}
+.ms-button-neutral:hover:not(:disabled) {
+  background-color: var(--surface-2);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.ms-button-neutral[aria-pressed='true'],
+.ms-button-neutral[aria-selected='true'] {
+  border-color: var(--accent);
+  background-color: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+/* Danger Button: Reserved strictly for real critical actions */
+.ms-button-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--danger);
+  background-color: var(--danger);
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 13px;
+  transition: opacity 120ms ease;
+  cursor: pointer;
+}
+.ms-button-danger:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Ghost Button: Icon buttons or tertiary actions */
+.ms-button-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--text-muted);
+  transition: background-color 120ms ease, color 120ms ease;
+  cursor: pointer;
+}
+.ms-button-ghost:hover:not(:disabled) {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+/* Badges: Neutral with subtle border by default */
+.ms-badge-neutral {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background-color: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Semantic Risk Badges (4 Levels) */
+.ms-badge-risk-low {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(47, 133, 88, 0.3);
+  background-color: var(--success-soft);
+  color: var(--success);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ms-badge-risk-medium {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(168, 107, 0, 0.3);
+  background-color: var(--warning-soft);
+  color: var(--warning);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ms-badge-risk-high {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(200, 90, 23, 0.35);
+  background-color: var(--risk-high-soft);
+  color: var(--risk-high);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ms-badge-risk-critical {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(201, 58, 63, 0.4);
+  background-color: var(--danger-soft);
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Input Fields (36px, border-strong, clean) */
+.ms-input {
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background-color: var(--surface);
+  color: var(--text);
+  padding: 0 10px;
+  font-size: 13px;
+  transition: border-color 120ms ease;
+}
+.ms-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+.ms-input::placeholder {
+  color: var(--text-faint);
+}
+
+/* Card Container */
+.ms-card {
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  padding: 16px;
+}
+
+/* Controlled subtle pulse for active critical alert only */
+@keyframes ms-alert-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.92); }
+}
+
+.ms-pulse-active {
+  animation: ms-alert-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-pulse-active {
+    animation: none;
+  }
+}
+
+/* Scrollbars */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 html.dark ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: var(--border-strong);
   border-radius: 9999px;
-}
-
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
-}
-
-html:not(.dark) ::-webkit-scrollbar-track {
-  background: #f8fafc;
 }
 
 html:not(.dark) ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--border-strong);
   border-radius: 9999px;
-}
-
-html:not(.dark) ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
 }

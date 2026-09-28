@@ -467,20 +467,16 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
         <button
           id="btn-open-copilot"
           onClick={() => setIsOpen(true)}
-          className={`fixed bottom-6 right-6 z-40 px-3.5 py-2.5 rounded-xl shadow-lg border flex items-center gap-2.5 transition-all cursor-pointer ${
-            isDark
-              ? 'bg-slate-900 hover:bg-slate-800 text-slate-200 border-slate-700 hover:border-slate-600 shadow-slate-950/60'
-              : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-300 shadow-md'
-          }`}
-          title="Abrir Consola de Despacho y Telemetría"
+          className="fixed bottom-6 right-6 z-40 px-3.5 py-2.5 rounded-[var(--radius-control)] shadow-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--surface-2)] flex items-center gap-2.5 transition-all cursor-pointer"
+          title="Abrir consola de despacho"
         >
           <div className="relative">
-            <Terminal className="w-4 h-4 text-amber-500" />
-            <span className="w-2 h-2 rounded-full bg-emerald-500 absolute -top-0.5 -right-0.5" />
+            <Terminal className="w-4 h-4 text-[var(--accent)]" />
+            <span className="w-2 h-2 rounded-full bg-[var(--success)] absolute -top-0.5 -right-0.5" />
           </div>
           <div className="text-left hidden sm:block">
-            <p className="text-xs font-bold leading-tight">Consola de Despacho</p>
-            <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'} leading-tight`}>Telemetría 1 Hz</p>
+            <p className="text-xs font-semibold leading-tight text-[var(--text)]">Consola de despacho</p>
+            <p className="text-[10px] text-[var(--text-faint)] leading-tight font-mono">Telemetría 1 Hz</p>
           </div>
         </button>
       )}
@@ -488,33 +484,25 @@ export const MiningAiChatbot: React.FC<MiningAiChatbotProps> = ({
       {/* Ventana de la Consola */}
       {isOpen && (
         <div
-          className={`fixed z-50 transition-all duration-200 flex flex-col shadow-2xl border ${
+          className={`fixed z-50 transition-all duration-200 flex flex-col shadow-2xl border border-[var(--border)] rounded-[var(--radius-card)] bg-[var(--surface)] text-[var(--text)] ${
             isExpanded
-              ? 'inset-4 md:inset-10 rounded-2xl'
-              : 'bottom-6 right-6 w-[92vw] sm:w-[420px] h-[580px] max-h-[85vh] rounded-2xl'
-          } ${
-            isDark
-              ? 'bg-slate-950 border-slate-800 shadow-slate-950/80 text-slate-100'
-              : 'bg-white border-slate-200 shadow-xl text-slate-900'
+              ? 'inset-4 md:inset-10'
+              : 'bottom-6 right-6 w-[92vw] sm:w-[420px] h-[580px] max-h-[85vh]'
           }`}
         >
           {/* Header de la Consola */}
-          <div className={`p-3.5 border-b flex items-center justify-between transition-colors ${
-            isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'
-          }`}>
+          <div className="p-3.5 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-2)]">
             <div className="flex items-center gap-2.5">
-              <div className={`w-8 h-8 rounded-lg border flex items-center justify-center ${
-                isDark ? 'bg-slate-800 border-slate-700 text-amber-500' : 'bg-white border-slate-300 text-amber-600'
-              }`}>
+              <div className="w-8 h-8 rounded-[var(--radius-control)] border border-[var(--border)] flex items-center justify-center bg-[var(--surface)] text-[var(--accent)]">
                 <Terminal className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h4 className={`text-xs font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-                    Consola de Despacho & Seguridad
+                  <h4 className="text-xs font-semibold text-[var(--text)]">
+                    Consola de despacho & seguridad
                   </h4>
-                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 rounded">
-                    ACTIVO
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[var(--success)]/15 text-[var(--success)] border border-[var(--success)]/30 rounded-[var(--radius-control)]">
+                    1 Hz
                   </span>
                 </div>
                 <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>

@@ -447,12 +447,14 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
     }
 
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const material = createSceneBasicMaterial('--scene-particle', {
+    const material = new THREE.PointsMaterial({
+      color: getSceneColor('--scene-particle'),
       size: 2.2,
       transparent: true,
       opacity: 0.16,
       blending: THREE.AdditiveBlending,
     });
+    material.userData.sceneColorToken = '--scene-particle';
 
     const particles = new THREE.Points(geometry, material);
     dustParticlesRef.current = particles;
@@ -658,8 +660,8 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
 
   function getRiskColorHex(level: RiskLevel): number {
     switch (level) {
-      case 'CRITICAL':
-      case 'HIGH': return getSceneColorHex('--danger');
+      case 'CRITICAL': return getSceneColorHex('--danger');
+      case 'HIGH': return getSceneColorHex('--risk-high');
       case 'MEDIUM': return getSceneColorHex('--warning');
       case 'LOW': return getSceneColorHex('--success');
     }
@@ -689,39 +691,28 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
   };
 
   return (
-    <div className={`relative w-full h-full min-h-[500px] rounded-2xl overflow-hidden border shadow-2xl flex flex-col transition-colors ${
-      isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-300'
-    }`}>
+    <div className="relative w-full h-full min-h-[480px] rounded-card overflow-hidden border border-[var(--border)] flex flex-col bg-[var(--surface)]">
       {/* 3D WebGL Canvas Container */}
       <div ref={containerRef} className="w-full h-full flex-1 cursor-grab active:cursor-grabbing" />
 
-      {/* Top Floating Controls Bar */}
-      <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
-        {/* Status Pill */}
-        <div className={`backdrop-blur-md border px-3.5 py-1.5 rounded-full flex items-center gap-2.5 shadow-lg pointer-events-auto transition-colors ${
-          isDark ? 'bg-slate-900/90 border-slate-700/80' : 'bg-white/95 border-slate-300 text-slate-900'
-        }`}>
-          <span className="w-2.5 h-2.5 rounded-full bg-[var(--success)] animate-ping" />
-          <span className={`text-xs font-semibold tracking-wide ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-            GEMELO DIGITAL 3D EN VIVO (1 Hz GNSS + LiDAR)
-          </span>
-          <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
-            'ms-badge-neutral'
-          }`}>
-            {equipments.length} EQUIPOS
-          </span>
+      {/* Top Left: Subdued scene indicators & Camera Controls Bar */}
+      <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
+        {/* Subtle scene info: single line sentence case, 12px */}
+        <div className="px-2.5 py-1 rounded-control border border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-sm flex items-center gap-2 pointer-events-auto shadow-xs text-xs text-[var(--text-muted)]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
+          <span>Gemelo digital en vivo</span>
+          <span className="text-[var(--text-faint)]">•</span>
+          <span className="font-mono text-[11px]">{equipments.length} equipos</span>
         </div>
 
-        {/* Camera Views Quick Switch */}
-        <div className={`flex items-center gap-1.5 backdrop-blur-md border p-1.5 rounded-xl shadow-lg pointer-events-auto transition-colors ${
-          isDark ? 'bg-slate-900/90 border-slate-700/80' : 'bg-white/95 border-slate-300 text-slate-800'
-        }`}>
+        {/* Camera Segmented Control */}
+        <div className="flex items-center gap-1 p-1 rounded-control border border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-sm pointer-events-auto shadow-xs">
           <button
             id="btn-cam-orbit"
             onClick={handleResetCamera}
             aria-pressed={cameraMode === 'ORBIT'}
-            className="ms-button-neutral px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer"
-            title="Vista Libre Orbital 3D"
+            className="ms-button-neutral px-2 py-1 text-xs font-medium flex items-center gap-1.5 cursor-pointer"
+            title="Vista libre orbital"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Órbita</span>
@@ -731,37 +722,35 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
             id="btn-cam-topdown"
             onClick={handleTopDownCamera}
             aria-pressed={cameraMode === 'TOP_DOWN'}
-            className="ms-button-neutral px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer"
-            title="Vista Cenital 2D GIS"
+            className="ms-button-neutral px-2 py-1 text-xs font-medium flex items-center gap-1.5 cursor-pointer"
+            title="Vista cenital GIS"
           >
             <Compass className="w-3.5 h-3.5" />
-            <span>Cenital 2D</span>
+            <span>Cenital</span>
           </button>
 
           <button
             id="btn-cam-hotspot"
             onClick={handleFocusHotspot}
             aria-pressed={cameraMode === 'HOTSPOT'}
-            className="ms-button-neutral px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer"
-            title="Enfocar Zona de Riesgo Crítico"
+            className="ms-button-neutral px-2 py-1 text-xs font-medium flex items-center gap-1.5 cursor-pointer"
+            title="Enfocar zona de riesgo"
           >
-            <ShieldAlert className="w-3.5 h-3.5 text-[var(--accent)]" />
-            <span>Foco Riesgo</span>
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>Foco</span>
           </button>
         </div>
       </div>
 
-      {/* Bottom Layer Toggles & Legend */}
-      <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-3 pointer-events-none z-10">
-        {/* Layer Toggles */}
-        <div className={`flex items-center gap-2 backdrop-blur-md border p-1.5 rounded-xl shadow-lg pointer-events-auto transition-colors ${
-          isDark ? 'bg-slate-900/90 border-slate-700/80' : 'bg-white/95 border-slate-300'
-        }`}>
+      {/* Bottom Layer Toggles & 4-Level Risk Legend */}
+      <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 pointer-events-none z-10">
+        {/* Layer Toggles Segmented Control */}
+        <div className="flex items-center gap-1 p-1 rounded-control border border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-sm pointer-events-auto shadow-xs">
           <button
             id="btn-toggle-lidar"
             onClick={() => setShowLidarCones(!showLidarCones)}
             aria-pressed={showLidarCones}
-            className="ms-button-neutral px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer"
+            className="ms-button-neutral px-2 py-1 text-xs font-medium flex items-center gap-1.5 cursor-pointer"
           >
             <Radio className="w-3.5 h-3.5" />
             <span>Haz LiDAR</span>
@@ -771,35 +760,33 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
             id="btn-toggle-halos"
             onClick={() => setShowSafetyHalos(!showSafetyHalos)}
             aria-pressed={showSafetyHalos}
-            className="ms-button-neutral px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer"
+            className="ms-button-neutral px-2 py-1 text-xs font-medium flex items-center gap-1.5 cursor-pointer"
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>Halos de Seguridad</span>
+            <span>Halos</span>
           </button>
         </div>
 
-        {/* Risk Color Legend */}
-        <div className={`backdrop-blur-md border px-3.5 py-2 rounded-xl flex items-center gap-3 text-xs shadow-lg pointer-events-auto transition-colors ${
-          isDark ? 'bg-slate-900/90 border-slate-700/80' : 'bg-white/95 border-slate-300 text-slate-800'
-        }`}>
-          <span className={`font-semibold text-[11px] uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            Nivel de Riesgo:
+        {/* 4-Level Risk Scale Legend: Compact single line, no clipping */}
+        <div className="px-3 py-1.5 rounded-control border border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-sm flex items-center gap-3 text-xs pointer-events-auto shadow-xs text-[var(--text)]">
+          <span className="text-[11px] font-medium text-[var(--text-faint)]">
+            Riesgo:
           </span>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[var(--success)]" />
-            <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Bajo (&lt;0.3)</span>
+            <span className="w-2 h-2 rounded-full bg-[var(--success)]" />
+            <span className="text-[11px] text-[var(--text-muted)]">Bajo</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[var(--warning)]" />
-            <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Medio</span>
+            <span className="w-2 h-2 rounded-full bg-[var(--warning)]" />
+            <span className="text-[11px] text-[var(--text-muted)]">Medio</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[var(--warning)]" />
-            <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Alto</span>
+            <span className="w-2 h-2 rounded-full bg-[var(--risk-high)]" />
+            <span className="text-[11px] text-[var(--text-muted)]">Alto</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[var(--danger)] animate-ping" />
-            <span className="text-[var(--danger)] font-bold">Crítico (≥0.8)</span>
+            <span className="w-2 h-2 rounded-full bg-[var(--danger)]" />
+            <span className="text-[11px] font-semibold text-[var(--danger)]">Crítico</span>
           </div>
         </div>
       </div>

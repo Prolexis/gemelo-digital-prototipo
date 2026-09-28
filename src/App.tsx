@@ -583,19 +583,19 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row font-sans selection:bg-[var(--accent)] selection:text-white transition-colors duration-200 bg-[var(--bg)] text-[var(--text)]">
       {/* ── BARRA LATERAL IZQUIERDA: DOCK DE NAVEGACIÓN INDUSTRIAL ── */}
-      <aside className="w-full md:w-64 flex-shrink-0 flex flex-col justify-between border-b md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen z-30 transition-colors bg-[var(--bg-elev)] border-[var(--border)]">
-        {/* Top: Identidad de Marca y Gemelo Digital */}
+      <aside className="w-full md:w-60 lg:w-64 flex-shrink-0 flex flex-col justify-between border-b md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen z-30 transition-colors bg-[var(--surface)] border-[var(--border)]">
+        {/* Top: Identidad de Marca */}
         <div>
-          <div className="p-4 border-b border-inherit">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)] font-bold flex items-center justify-center text-sm flex-shrink-0">
+          <div className="p-3.5 border-b border-[var(--border)]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-control border border-[var(--border-strong)] bg-[var(--surface-2)] text-[var(--accent-text)] font-semibold flex items-center justify-center text-xs flex-shrink-0">
                 MS
               </div>
               <div className="min-w-0">
-                <h1 className={`text-sm font-semibold tracking-tight truncate ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+                <h1 className="text-xs font-semibold tracking-tight truncate text-[var(--text)]">
                   MineSafe 3D
                 </h1>
-                <p className={`text-[11px] mt-0.5 truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                <p className="text-[11px] truncate text-[var(--text-faint)]">
                   Banco 3200 • Faena Esperanza
                 </p>
               </div>
@@ -603,12 +603,10 @@ export default function App() {
           </div>
 
           {/* Menú de Navegación Vertical Condicionado por Rol (RBAC) */}
-          <div className="p-3 space-y-4">
-            {/* 1. SECCIÓN: OPERACIONES */}
+          <div className="p-2 space-y-3">
+            {/* 1. SECCIÓN: Operaciones */}
             <div>
-              <span className={`text-[10px] font-semibold uppercase tracking-wider px-3 mb-1.5 block ${
-                isDark ? 'text-slate-500' : 'text-slate-400'
-              }`}>
+              <span className="text-[11px] font-medium text-[var(--text-faint)] px-2.5 mb-1 block">
                 Operaciones
               </span>
               <nav className="space-y-0.5">
@@ -617,19 +615,17 @@ export default function App() {
                   <button
                     id="tab-3d-twin"
                     onClick={() => setActiveTab('3D_TWIN')}
-                    className={`w-full px-3 py-2 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-lg cursor-pointer group ${
+                    aria-selected={activeTab === '3D_TWIN'}
+                    className={`w-full px-2.5 py-1.5 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-md cursor-pointer ${
                       activeTab === '3D_TWIN'
-                        ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-slate-100 font-semibold'
-                        : isDark
-                        ? 'border-transparent text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 font-medium'
-                        : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                        ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text)] font-medium'
+                        : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Box className={`w-4 h-4 ${activeTab === '3D_TWIN' ? 'text-[var(--accent)]' : 'text-slate-400'}`} />
+                    <div className="flex items-center gap-2">
+                      <Box className={`w-3.5 h-3.5 ${activeTab === '3D_TWIN' ? 'text-[var(--accent)]' : 'text-[var(--text-faint)]'}`} />
                       <span>Gemelo 3D</span>
                     </div>
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500/60" />
                   </button>
                 )}
 
@@ -638,22 +634,21 @@ export default function App() {
                   <button
                     id="tab-alerts"
                     onClick={() => setActiveTab('ALERTS')}
-                    className={`w-full px-3 py-2 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-lg cursor-pointer group ${
+                    aria-selected={activeTab === 'ALERTS'}
+                    className={`w-full px-2.5 py-1.5 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-md cursor-pointer ${
                       activeTab === 'ALERTS'
-                        ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-slate-100 font-semibold'
-                        : isDark
-                        ? 'border-transparent text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 font-medium'
-                        : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                        ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text)] font-medium'
+                        : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <ShieldAlert className={`w-4 h-4 ${activeTab === 'ALERTS' ? 'text-[var(--accent)]' : hasCriticalAlert ? 'text-[var(--danger)]' : 'text-slate-400'}`} />
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className={`w-3.5 h-3.5 ${activeTab === 'ALERTS' ? 'text-[var(--accent)]' : hasCriticalAlert ? 'text-[var(--danger)]' : 'text-[var(--text-faint)]'}`} />
                       <span>Alertas</span>
                     </div>
-                    {/* Solo un punto monocromático sutil que se vuelve rojo únicamente si hay alerta crítica activa */}
-                    <span className={`w-1.5 h-1.5 rounded-full ${
-                      hasCriticalAlert ? 'bg-[var(--danger)]' : 'bg-slate-500/60'
-                    }`} />
+                    {/* Solo muestra punto cuando hay alerta crítica activa con pulso suave */}
+                    {hasCriticalAlert && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--danger)] ms-pulse-active" />
+                    )}
                   </button>
                 )}
 
@@ -662,30 +657,26 @@ export default function App() {
                   <button
                     id="tab-scenarios"
                     onClick={() => setActiveTab('SCENARIOS')}
-                    className={`w-full px-3 py-2 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-lg cursor-pointer group ${
+                    aria-selected={activeTab === 'SCENARIOS'}
+                    className={`w-full px-2.5 py-1.5 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-md cursor-pointer ${
                       activeTab === 'SCENARIOS'
-                        ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-slate-100 font-semibold'
-                        : isDark
-                        ? 'border-transparent text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 font-medium'
-                        : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                        ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text)] font-medium'
+                        : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Flame className={`w-4 h-4 ${activeTab === 'SCENARIOS' ? 'text-[var(--accent)]' : 'text-slate-400'}`} />
+                    <div className="flex items-center gap-2">
+                      <Flame className={`w-3.5 h-3.5 ${activeTab === 'SCENARIOS' ? 'text-[var(--accent)]' : 'text-[var(--text-faint)]'}`} />
                       <span>Escenarios</span>
                     </div>
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500/60" />
                   </button>
                 )}
               </nav>
             </div>
 
-            {/* 2. SECCIÓN: IA & TELEMETRÍA */}
+            {/* 2. SECCIÓN: IA & telemetría */}
             {(canAccessTab('ANALYTICS') || canAccessTab('LANGFLOW')) && (
               <div>
-                <span className={`text-[10px] font-semibold uppercase tracking-wider px-3 mb-1.5 block ${
-                  isDark ? 'text-slate-500' : 'text-slate-400'
-                }`}>
+                <span className="text-[11px] font-medium text-[var(--text-faint)] px-2.5 mb-1 block">
                   IA & telemetría
                 </span>
                 <nav className="space-y-0.5">
@@ -694,19 +685,17 @@ export default function App() {
                     <button
                       id="tab-analytics"
                       onClick={() => setActiveTab('ANALYTICS')}
-                      className={`w-full px-3 py-2 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-lg cursor-pointer group ${
+                      aria-selected={activeTab === 'ANALYTICS'}
+                      className={`w-full px-2.5 py-1.5 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-md cursor-pointer ${
                         activeTab === 'ANALYTICS'
-                          ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-slate-100 font-semibold'
-                          : isDark
-                          ? 'border-transparent text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 font-medium'
-                          : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                          ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text)] font-medium'
+                          : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
-                        <BarChart3 className={`w-4 h-4 ${activeTab === 'ANALYTICS' ? 'text-[var(--accent)]' : 'text-slate-400'}`} />
+                      <div className="flex items-center gap-2">
+                        <BarChart3 className={`w-3.5 h-3.5 ${activeTab === 'ANALYTICS' ? 'text-[var(--accent)]' : 'text-[var(--text-faint)]'}`} />
                         <span>Telemetría & KPIs</span>
                       </div>
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500/60" />
                     </button>
                   )}
 
@@ -715,31 +704,27 @@ export default function App() {
                     <button
                       id="tab-langflow"
                       onClick={() => setActiveTab('LANGFLOW')}
-                      className={`w-full px-3 py-2 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-lg cursor-pointer group ${
+                      aria-selected={activeTab === 'LANGFLOW'}
+                      className={`w-full px-2.5 py-1.5 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-md cursor-pointer ${
                         activeTab === 'LANGFLOW'
-                          ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-slate-100 font-semibold'
-                          : isDark
-                          ? 'border-transparent text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 font-medium'
-                          : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                          ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text)] font-medium'
+                          : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
-                        <Sparkles className={`w-4 h-4 ${activeTab === 'LANGFLOW' ? 'text-[var(--accent)]' : 'text-slate-400'}`} />
+                      <div className="flex items-center gap-2">
+                        <Sparkles className={`w-3.5 h-3.5 ${activeTab === 'LANGFLOW' ? 'text-[var(--accent)]' : 'text-[var(--text-faint)]'}`} />
                         <span>Langflow Studio</span>
                       </div>
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500/60" />
                     </button>
                   )}
                 </nav>
               </div>
             )}
 
-            {/* 3. SECCIÓN: GOBERNANZA & AUDITORÍA */}
+            {/* 3. SECCIÓN: Gobernanza & auditoría */}
             {(canAccessTab('ROLES') || canAccessTab('REPORTS') || canAccessTab('ETHICS')) && (
               <div>
-                <span className={`text-[10px] font-semibold uppercase tracking-wider px-3 mb-1.5 block ${
-                  isDark ? 'text-slate-500' : 'text-slate-400'
-                }`}>
+                <span className="text-[11px] font-medium text-[var(--text-faint)] px-2.5 mb-1 block">
                   Gobernanza & auditoría
                 </span>
                 <nav className="space-y-0.5">
@@ -748,19 +733,17 @@ export default function App() {
                     <button
                       id="tab-roles"
                       onClick={() => setActiveTab('ROLES')}
-                      className={`w-full px-3 py-2 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-lg cursor-pointer group ${
+                      aria-selected={activeTab === 'ROLES'}
+                      className={`w-full px-2.5 py-1.5 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-md cursor-pointer ${
                         activeTab === 'ROLES'
-                          ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-slate-100 font-semibold'
-                          : isDark
-                          ? 'border-transparent text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 font-medium'
-                          : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                          ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text)] font-medium'
+                          : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
-                        <UserCheck className={`w-4 h-4 ${activeTab === 'ROLES' ? 'text-[var(--accent)]' : 'text-slate-400'}`} />
+                      <div className="flex items-center gap-2">
+                        <UserCheck className={`w-3.5 h-3.5 ${activeTab === 'ROLES' ? 'text-[var(--accent)]' : 'text-[var(--text-faint)]'}`} />
                         <span>Matriz RBAC</span>
                       </div>
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500/60" />
                     </button>
                   )}
 
@@ -769,19 +752,17 @@ export default function App() {
                     <button
                       id="tab-reports"
                       onClick={() => setActiveTab('REPORTS')}
-                      className={`w-full px-3 py-2 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-lg cursor-pointer group ${
+                      aria-selected={activeTab === 'REPORTS'}
+                      className={`w-full px-2.5 py-1.5 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-md cursor-pointer ${
                         activeTab === 'REPORTS'
-                          ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-slate-100 font-semibold'
-                          : isDark
-                          ? 'border-transparent text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 font-medium'
-                          : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                          ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text)] font-medium'
+                          : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
-                        <FileText className={`w-4 h-4 ${activeTab === 'REPORTS' ? 'text-[var(--accent)]' : 'text-slate-400'}`} />
+                      <div className="flex items-center gap-2">
+                        <FileText className={`w-3.5 h-3.5 ${activeTab === 'REPORTS' ? 'text-[var(--accent)]' : 'text-[var(--text-faint)]'}`} />
                         <span>Reportes MSHA</span>
                       </div>
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500/60" />
                     </button>
                   )}
 
@@ -790,126 +771,83 @@ export default function App() {
                     <button
                       id="tab-ethics"
                       onClick={() => setActiveTab('ETHICS')}
-                      className={`w-full px-3 py-2 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-lg cursor-pointer group ${
+                      aria-selected={activeTab === 'ETHICS'}
+                      className={`w-full px-2.5 py-1.5 text-xs flex items-center justify-between transition-colors border-l-2 rounded-r-md cursor-pointer ${
                         activeTab === 'ETHICS'
-                          ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-slate-100 font-semibold'
-                          : isDark
-                          ? 'border-transparent text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 font-medium'
-                          : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                          ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text)] font-medium'
+                          : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
-                        <Shield className={`w-4 h-4 ${activeTab === 'ETHICS' ? 'text-[var(--accent)]' : 'text-slate-400'}`} />
+                      <div className="flex items-center gap-2">
+                        <Shield className={`w-3.5 h-3.5 ${activeTab === 'ETHICS' ? 'text-[var(--accent)]' : 'text-[var(--text-faint)]'}`} />
                         <span>Consentimiento</span>
                       </div>
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500/60" />
                     </button>
                   )}
                 </nav>
               </div>
             )}
           </div>
+        </div>
 
-          {/* Tarjeta de Sesión Activa en Barra Lateral */}
-          <div className="px-3 pb-1">
-            <div className={`p-2.5 rounded-lg border flex items-center justify-between text-xs transition-colors ${
-              isDark ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50/80 border-slate-200'
-            }`}>
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className={`w-7 h-7 rounded border text-xs font-medium flex items-center justify-center flex-shrink-0 ${
-                  isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-white border-slate-300 text-slate-700'
-                }`}>
-                  {currentUser.avatarInitials}
-                </div>
-                <div className="min-w-0 truncate">
-                  <p className={`font-medium text-[11px] truncate leading-tight ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-                    {currentUser.name}
-                  </p>
-                  <p className={`text-[10px] truncate ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                    {currentUser.roleLabel}
-                  </p>
-                </div>
+        {/* Footer Lateral Compacto: Perfil en tarjeta única + Icon buttons + Pipeline 2 Hz */}
+        <div className="p-3 border-t border-[var(--border)] space-y-2">
+          {/* Perfil Compacto con Controles de Icono */}
+          <div className="p-2 rounded-control border border-[var(--border)] bg-[var(--surface-2)] flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-6 h-6 rounded-control border border-[var(--border-strong)] bg-[var(--surface)] text-[var(--text-muted)] font-medium text-[11px] flex items-center justify-center flex-shrink-0">
+                {currentUser.avatarInitials}
               </div>
+              <div className="min-w-0 truncate">
+                <p className="font-medium text-[11px] truncate text-[var(--text)]">
+                  {currentUser.name}
+                </p>
+                <p className="text-[10px] truncate text-[var(--text-faint)]">
+                  {currentUser.roleLabel}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <button
+                id="btn-toggle-sim"
+                onClick={() => setIsSimulating(!isSimulating)}
+                title={isSimulating ? 'Pausar simulación' : 'Reanudar simulación'}
+                className="ms-button-ghost p-1 rounded-control cursor-pointer"
+              >
+                {isSimulating ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+              </button>
+
+              <button
+                id="btn-toggle-theme"
+                onClick={toggleTheme}
+                title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+                className="ms-button-ghost p-1 rounded-control cursor-pointer"
+              >
+                {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+              </button>
+
               <button
                 id="btn-sidebar-logout"
                 onClick={handleLogout}
                 title="Cerrar sesión"
-                className="ms-button-neutral p-1.5 rounded cursor-pointer"
+                className="ms-button-ghost p-1 rounded-control cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
-          {/* Quick Telemetry Status Widget en la Barra Lateral */}
-          <div className="px-3 py-2 hidden md:block">
-            <div className={`p-2.5 rounded-lg border text-[11px] space-y-1.5 transition-colors ${
-              isDark ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50/80 border-slate-200'
-            }`}>
-              <div className={`flex items-center justify-between text-[10px] pb-1 border-b uppercase tracking-wider ${
-                isDark ? 'border-slate-800/80 text-slate-500' : 'border-slate-200 text-slate-400'
-              }`}>
-                <span>Telemetría de flota</span>
-                <span className="flex items-center gap-1.5">
-                  <span className={`w-1.5 h-1.5 rounded-full ${hasCriticalAlert ? 'bg-[var(--danger)]' : 'bg-slate-500'}`} />
-                  <span className={hasCriticalAlert ? 'text-[var(--danger)] font-bold' : 'text-slate-400'}>
-                    {hasCriticalAlert ? 'ALERTA' : 'NORMAL'}
-                  </span>
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className={isDark ? 'text-slate-500' : 'text-slate-500'}>Equipos activos:</span>
-                <span className={`font-medium font-mono ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>5 uds</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className={isDark ? 'text-slate-500' : 'text-slate-500'}>Latencia pipeline:</span>
-                <span className={`font-medium font-mono ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>18.9 ms (2 Hz)</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className={isDark ? 'text-slate-500' : 'text-slate-500'}>Condición clima:</span>
-                <span className={`font-medium ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{weatherCondition}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Controles de Sistema y Estado en Footer Lateral */}
-        <div className="p-3 border-t border-inherit space-y-2">
-          {/* Controles: Tema y Simulación */}
-          <div className="grid grid-cols-2 gap-1.5">
-            {/* Simulación Play/Pausa */}
-            <button
-              id="btn-toggle-sim"
-              onClick={() => setIsSimulating(!isSimulating)}
-              className="ms-button-neutral px-2.5 py-1.5 rounded-lg font-medium text-[11px] flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              {isSimulating ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 fill-current" />}
-              <span>{isSimulating ? 'Pausar' : 'Reanudar'}</span>
-            </button>
-
-            {/* Tema Claro/Oscuro */}
-            <button
-              id="btn-toggle-theme"
-              onClick={toggleTheme}
-              className="ms-button-neutral px-2.5 py-1.5 rounded-lg font-medium text-[11px] flex items-center justify-center gap-1.5 cursor-pointer"
-              title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-            >
-              {isDark ? <Sun className="w-3 h-3" /> : <Moon className="w-3 h-3" />}
-              <span>{isDark ? 'Claro' : 'Oscuro'}</span>
-            </button>
-          </div>
-
-          {/* Badge Conexión WebSocket Backend */}
-          <div
-            className={`border px-2.5 py-1.5 rounded-lg flex items-center justify-between text-[10px] transition-colors ${
-              isDark ? 'bg-slate-950/40 border-slate-800 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-600'
-            }`}
+          {/* Pie mínimo de una línea: Punto de estado + Pipeline 2 Hz en mono */}
+          <div 
+            className="flex items-center justify-between text-[11px] px-1 text-[var(--text-faint)]"
+            title="FastAPI 1 Hz / v1.0.0 Q1 • Pipeline de inferencia"
           >
             <div className="flex items-center gap-1.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${isBackendWsActive ? 'bg-[var(--success)]' : 'bg-slate-500'}`} />
-              <span className="font-medium">{isBackendWsActive ? 'FastAPI 1 Hz' : 'Simulación local'}</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${isBackendWsActive ? 'bg-[var(--success)]' : 'bg-[var(--text-faint)]'}`} />
+              <span>Pipeline</span>
             </div>
-              <span className="text-[9px] opacity-60">v1.0.0 Q1</span>
+            <span className="font-mono text-[11px]">2 Hz</span>
           </div>
         </div>
       </aside>
@@ -917,16 +855,14 @@ export default function App() {
       {/* ── ÁREA PRINCIPAL DERECHA (HUD + VISTAS) ── */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         {/* Cockpit HUD Header Superior */}
-        <header className={`h-14 border-b flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20 backdrop-blur-md transition-colors ${
-          isDark ? 'bg-slate-950/80 border-slate-800' : 'bg-white/80 border-slate-200 shadow-xs'
-        }`}>
+        <header className="h-12 border-b flex items-center justify-between px-4 sticky top-0 z-20 transition-colors bg-[var(--surface)] border-[var(--border)]">
           {/* Breadcrumb / Contexto Activo */}
-          <div className="flex items-center gap-2 text-xs truncate">
-            <span className={`hidden sm:inline ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>MINERA ESPERANZA</span>
-            <span className={`hidden sm:inline ${isDark ? 'text-slate-700' : 'text-slate-300'}`}>/</span>
-            <span className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>TAJO 3200</span>
-            <span className={isDark ? 'text-slate-700' : 'text-slate-300'}>/</span>
-            <span className={`font-semibold truncate ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+          <div className="flex items-center gap-1.5 text-xs truncate">
+            <span className="text-[var(--text-muted)]">Minera Esperanza</span>
+            <span className="text-[var(--text-faint)]">/</span>
+            <span className="text-[var(--text-muted)]">Tajo 3200</span>
+            <span className="text-[var(--text-faint)]">/</span>
+            <span className="font-medium truncate text-[var(--text)]">
               {activeTab === '3D_TWIN' && 'Gemelo digital 3D'}
               {activeTab === 'ALERTS' && 'Centro de alertas'}
               {activeTab === 'ANALYTICS' && 'Telemetría & KPIs (5-Fold CV)'}
@@ -938,64 +874,31 @@ export default function App() {
             </span>
           </div>
 
-          {/* Métricas Rápidas HUD y Selector de Rol a la Derecha */}
-          <div className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
-            {/* Chip GNSS + LiDAR (Punto verde solo si el sensor está sano) */}
-            <div className={`hidden md:flex items-center gap-2 text-xs px-2.5 py-1 rounded-lg border transition-colors ${
-              isDark ? 'bg-slate-900/60 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
-            }`}>
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
+          {/* Métricas HUD a la Derecha */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Chip de Sensores: Punto success solo si sano */}
+            <div className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-control border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-muted)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
               <span>GNSS + LiDAR 3D</span>
-              <span className="text-slate-500">•</span>
-              <span className="text-slate-400 font-medium font-mono">2 Hz</span>
             </div>
 
-            {/* Usuario Autenticado & Control de Sesión */}
-            <div className="flex items-center gap-2">
-              <div className={`flex items-center gap-2 text-xs px-2.5 py-1 rounded-lg border transition-colors ${
-                isDark ? 'bg-slate-900/60 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
-              }`}>
-                <span className="font-medium text-[11px] truncate max-w-[120px] sm:max-w-none">{currentUser.name}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded border ${
-                  isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-600'
-                }`}>
-                  {currentUser.roleLabel}
-                </span>
-              </div>
-
-              {canAccessTab('ROLES') && (
-                <button
-                  id="btn-nav-roles"
-                  onClick={() => setActiveTab('ROLES')}
-                  aria-pressed={activeTab === 'ROLES'}
-                  className={`ms-button-neutral text-[11px] font-medium px-2.5 py-1 rounded-lg cursor-pointer ${
-                    activeTab === 'ROLES'
-                      ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-slate-100'
-                      : isDark
-                      ? 'bg-slate-900/60 hover:bg-slate-800 text-slate-300 border-slate-800'
-                      : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                  }`}
-                  title="Inspeccionar Matriz de Permisos y Auditoría (RBAC)"
-                >
-                  Permisos
-                </button>
-              )}
-
+            {/* Botón Permisos */}
+            {canAccessTab('ROLES') && (
               <button
-                id="btn-header-logout"
-                onClick={handleLogout}
-                className="ms-button-neutral px-2.5 py-1 rounded-lg text-[11px] font-medium flex items-center gap-1.5 cursor-pointer"
-                title="Cerrar sesión"
+                id="btn-nav-roles"
+                onClick={() => setActiveTab('ROLES')}
+                aria-pressed={activeTab === 'ROLES'}
+                className="ms-button-neutral text-xs px-2.5 py-1 rounded-control cursor-pointer"
+                title="Inspeccionar Matriz de Permisos y Auditoría (RBAC)"
               >
-                <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Salir</span>
+                Permisos
               </button>
-            </div>
+            )}
           </div>
         </header>
 
         {/* Main Workspace Area */}
-        <main className="flex-1 p-3 sm:p-5 overflow-y-auto space-y-3">
+        <main className="flex-1 p-4 overflow-y-auto space-y-4">
           {/* Protección Guard RBAC si el usuario accede a una pestaña no permitida */}
           {!canAccessTab(activeTab) && (
             <div className={`p-8 rounded-xl border text-center max-w-lg mx-auto mt-12 space-y-3 ${
@@ -1022,38 +925,34 @@ export default function App() {
             <div className="space-y-3">
               {/* Slim High-Density Alert Strip (Solo si hay alerta crítica activa) */}
               {hasCriticalAlert && (
-                <div className={`px-4 py-2.5 rounded-lg flex items-center justify-between gap-3 text-xs transition-colors ${
-                  isDark 
-                    ? 'bg-[var(--danger)]/10 border border-[var(--danger)]/40 text-[var(--danger)]'
-                    : 'bg-[var(--danger)]/10 border border-[var(--danger)]/40 text-[var(--danger)]'
-                }`}>
-                  <div className="flex items-center gap-2.5 truncate">
-                    <span className="w-2 h-2 rounded-full bg-[var(--danger)] animate-pulse flex-shrink-0" />
-                    <span className="font-bold text-[var(--danger)] flex-shrink-0">[COLISIÓN INMINENTE]</span>
-                    <span className="truncate">HT-104 vs AHS-02 • Rampa Este (Banco 3200) • Anticipación predictiva: 6.2s</span>
+                <div className="px-3.5 py-2 rounded-control flex items-center justify-between gap-3 text-xs border border-[var(--border)] border-l-[3px] border-l-[var(--danger)] bg-[var(--danger-soft)] text-[var(--text)]">
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="w-2 h-2 rounded-full bg-[var(--danger)] ms-pulse-active flex-shrink-0" />
+                    <span className="font-semibold text-[var(--danger)] flex-shrink-0">Colisión inminente:</span>
+                    <span className="truncate text-[var(--text-muted)]">HT-104 vs AHS-02 • Rampa Este • Anticipación: <span className="font-mono">6.2s</span></span>
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
-                      onClick={() => setSelectedEquipmentId('eq-ht-104')}
-                      className="ms-button-neutral text-[11px] px-3 py-1 rounded-lg cursor-pointer"
-                    >
-                      Inspeccionar SHAP
-                    </button>
-                    <button
                       onClick={() => handleAcknowledgeAlert(alerts[0].id, currentUser.name)}
-                      className="ms-button-neutral text-[11px] font-medium px-3 py-1 rounded-lg cursor-pointer"
+                      className="ms-button-primary text-xs px-3 py-1 cursor-pointer"
                     >
                       Reconocer
+                    </button>
+                    <button
+                      onClick={() => setSelectedEquipmentId('eq-ht-104')}
+                      className="ms-button-neutral text-xs px-3 py-1 cursor-pointer"
+                    >
+                      Inspeccionar SHAP
                     </button>
                   </div>
                 </div>
               )}
 
               {/* Split View: 3D Twin Viewport + XAI SHAP Explanation Panel (7/5 Cols) */}
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 min-h-[580px] lg:h-[calc(100vh-140px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-[580px] lg:h-[calc(100vh-125px)]">
                 {/* 3D Canvas (Left Column - 7/12) */}
-                <div className="xl:col-span-7 h-[500px] xl:h-full rounded-xl overflow-hidden border border-slate-800/80 bg-slate-950">
+                <div className="lg:col-span-7 h-[480px] lg:h-full rounded-card overflow-hidden border border-[var(--border)] bg-[var(--surface)]">
                   <Mine3DViewer
                     equipments={equipments}
                     selectedEquipmentId={selectedEquipmentId}
@@ -1065,7 +964,7 @@ export default function App() {
                 </div>
 
                 {/* Explainable AI SHAP Breakdown (Right Column - 5/12) */}
-                <div className="xl:col-span-5 h-full overflow-y-auto">
+                <div className="lg:col-span-5 h-full overflow-y-auto">
                   <ShapExplanationPanel
                     equipment={selectedEquipment}
                     onSendCabWarning={handleSendCabWarning}

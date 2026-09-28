@@ -99,36 +99,34 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
   const isDark = theme === 'dark';
 
   return (
-    <div className={`rounded-2xl border shadow-xl p-5 space-y-6 transition-colors ${
-      isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'
-    }`}>
+    <div className="ms-card p-5 space-y-6 text-[var(--text)]">
       {/* Top Header */}
-      <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b ${
-        isDark ? 'border-slate-800' : 'border-slate-200'
-      }`}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-[var(--border)]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[var(--accent-soft)] border border-[var(--accent-border)] flex items-center justify-center flex-shrink-0">
-            <FileText className="w-5 h-5 text-[var(--accent)]" />
+          <div className="w-9 h-9 rounded-[var(--radius-control)] bg-[var(--accent-soft)] border border-[var(--border)] flex items-center justify-center text-[var(--accent)] flex-shrink-0">
+            <FileText className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-base font-bold">Módulo de Reportabilidad y Auditoría de Seguridad Minera</h2>
-            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Generación y Previsualización interactiva de informes en PDF, Word y libros Excel para HSE y MSHA
+            <h2 className="text-sm font-semibold text-[var(--text)]">
+              Reportabilidad y auditoría MSHA
+            </h2>
+            <p className="text-xs text-[var(--text-muted)]">
+              Generación de informes técnicos en PDF, Word y Excel para HSE y fiscalización.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="ms-badge-neutral text-xs px-3 py-1 rounded-full font-bold">
-            ISO 45001 / MSHA Certified
+          <span className="ms-badge-neutral text-xs font-mono">
+            ISO 45001 / MSHA
           </span>
         </div>
       </div>
 
       {/* Success Notification Banner */}
       {generatedSuccess && (
-        <div className="bg-slate-800 border border-slate-700 p-3 rounded-xl flex items-center gap-2.5 text-slate-300 text-xs animate-fade-in">
-          <CheckCircle className="w-4 h-4 text-slate-400 flex-shrink-0" />
+        <div className="bg-[var(--surface-2)] border border-[var(--border)] p-3 rounded-[var(--radius-card)] flex items-center gap-2.5 text-xs text-[var(--text)]">
+          <CheckCircle className="w-4 h-4 text-[var(--success)] flex-shrink-0" />
           <span>{generatedSuccess}</span>
         </div>
       )}
@@ -136,65 +134,53 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
       {/* Parameter Control Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Param 1: Mina & Tajo */}
-        <div className={`p-3.5 rounded-xl border space-y-2 ${
-          isDark ? 'bg-slate-800/60 border-slate-700/80' : 'bg-slate-50 border-slate-200'
-        }`}>
-          <label className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+        <div className="p-3.5 rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-2)] space-y-2">
+          <label className="text-xs font-medium text-[var(--text)] flex items-center gap-1.5">
             <Building2 className="w-3.5 h-3.5 text-[var(--accent)]" />
-            Faena Minera / Tajo:
+            Faena minera / sector:
           </label>
           <input
             type="text"
             value={mineName}
             onChange={(e) => setMineName(e.target.value)}
-            className={`w-full text-xs rounded-lg p-2 outline-none border focus:border-[var(--accent)] ${
-              isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800'
-            }`}
+            className="ms-input text-xs w-full"
           />
-          <p className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Bancos 3100m a 3600m y rampas de acarreo</p>
+          <p className="text-[10px] text-[var(--text-faint)]">Bancos 3100m a 3600m y rampas</p>
         </div>
 
         {/* Param 2: Turno Operacional */}
-        <div className={`p-3.5 rounded-xl border space-y-2 ${
-          isDark ? 'bg-slate-800/60 border-slate-700/80' : 'bg-slate-50 border-slate-200'
-        }`}>
-          <label className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+        <div className="p-3.5 rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-2)] space-y-2">
+          <label className="text-xs font-medium text-[var(--text)] flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-[var(--accent)]" />
-            Turno Operacional:
+            Turno operacional:
           </label>
           <select
             value={shift}
             onChange={(e) => setShift(e.target.value as any)}
-            className={`w-full text-xs rounded-lg p-2 outline-none border focus:border-[var(--accent)] ${
-              isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800'
-            }`}
+            className="ms-input text-xs w-full"
           >
-            <option value="TURNO_A_NOCHE">Turno A - Noche (19:00 a 07:00) [Mayor Riesgo]</option>
+            <option value="TURNO_A_NOCHE">Turno A - Noche (19:00 a 07:00)</option>
             <option value="TURNO_B_DIA">Turno B - Día (07:00 a 19:00)</option>
           </select>
-          <p className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Incluye telemetría PERCLOS y Bi-LSTM de fatiga</p>
+          <p className="text-[10px] text-[var(--text-faint)]">Incluye telemetría PERCLOS y Bi-LSTM</p>
         </div>
 
         {/* Param 3: Tipo de Reporte */}
-        <div className={`p-3.5 rounded-xl border space-y-2 ${
-          isDark ? 'bg-slate-800/60 border-slate-700/80' : 'bg-slate-50 border-slate-200'
-        }`}>
-          <label className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+        <div className="p-3.5 rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-2)] space-y-2">
+          <label className="text-xs font-medium text-[var(--text)] flex items-center gap-1.5">
             <Filter className="w-3.5 h-3.5 text-[var(--accent)]" />
-            Plantilla de Reporte:
+            Plantilla de reporte:
           </label>
           <select
             value={reportType}
             onChange={(e) => setReportType(e.target.value as any)}
-            className={`w-full text-xs rounded-lg p-2 outline-none border focus:border-[var(--accent)] ${
-              isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800'
-            }`}
+            className="ms-input text-xs w-full"
           >
-            <option value="NEAR_MISS_SAFETY">Informe de Cuasi-Colisiones y Factores SHAP</option>
-            <option value="ETHICS_AUDIT">Auditoría de Consentimiento y Privacidad</option>
-            <option value="PDS_BENCHMARK">Benchmark Comparativo Gemelo vs PDS</option>
+            <option value="NEAR_MISS_SAFETY">Cuasi-colisiones y TreeSHAP</option>
+            <option value="ETHICS_AUDIT">Consentimiento y privacidad GDPR</option>
+            <option value="PDS_BENCHMARK">Benchmark Gemelo vs PDS</option>
           </select>
-          <p className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Formato técnico con tablas, KPIs y firmas formales</p>
+          <p className="text-[10px] text-[var(--text-faint)]">Formato formal con tablas y KPIs</p>
         </div>
       </div>
 
@@ -203,97 +189,101 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
         <button
           id="btn-export-pdf"
           onClick={handleExportPdf}
-          className="ms-button-primary font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+          className="ms-button-primary text-xs py-2.5 px-4 flex items-center justify-center gap-2 cursor-pointer"
         >
           <FileDown className="w-4 h-4" />
-          <span>Descargar PDF (.pdf)</span>
+          <span>Generar reporte (PDF)</span>
         </button>
 
         <button
           id="btn-export-word"
           onClick={handleExportWord}
-          className="ms-button-neutral font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+          className="ms-button-neutral text-xs py-2.5 px-4 flex items-center justify-center gap-2 cursor-pointer"
         >
           <FileText className="w-4 h-4" />
-          <span>Descargar Word (.docx / .doc)</span>
+          <span>Exportar Word (.docx)</span>
         </button>
 
         <button
           id="btn-export-excel"
           onClick={handleExportExcel}
-          className="ms-button-neutral font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+          className="ms-button-neutral text-xs py-2.5 px-4 flex items-center justify-center gap-2 cursor-pointer"
         >
           <FileSpreadsheet className="w-4 h-4" />
-          <span>Descargar Excel (.xlsx)</span>
+          <span>Exportar Excel (.xlsx)</span>
         </button>
       </div>
 
       {/* Live Preview Container */}
-      <div className={`rounded-2xl border overflow-hidden ${
-        isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-300'
-      }`}>
+      <div className="rounded-[var(--radius-card)] border border-[var(--border)] overflow-hidden">
         {/* Preview Subheader & Format Selector */}
-        <div className={`px-4 py-3 border-b flex flex-col md:flex-row items-center justify-between gap-3 ${
-          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-        }`}>
+        <div className="px-4 py-3 border-b border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-3 bg-[var(--surface-2)]">
           <div className="flex items-center gap-2">
             <Eye className="w-4 h-4 text-[var(--accent)]" />
-            <span className="text-xs font-bold uppercase tracking-wider">
-              Previsualización en Vivo del Documento
+            <span className="text-xs font-medium text-[var(--text)]">
+              Previsualización de informe
             </span>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Format Selector Pills */}
-            <div className={`p-1 rounded-xl border flex items-center gap-1 ${
-              isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
-            }`}>
+            <div className="p-1 rounded-[var(--radius-control)] border border-[var(--border)] flex items-center gap-1 bg-[var(--surface)]">
               <button
                 id="btn-preview-pdf"
                 onClick={() => setPreviewFormat('PDF')}
                 aria-pressed={previewFormat === 'PDF'}
-                className="ms-button-neutral px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                className={`px-2.5 py-1 rounded-[var(--radius-control)] text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors ${
+                  previewFormat === 'PDF'
+                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+                }`}
               >
                 <FileDown className="w-3.5 h-3.5" />
-                <span>Vista PDF</span>
+                <span>PDF</span>
               </button>
 
               <button
                 id="btn-preview-word"
                 onClick={() => setPreviewFormat('WORD')}
                 aria-pressed={previewFormat === 'WORD'}
-                className="ms-button-neutral px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                className={`px-2.5 py-1 rounded-[var(--radius-control)] text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors ${
+                  previewFormat === 'WORD'
+                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+                }`}
               >
                 <FileText className="w-3.5 h-3.5" />
-                <span>Vista Word</span>
+                <span>Word</span>
               </button>
 
               <button
                 id="btn-preview-excel"
                 onClick={() => setPreviewFormat('EXCEL')}
                 aria-pressed={previewFormat === 'EXCEL'}
-                className="ms-button-neutral px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                className={`px-2.5 py-1 rounded-[var(--radius-control)] text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors ${
+                  previewFormat === 'EXCEL'
+                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+                }`}
               >
                 <FileSpreadsheet className="w-3.5 h-3.5" />
-                <span>Vista Excel (.xlsx)</span>
+                <span>Excel</span>
               </button>
             </div>
 
             {/* Zoom controls */}
-            <div className={`hidden sm:flex items-center gap-1 px-2 py-1 rounded-xl border text-xs ${
-              isDark ? 'bg-slate-950 border-slate-800 text-slate-400' : 'bg-slate-100 border-slate-200 text-slate-600'
-            }`}>
+            <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-[var(--radius-control)] border border-[var(--border)] text-xs bg-[var(--surface)] text-[var(--text-muted)]">
               <button 
                 onClick={() => setZoomLevel(Math.max(75, zoomLevel - 15))}
-                className="ms-button-neutral px-1 rounded"
+                className="hover:text-[var(--text)] px-1 rounded cursor-pointer"
                 title="Reducir zoom"
               >
                 <ZoomOut className="w-3.5 h-3.5" />
               </button>
-              <span>{zoomLevel}%</span>
+              <span className="font-mono text-[11px]">{zoomLevel}%</span>
               <button 
                 onClick={() => setZoomLevel(Math.min(125, zoomLevel + 15))}
-                className="ms-button-neutral px-1 rounded"
+                className="hover:text-[var(--text)] px-1 rounded cursor-pointer"
                 title="Aumentar zoom"
               >
                 <ZoomIn className="w-3.5 h-3.5" />

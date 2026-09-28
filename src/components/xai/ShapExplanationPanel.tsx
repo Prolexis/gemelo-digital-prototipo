@@ -54,43 +54,37 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
   const getBadgeStyle = () => {
     switch (prediction.riskLevel) {
       case 'CRITICAL':
-        return 'bg-[var(--danger)]/10 text-[var(--danger)] border-[var(--danger)]/40';
+        return 'ms-badge-risk-critical';
       case 'HIGH':
-        return 'bg-[var(--danger)]/10 text-[var(--danger)] border-[var(--danger)]/40';
+        return 'ms-badge-risk-high';
       case 'MEDIUM':
-        return 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/40';
+        return 'ms-badge-risk-medium';
       default:
-        return 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/40';
+        return 'ms-badge-risk-low';
     }
   };
 
   return (
-    <div className={`h-full flex flex-col rounded-xl border overflow-hidden transition-colors ${
-      isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-    }`}>
+    <div className="h-full flex flex-col rounded-card border border-[var(--border)] overflow-hidden bg-[var(--surface)] text-[var(--text)]">
       {/* Header */}
-      <div className={`p-4 border-b flex items-center justify-between transition-colors ${
-        isDark ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
-      }`}>
-        <div className="flex items-center gap-3 min-w-0">
-          <div className={`w-9 h-9 rounded-lg border flex items-center justify-center flex-shrink-0 ${
-            isDark ? 'bg-slate-800/80 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'
-          }`}>
-            <BrainCircuit className="w-4 h-4 text-slate-300" />
+      <div className="p-3.5 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-2)]">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-control border border-[var(--border-strong)] flex items-center justify-center flex-shrink-0 bg-[var(--surface)] text-[var(--accent-text)]">
+            <BrainCircuit className="w-4 h-4" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className={`text-sm font-bold tracking-tight ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+              <h2 className="text-xs font-semibold tracking-tight text-[var(--text)]">
                 {equipment.code}
               </h2>
-              <span className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              <span className="text-[11px] text-[var(--text-faint)]">
                 {equipment.model}
               </span>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border uppercase tracking-wide ${getBadgeStyle()}`}>
+              <span className={getBadgeStyle()}>
                 {prediction.riskLevel} <span className="font-mono">{(riskScore * 100).toFixed(0)}%</span>
               </span>
             </div>
-            <p className={`text-[11px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+            <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
               Zona: {equipment.currentZone}
             </p>
           </div>
@@ -99,9 +93,7 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
         {onClose && (
           <button
             onClick={onClose}
-            className={`ms-button-neutral text-xs px-2.5 py-1 rounded-lg cursor-pointer ${
-              isDark ? 'text-slate-400 hover:text-slate-200 bg-slate-800/60 border-slate-700' : 'text-slate-600 hover:text-slate-900 bg-white border-slate-200'
-            }`}
+            className="ms-button-neutral text-xs px-2 py-0.5 cursor-pointer"
           >
             Cerrar
           </button>
@@ -109,38 +101,42 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
       </div>
 
       {/* Content Scrollable */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
+      <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
         {/* Risk Prediction Metric Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {/* Risk Score */}
-          <div className={`p-3 rounded-lg border transition-colors ${
-            isDark ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50/70 border-slate-200'
-          }`}>
-            <div className="flex items-center justify-between text-[11px] text-slate-400">
-              <span className="flex items-center gap-1.5 font-medium">
-                <Gauge className="w-3.5 h-3.5 text-slate-400" />
+          <div className="p-2.5 rounded-control border border-[var(--border)] bg-[var(--surface-2)]">
+            <div className="flex items-center justify-between text-[11px] text-[var(--text-faint)]">
+              <span className="flex items-center gap-1 font-medium">
+                <Gauge className="w-3.5 h-3.5" />
                 Score de riesgo
               </span>
             </div>
             <div className="mt-1 flex items-baseline gap-1">
-              <span className={`text-xl font-bold font-mono ${
-                prediction.riskLevel === 'CRITICAL' || prediction.riskLevel === 'HIGH'
-                  ? 'text-[var(--danger)]'
-                  : prediction.riskLevel === 'MEDIUM' ? 'text-[var(--warning)]' : 'text-[var(--success)]'
+              <span className={`text-lg font-bold font-mono ${
+                prediction.riskLevel === 'CRITICAL' 
+                  ? 'text-[var(--danger)]' 
+                  : prediction.riskLevel === 'HIGH' 
+                  ? 'text-[var(--risk-high)]' 
+                  : prediction.riskLevel === 'MEDIUM' 
+                  ? 'text-[var(--warning)]' 
+                  : 'text-[var(--success)]'
               }`}>
                 {(riskScore * 100).toFixed(0)}%
               </span>
-              <span className="text-[10px] font-mono text-slate-500">/ 100%</span>
+              <span className="text-[10px] font-mono text-[var(--text-faint)]">/ 100%</span>
             </div>
             {/* Semantic Risk Bar */}
-            <div className={`w-full h-1 rounded-full mt-2 overflow-hidden ${
-              isDark ? 'bg-slate-800' : 'bg-slate-200'
-            }`}>
+            <div className="w-full h-1 rounded-full mt-2 overflow-hidden bg-[var(--border)]">
               <div
                 className={`h-full transition-all duration-300 ${
-                  prediction.riskLevel === 'CRITICAL' || prediction.riskLevel === 'HIGH'
-                    ? 'bg-[var(--danger)]'
-                    : prediction.riskLevel === 'MEDIUM' ? 'bg-[var(--warning)]' : 'bg-[var(--success)]'
+                  prediction.riskLevel === 'CRITICAL' 
+                    ? 'bg-[var(--danger)]' 
+                    : prediction.riskLevel === 'HIGH' 
+                    ? 'bg-[var(--risk-high)]' 
+                    : prediction.riskLevel === 'MEDIUM' 
+                    ? 'bg-[var(--warning)]' 
+                    : 'bg-[var(--success)]'
                 }`}
                 style={{ width: `${Math.min(riskScore * 100, 100)}%` }}
               />
@@ -148,125 +144,119 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
           </div>
 
           {/* Time to Collision (TTC) */}
-          <div className={`p-3 rounded-lg border transition-colors ${
-            isDark ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50/70 border-slate-200'
-          }`}>
-            <div className="flex items-center justify-between text-[11px] text-slate-400">
-              <span className="flex items-center gap-1.5 font-medium">
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
+          <div className="p-2.5 rounded-control border border-[var(--border)] bg-[var(--surface-2)]">
+            <div className="flex items-center justify-between text-[11px] text-[var(--text-faint)]">
+              <span className="flex items-center gap-1 font-medium">
+                <Clock className="w-3.5 h-3.5" />
                 TTC proyectado
               </span>
             </div>
             <div className="mt-1 flex items-baseline gap-1">
-              <span className="text-xl font-bold font-mono text-[var(--warning)]">
+              <span className={`text-lg font-bold font-mono ${
+                prediction.timeToCollisionSec <= 5 ? 'text-[var(--danger)]' : 'text-[var(--text)]'
+              }`}>
                 {prediction.timeToCollisionSec}s
               </span>
             </div>
-            <span className="text-[10px] font-mono text-slate-500 block mt-1">
-              Anticipación: {prediction.predictionHorizonSec}s (H1)
+            <span className="text-[10px] font-mono text-[var(--text-faint)] block mt-1">
+              Anticipación: {prediction.predictionHorizonSec}s
             </span>
           </div>
 
           {/* Operation & Operator info */}
-          <div className={`p-3 rounded-lg border col-span-2 sm:col-span-1 transition-colors ${
-            isDark ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50/70 border-slate-200'
-          }`}>
-            <div className="flex items-center justify-between text-[11px] text-slate-400">
-              <span className="flex items-center gap-1.5 font-medium">
-                <UserCheck className="w-3.5 h-3.5 text-slate-400" />
+          <div className="p-2.5 rounded-control border border-[var(--border)] bg-[var(--surface-2)] col-span-2 sm:col-span-1">
+            <div className="flex items-center justify-between text-[11px] text-[var(--text-faint)]">
+              <span className="flex items-center gap-1 font-medium">
+                <UserCheck className="w-3.5 h-3.5" />
                 Operación
               </span>
             </div>
             <div className="mt-1 truncate">
-              <p className={`text-xs font-semibold truncate ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+              <p className="text-xs font-semibold truncate text-[var(--text)]">
                 {equipment.isAutonomous ? 'AHS Autónomo' : operator?.operatorName || 'Manual'}
               </p>
               {!equipment.isAutonomous && operator && (
-                <p className="text-[10px] font-mono text-slate-400 mt-0.5">
-                  Turno: {operator.shiftHoursAccumulated}h | PERCLOS: {(operator.perclosScore * 100).toFixed(0)}%
+                <p className="text-[10px] font-mono text-[var(--text-muted)] mt-0.5 truncate">
+                  {operator.shiftHoursAccumulated}h | PERCLOS: {(operator.perclosScore * 100).toFixed(0)}%
                 </p>
               )}
             </div>
           </div>
         </div>
 
-        <details className={`rounded-lg border transition-colors ${
-          isDark ? 'bg-slate-950/30 border-slate-800' : 'bg-slate-50/50 border-slate-200'
-        }`}>
-          <summary className="flex items-center justify-between gap-3 px-3.5 py-3 list-none cursor-pointer">
-            <span className={`text-xs font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+        {/* TreeSHAP Causal Breakdown */}
+        <details className="rounded-control border border-[var(--border)] bg-[var(--surface-2)]">
+          <summary className="flex items-center justify-between gap-2 px-3 py-2.5 list-none cursor-pointer">
+            <span className="text-xs font-medium text-[var(--text)]">
               Desglose causal · TreeSHAP
             </span>
-            <span className="flex items-center gap-2 text-[10px] text-[var(--text-tertiary)]">
+            <span className="flex items-center gap-1.5 text-[10px] text-[var(--text-faint)]">
               {prediction.shapFactors.length} factores
-              <ChevronDown className="w-3.5 h-3.5" />
+              <ChevronDown className="w-3 h-3" />
             </span>
           </summary>
-          <div className="px-3.5 pb-3.5 space-y-2.5">
-            <div className="flex items-center gap-3 text-[10px] text-slate-400">
+          <div className="px-3 pb-3 space-y-2 border-t border-[var(--border)] pt-2.5">
+            <div className="flex items-center gap-3 text-[10px] text-[var(--text-faint)]">
               <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-[var(--danger)]" />
-                Aumenta
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--danger)]" />
+                Aumenta riesgo
               </span>
               <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-[var(--success)]" />
-                Reduce
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
+                Mitiga
               </span>
             </div>
 
-          {/* Factor Contribution Bars */}
-          <div className="space-y-2 pt-1">
-            {prediction.shapFactors.map((factor, idx) => {
-              // Rojo = aumenta riesgo (+), Verde = disminuye riesgo (-)
-              const increasesRisk = factor.attributionValue >= 0;
-              const barColor = increasesRisk ? 'bg-[var(--danger)]' : 'bg-[var(--success)]';
-              const textColor = increasesRisk ? 'text-[var(--danger)]' : 'text-[var(--success)]';
-              const sign = increasesRisk ? '+' : '';
+            {/* Factor Contribution Bars */}
+            <div className="space-y-2 pt-1">
+              {prediction.shapFactors.map((factor, idx) => {
+                const increasesRisk = factor.attributionValue >= 0;
+                const barColor = increasesRisk ? 'bg-[var(--danger)]' : 'bg-[var(--success)]';
+                const textColor = increasesRisk ? 'text-[var(--danger)]' : 'text-[var(--success)]';
+                const sign = increasesRisk ? '+' : '';
 
-              return (
-                <div key={idx} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      {increasesRisk ? (
-                        <ArrowUpRight className="w-3.5 h-3.5 text-[var(--danger)] flex-shrink-0" />
-                      ) : (
-                        <ArrowDownRight className="w-3.5 h-3.5 text-[var(--success)] flex-shrink-0" />
-                      )}
-                      <span className={`truncate text-[11px] font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                        {factor.featureName}
-                      </span>
+                return (
+                  <div key={idx} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        {increasesRisk ? (
+                          <ArrowUpRight className="w-3.5 h-3.5 text-[var(--danger)] flex-shrink-0" />
+                        ) : (
+                          <ArrowDownRight className="w-3.5 h-3.5 text-[var(--success)] flex-shrink-0" />
+                        )}
+                        <span className="truncate text-[11px] font-medium text-[var(--text-muted)]">
+                          {factor.featureName}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0 font-mono text-[11px]">
+                        <span className="text-[var(--text-faint)] text-[10px]">
+                          {factor.unitValueString}
+                        </span>
+                        <span className={`font-semibold ${textColor}`}>
+                          {sign}{factor.percentageWeight}%
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0 font-mono text-[11px]">
-                      <span className="text-slate-500 text-[10px]">
-                        {factor.unitValueString}
-                      </span>
-                      <span className={`font-semibold ${textColor}`}>
-                        {sign}{factor.percentageWeight}%
-                      </span>
+                    {/* Contribution bar */}
+                    <div className="w-full h-1 rounded-full overflow-hidden bg-[var(--border)]">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${barColor}`}
+                        style={{ width: `${Math.min(Math.abs(factor.percentageWeight), 100)}%` }}
+                      />
                     </div>
                   </div>
-                  {/* Contribution bar */}
-                  <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}>
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${barColor}`}
-                      style={{ width: `${Math.min(Math.abs(factor.percentageWeight), 100)}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
           </div>
         </details>
 
         {/* Action Recommendation */}
-        <div className={`p-3 rounded-lg border flex items-start gap-2.5 transition-colors ${
-          isDark ? 'bg-slate-950/40 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
-        }`}>
-          <CheckCircle2 className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
+        <div className="p-3 rounded-control border border-[var(--border)] bg-[var(--surface-2)] flex items-start gap-2.5">
+          <CheckCircle2 className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0 mt-0.5" />
           <div className="text-xs leading-relaxed">
-            <span className="font-semibold text-slate-200 dark:text-slate-200">Recomendación: </span>
-            <span className="text-slate-400">{prediction.counterfactualRecommendation}</span>
+            <span className="font-semibold text-[var(--text)]">Recomendación: </span>
+            <span className="text-[var(--text-muted)]">{prediction.counterfactualRecommendation}</span>
           </div>
         </div>
 
@@ -275,9 +265,9 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
           <button
             id="btn-send-cab-warning"
             onClick={() => onSendCabWarning && onSendCabWarning(equipment.id)}
-            className={`${prediction.riskLevel === 'CRITICAL' ? 'ms-button-danger' : 'ms-button-neutral'} flex-1 font-medium text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer`}
+            className={`${prediction.riskLevel === 'CRITICAL' ? 'ms-button-danger' : 'ms-button-neutral'} flex-1 text-xs py-1.5 px-3 cursor-pointer`}
           >
-            <Volume2 className="w-3.5 h-3.5" />
+            <Volume2 className="w-3.5 h-3.5 mr-1.5" />
             <span>Aviso acústico a cabina</span>
           </button>
 
@@ -285,9 +275,9 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
             <button
               id="btn-request-relief"
               onClick={() => onRequestRelief && onRequestRelief(operator.operatorId)}
-              className={`${prediction.riskLevel === 'CRITICAL' ? 'ms-button-neutral' : 'ms-button-primary'} flex-1 font-medium text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer`}
+              className={`${prediction.riskLevel === 'CRITICAL' ? 'ms-button-neutral' : 'ms-button-primary'} flex-1 text-xs py-1.5 px-3 cursor-pointer`}
             >
-              <UserCheck className="w-3.5 h-3.5" />
+              <UserCheck className="w-3.5 h-3.5 mr-1.5" />
               <span>Solicitar relevo</span>
             </button>
           )}

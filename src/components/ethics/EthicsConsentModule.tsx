@@ -30,39 +30,33 @@ export const EthicsConsentModule: React.FC<EthicsConsentModuleProps> = ({
   const isDark = theme === 'dark';
 
   return (
-    <div className={`rounded-2xl border shadow-xl p-5 space-y-5 transition-colors ${
-      isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900 shadow-sm'
-    }`}>
+    <div className="ms-card p-5 space-y-6 text-[var(--text)] max-w-5xl mx-auto">
       {/* Header */}
-      <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b transition-colors ${
-        isDark ? 'border-slate-800' : 'border-slate-200'
-      }`}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[var(--accent-soft)] border border-[var(--accent-border)] flex items-center justify-center">
-            <Shield className="w-5 h-5 text-[var(--accent)]" />
+          <div className="w-9 h-9 rounded-[var(--radius-control)] bg-[var(--accent-soft)] border border-[var(--border)] flex items-center justify-center text-[var(--accent)]">
+            <Shield className="w-4 h-4" />
           </div>
           <div>
-            <h2 className={`text-base font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-              Módulo de Ética, Privacidad y Consentimiento Informado
+            <h2 className="text-sm font-semibold text-[var(--text)]">
+              Ética, privacidad y consentimiento informado (GDPR / ISO 27701)
             </h2>
-            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Gobernanza de datos biométricos de fatiga y trazabilidad de consentimiento de operadores
+            <p className="text-xs text-[var(--text-muted)]">
+              Gobernanza de datos biométricos de fatiga y trazabilidad de consentimiento.
             </p>
           </div>
         </div>
 
         {/* Anonymization Toggle Switch */}
-        <div className={`flex items-center gap-3 px-4 py-2 rounded-xl border transition-colors ${
-          isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
-        }`}>
+        <div className="flex items-center gap-3 px-3 py-1.5 rounded-[var(--radius-control)] border border-[var(--border)] bg-[var(--surface-2)]">
           <div className="flex items-center gap-2">
-            <EyeOff className={`w-4 h-4 ${isAnonymized ? 'text-[var(--accent)]' : isDark ? 'text-slate-500' : 'text-slate-400'}`} />
+            <EyeOff className={`w-3.5 h-3.5 ${isAnonymized ? 'text-[var(--accent)]' : 'text-[var(--text-faint)]'}`} />
             <div className="text-left">
-              <p className={`text-xs font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-                Anonimización en Tiempo Real
+              <p className="text-xs font-medium text-[var(--text)]">
+                Anonimización activa
               </p>
-              <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                Ofusca nombres y RUT con SHA-256
+              <p className="text-[10px] text-[var(--text-faint)] font-mono">
+                SHA-256
               </p>
             </div>
           </div>
@@ -70,128 +64,114 @@ export const EthicsConsentModule: React.FC<EthicsConsentModuleProps> = ({
             id="btn-toggle-anon"
             onClick={onToggleAnonymization}
             aria-pressed={isAnonymized}
-            className={`w-12 h-6 flex items-center rounded-full p-1 border transition-colors cursor-pointer ${
-              isAnonymized ? 'bg-[var(--accent-soft)] border-[var(--accent-border)] justify-end' : isDark ? 'bg-slate-800 border-slate-700 justify-start' : 'bg-slate-300 border-slate-400 justify-start'
+            className={`w-10 h-5 flex items-center rounded-full p-0.5 border transition-colors cursor-pointer ${
+              isAnonymized ? 'bg-[var(--accent)] border-[var(--accent)] justify-end' : 'bg-[var(--border-strong)] border-[var(--border)] justify-start'
             }`}
           >
-            <div className={`w-4 h-4 rounded-full shadow-sm transition-transform ${isAnonymized ? 'bg-[var(--accent)]' : 'bg-white'}`} />
+            <div className="w-4 h-4 rounded-full bg-white shadow-sm transition-transform" />
           </button>
         </div>
       </div>
 
       {/* Ethics Framework Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className={`p-3.5 rounded-xl border space-y-1.5 transition-colors ${
-          isDark ? 'bg-slate-800/50 border-slate-700/80' : 'bg-slate-50 border-slate-200'
-        }`}>
-          <div className={`flex items-center gap-2 text-xs font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-            <FileCheck className="w-4 h-4 text-[var(--accent)]" />
-            <span>Consentimiento Específico</span>
+        <div className="p-3.5 rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-2)] space-y-1.5">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text)]">
+            <FileCheck className="w-3.5 h-3.5 text-[var(--accent)]" />
+            <span>Consentimiento explícito</span>
           </div>
-          <p className={`text-[11px] leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-            Cada operador autoriza explícitamente el uso de telemetría ocular (PERCLOS) exclusivamente para prevención de colisiones en tiempo real.
+          <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+            Autorización para uso de telemetría ocular (PERCLOS) con el fin único de prevención de colisiones.
           </p>
         </div>
 
-        <div className={`p-3.5 rounded-xl border space-y-1.5 transition-colors ${
-          isDark ? 'bg-slate-800/50 border-slate-700/80' : 'bg-slate-50 border-slate-200'
-        }`}>
-          <div className={`flex items-center gap-2 text-xs font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-            <Lock className="w-4 h-4" style={{ color: 'var(--accent)' }} />
-            <span>Cifrado y No-Punición</span>
+        <div className="p-3.5 rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-2)] space-y-1.5">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text)]">
+            <Lock className="w-3.5 h-3.5 text-[var(--accent)]" />
+            <span>Principio de no punición</span>
           </div>
-          <p className={`text-[11px] leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-            Los datos de fatiga no se utilizan con fines punitivos laborales; su objetivo es la protección de vidas humanas y alertas tempranas en cabina.
+          <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+            Los datos de fatiga nunca se utilizan para medidas disciplinarias laborales; su foco es la seguridad.
           </p>
         </div>
 
-        <div className={`p-3.5 rounded-xl border space-y-1.5 transition-colors ${
-          isDark ? 'bg-slate-800/50 border-slate-700/80' : 'bg-slate-50 border-slate-200'
-        }`}>
-          <div className={`flex items-center gap-2 text-xs font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-            <Fingerprint className="w-4 h-4 text-[var(--accent)]" />
-            <span>Trazabilidad Criptográfica</span>
+        <div className="p-3.5 rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-2)] space-y-1.5">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text)]">
+            <Fingerprint className="w-3.5 h-3.5 text-[var(--accent)]" />
+            <span>Trazabilidad auditable</span>
           </div>
-          <p className={`text-[11px] leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-            Firmas digitales inmutables vinculadas a cada lote de telemetría de fatiga, auditables por representantes sindicales y MSHA.
+          <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+            Firmas digitales inmutables asociadas a cada lote de telemetría, fiscalizables por MSHA y comités paritarios.
           </p>
         </div>
       </div>
 
       {/* Consent Registry Table */}
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         <div className="flex items-center justify-between">
-          <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-            Registro Activo de Consentimientos Informados (Flota Manual)
+          <h3 className="text-xs font-medium text-[var(--text-faint)]">
+            Registro de consentimientos informados
           </h3>
-          <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            Total Registrados: {consents.length}
+          <span className="text-xs text-[var(--text-faint)] font-mono">
+            {consents.length} operadores
           </span>
         </div>
 
-        <div className={`overflow-x-auto rounded-xl border transition-colors ${
-          isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-        }`}>
+        <div className="overflow-x-auto rounded-[var(--radius-card)] border border-[var(--border)]">
           <table className="w-full text-left text-xs">
-            <thead className={`border-b text-[11px] transition-colors ${
-              isDark ? 'bg-slate-900 text-slate-400 border-slate-800' : 'bg-slate-100 text-slate-600 border-slate-200'
-            }`}>
+            <thead className="border-b border-[var(--border)] text-[11px] bg-[var(--surface-2)] text-[var(--text-faint)]">
               <tr>
-                <th className="p-3">Operador / ID</th>
-                <th className="p-3">Código Empleado</th>
-                <th className="p-3">Fecha Firma</th>
-                <th className="p-3">Cámara Facial (PERCLOS)</th>
-                <th className="p-3">Volante / Maniobras</th>
-                <th className="p-3">Hash Anonimizado</th>
-                <th className="p-3">Estado</th>
+                <th className="p-3 font-medium">Operador</th>
+                <th className="p-3 font-medium">Código</th>
+                <th className="p-3 font-medium">Fecha firma</th>
+                <th className="p-3 font-medium">Cámara facial</th>
+                <th className="p-3 font-medium">Telemetría volante</th>
+                <th className="p-3 font-medium">Hash anonimizado</th>
+                <th className="p-3 font-medium">Estado</th>
               </tr>
             </thead>
-            <tbody className={`divide-y transition-colors ${
-              isDark ? 'divide-slate-800 text-slate-300' : 'divide-slate-200 text-slate-700'
-            }`}>
+            <tbody className="divide-y divide-[var(--border)] text-[var(--text)]">
               {consents.map((consent) => (
                 <tr
                   key={consent.operatorId}
                   onClick={() => setSelectedConsent(consent)}
                   className={`cursor-pointer transition-colors ${
-                    isDark
-                      ? selectedConsent?.operatorId === consent.operatorId ? 'bg-slate-800/80' : 'hover:bg-slate-900/60'
-                      : selectedConsent?.operatorId === consent.operatorId ? 'bg-slate-100' : 'hover:bg-slate-50'
+                    selectedConsent?.operatorId === consent.operatorId ? 'bg-[var(--accent-soft)]' : 'hover:bg-[var(--surface-2)]'
                   }`}
                 >
-                  <td className={`p-3 font-semibold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+                  <td className="p-3 font-medium flex items-center gap-2 text-[var(--text)]">
                     <UserCheck className="w-3.5 h-3.5 text-[var(--accent)]" />
                     <span>{isAnonymized ? consent.anonymizationHash.substring(0, 12) + '...' : consent.operatorName}</span>
                   </td>
-                  <td className={`p-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                    {isAnonymized ? 'EMP-ANON-***' : consent.employeeCode}
+                  <td className="p-3 font-mono text-[var(--text-muted)]">
+                    {isAnonymized ? 'EMP-***' : consent.employeeCode}
                   </td>
-                  <td className={`p-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{consent.consentDate}</td>
+                  <td className="p-3 font-mono text-[var(--text-muted)]">{consent.consentDate}</td>
                   <td className="p-3">
                     {consent.dataScope.facialPerclos ? (
-                      <span className="text-slate-500 flex items-center gap-1 font-semibold">
+                      <span className="text-[var(--success)] flex items-center gap-1 font-medium">
                         <CheckCircle className="w-3.5 h-3.5" /> Autorizado
                       </span>
                     ) : (
-                      <span className="text-slate-500 flex items-center gap-1">
+                      <span className="text-[var(--text-faint)] flex items-center gap-1">
                         <XCircle className="w-3.5 h-3.5" /> Denegado
                       </span>
                     )}
                   </td>
                   <td className="p-3">
                     {consent.dataScope.steeringTelemetry ? (
-                      <span className="text-slate-500 flex items-center gap-1 font-semibold">
+                      <span className="text-[var(--success)] flex items-center gap-1 font-medium">
                         <CheckCircle className="w-3.5 h-3.5" /> Autorizado
                       </span>
                     ) : (
-                      <span className="text-slate-500 flex items-center gap-1">
+                      <span className="text-[var(--text-faint)] flex items-center gap-1">
                         <XCircle className="w-3.5 h-3.5" /> Denegado
                       </span>
                     )}
                   </td>
-                  <td className={`p-3 text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{consent.anonymizationHash}</td>
+                  <td className="p-3 font-mono text-[10px] text-[var(--text-faint)]">{consent.anonymizationHash}</td>
                   <td className="p-3">
-                    <span className="ms-badge-neutral px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    <span className="ms-badge-neutral text-[10px] font-mono">
                       {consent.status}
                     </span>
                   </td>

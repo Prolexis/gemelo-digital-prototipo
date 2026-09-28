@@ -113,123 +113,116 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[var(--bg)] text-[var(--text)] transition-colors duration-200">
       {/* Top Navbar Minimalista */}
-      <header className="h-14 border-b border-[var(--border)] px-4 sm:px-6 flex items-center justify-between bg-[var(--bg-elev)] sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[var(--accent-soft)] border border-[var(--accent-border)] text-[var(--accent)] font-bold flex items-center justify-center text-sm">
+      <header className="h-12 border-b border-[var(--border)] px-4 sm:px-6 flex items-center justify-between bg-[var(--surface)] sticky top-0 z-10">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-control bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--accent-text)] font-semibold flex items-center justify-center text-xs">
             MS
           </div>
-          <h1 className="text-sm font-semibold tracking-tight">MineSafe 3D</h1>
+          <h1 className="text-xs font-semibold tracking-tight text-[var(--text)]">MineSafe 3D</h1>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="ms-badge-neutral text-[10px] px-2.5 py-1 rounded-full hidden sm:inline-flex">ISO 27001 · SOC 2</span>
+        <div className="flex items-center gap-2">
+          <span className="ms-badge-neutral text-[10px] hidden sm:inline-flex">ISO 27001 · SOC 2</span>
 
           <button
             onClick={onToggleTheme}
-            className="ms-button-neutral p-2 rounded-lg cursor-pointer"
+            className="ms-button-ghost p-1.5 rounded-control cursor-pointer"
             title="Alternar Modo Oscuro / Claro"
           >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
           </button>
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 flex items-center justify-center p-5 sm:p-8 my-auto">
-        <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] gap-8 lg:gap-10 items-center">
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 my-auto">
+        <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.9fr)] gap-6 lg:gap-8 items-center">
           
           {/* Columna Izquierda: Formulario de Login */}
-          <section className="w-full max-w-lg mx-auto" aria-labelledby="login-title">
-            <div>
-              <p className="text-xs text-[var(--text-tertiary)] mb-2">Acceso corporativo · Tajo 3200</p>
-              <h2 id="login-title" className="text-2xl font-semibold tracking-tight">
+          <section className="w-full max-w-md mx-auto" aria-labelledby="login-title">
+            <div className="ms-card">
+              <p className="text-[11px] text-[var(--text-faint)] mb-1">Acceso corporativo · Tajo 3200</p>
+              <h2 id="login-title" className="text-xl font-semibold tracking-tight text-[var(--text)]">
                 Iniciar sesión
               </h2>
 
-              <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+              <form onSubmit={handleSubmit} className="mt-5 space-y-3.5">
                 {/* Campo Correo */}
-                <div className="space-y-1.5">
-                  <label className={`text-xs font-bold block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                    Correo
+                <div className="space-y-1">
+                  <label className="text-xs font-medium block text-[var(--text-muted)]">
+                    Correo corporativo
                   </label>
-                  <div className={`flex items-center gap-2.5 px-3.5 py-3 rounded-lg border transition-colors focus-within:border-[var(--accent)] ${
-                    isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-300'
-                  }`}>
-                    <Mail className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-control border border-[var(--border-strong)] bg-[var(--surface)] transition-colors focus-within:border-[var(--accent)]">
+                    <Mail className="w-3.5 h-3.5 text-[var(--text-faint)] flex-shrink-0" />
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       placeholder="usuario@mineraesperanza.cl"
-                      className="w-full bg-transparent text-sm font-medium outline-none"
+                      className="w-full bg-transparent text-xs outline-none text-[var(--text)] placeholder:text-[var(--text-faint)]"
                     />
                   </div>
                 </div>
 
                 {/* Campo Contraseña */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className={`text-xs font-bold block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                      Contraseña
-                    </label>
-                  </div>
-                  <div className={`flex items-center gap-2.5 px-3.5 py-3 rounded-lg border transition-colors focus-within:border-[var(--accent)] ${
-                    isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-300'
-                  }`}>
-                    <Lock className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                <div className="space-y-1">
+                  <label className="text-xs font-medium block text-[var(--text-muted)]">
+                    Contraseña
+                  </label>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-control border border-[var(--border-strong)] bg-[var(--surface)] transition-colors focus-within:border-[var(--accent)]">
+                    <Lock className="w-3.5 h-3.5 text-[var(--text-faint)] flex-shrink-0" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       placeholder="••••••••••••"
-                      className="w-full bg-transparent text-sm font-medium outline-none"
+                      className="w-full bg-transparent text-xs outline-none text-[var(--text)] placeholder:text-[var(--text-faint)]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="text-slate-400 hover:text-slate-200 cursor-pointer"
+                      className="text-[var(--text-faint)] hover:text-[var(--text)] cursor-pointer"
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
                   </div>
                 </div>
 
-                {/* Botón de Enviar */}
+                {/* Botón de Enviar (Único primario) */}
                 <button
                   id="btn-login-submit"
                   type="submit"
                   disabled={isLoading}
-                  className="ms-button-primary w-full py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="ms-button-primary w-full py-2.5 rounded-control font-medium text-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? (
                     <>
-                      <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                      <span className="w-3.5 h-3.5 border-2 border-[var(--accent-foreground)] border-t-transparent rounded-full animate-spin" />
                       <span>Autenticando…</span>
                     </>
                   ) : (
                     <>
                       <span>Entrar</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
                 </button>
               </form>
             </div>
-
           </section>
 
-          {/* Columna Derecha: Selector de Roles Preconfigurados (Para presentación y demo) */}
-          <section className="lg:border-l lg:border-[var(--border)] lg:pl-8 pt-7 lg:pt-0 border-t lg:border-t-0" aria-labelledby="quick-access-title">
-            <div>
-              <div className="flex items-center justify-between gap-3 mb-1">
-                  <h3 id="quick-access-title" className="text-sm font-semibold">Acceso rápido</h3>
-                  <span className="text-[10px] text-[var(--text-tertiary)]">Perfiles de demostración</span>
-                </div>
+          {/* Columna Derecha: Selector de Roles Preconfigurados */}
+          <section className="lg:border-l lg:border-[var(--border)] lg:pl-6 pt-4 lg:pt-0" aria-labelledby="quick-access-title">
+            <div className="ms-card">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <h3 id="quick-access-title" className="text-xs font-semibold text-[var(--text)]">Acceso rápido</h3>
+                <span className="text-[10px] text-[var(--text-faint)]">Perfiles de demostración</span>
+              </div>
 
               {/* Lista de Perfiles */}
-              <div className="mt-4 space-y-1.5">
+              <div className="space-y-1.5">
                 {(Object.keys(PRECONFIGURED_USERS) as UserRole[]).map((roleKey) => {
                   const user = PRECONFIGURED_USERS[roleKey];
                   const isSelected = selectedRole === roleKey;
@@ -241,13 +234,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                       type="button"
                       onClick={() => handleSelectDemoProfile(roleKey)}
                       aria-pressed={isSelected}
-                      className="ms-button-neutral w-full min-w-0 p-2.5 rounded-lg text-left flex items-center justify-between cursor-pointer"
+                      className={`w-full min-w-0 p-2 rounded-control text-left flex items-center justify-between cursor-pointer border transition-colors ${
+                        isSelected
+                          ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text)]'
+                          : 'border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-[var(--text)]'
+                      }`}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`w-8 h-8 rounded-md border flex items-center justify-center font-semibold text-[11px] flex-shrink-0 ${
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className={`w-6 h-6 rounded-control border flex items-center justify-center font-medium text-[10px] flex-shrink-0 ${
                           isSelected
-                            ? 'bg-[var(--accent-soft)] border-[var(--accent-border)] text-[var(--accent)]'
-                            : 'bg-[var(--bg-elev-2)] border-[var(--border)] text-[var(--text-soft)]'
+                            ? 'bg-[var(--surface)] border-[var(--accent-border)] text-[var(--accent)]'
+                            : 'bg-[var(--surface)] border-[var(--border)] text-[var(--text-muted)]'
                         }`}>
                           {user.avatarInitials}
                         </div>
@@ -255,25 +252,25 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                           <p className="text-xs font-medium truncate text-[var(--text)]">
                             {user.roleLabel}
                           </p>
-                          <p className="text-[10px] truncate text-[var(--text-tertiary)]">
+                          <p className="text-[10px] truncate text-[var(--text-faint)]">
                             {user.name}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {isSelected && <CheckCircle className="w-4 h-4 text-[var(--accent)]" />}
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        {isSelected && <CheckCircle className="w-3.5 h-3.5 text-[var(--accent)]" />}
                       </div>
                     </button>
                   );
                 })}
               </div>
-            </div>
 
-            {/* Aviso de Auditoría */}
-            <div className="mt-5 pt-4 border-t border-[var(--border)] flex items-center gap-2 text-xs text-[var(--text-soft)]">
-              <ShieldCheck className="w-4 h-4 text-[var(--text-tertiary)]" />
-              <span>Auditoría de acceso activa · ISO 27001 / MSHA</span>
+              {/* Aviso de Auditoría */}
+              <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center gap-2 text-[11px] text-[var(--text-faint)]">
+                <ShieldCheck className="w-3.5 h-3.5 text-[var(--text-faint)] flex-shrink-0" />
+                <span>Auditoría activa · ISO 27001 / MSHA</span>
+              </div>
             </div>
           </section>
         </div>
