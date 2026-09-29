@@ -1,7 +1,7 @@
 {
   "pipeline_name": "MineSafe 3D Predictive Risk Pipeline",
   "version": "1.0.0",
-  "trained_at": "2026-09-22T19:42:06.297725+00:00",
+  "trained_at": "2026-09-29T14:25:57.261067+00:00",
   "is_pipeline": true,
   "pipeline_steps": [
     "imputer (SimpleImputer:median)",
@@ -23,27 +23,27 @@
   "n_train": 4000,
   "n_test": 1000,
   "metrics_rf": {
-    "accuracy": 0.969,
-    "precision": 0.9271,
-    "recall": 0.9815,
-    "f1": 0.9535,
-    "auc_roc": 0.9973,
-    "fpr": 0.037,
-    "tp": 318,
-    "fp": 25,
-    "fn": 6,
-    "tn": 651
+    "accuracy": 0.981,
+    "precision": 0.9227,
+    "recall": 0.9902,
+    "f1": 0.9553,
+    "auc_roc": 0.9987,
+    "fpr": 0.0214,
+    "tp": 203,
+    "fp": 17,
+    "fn": 2,
+    "tn": 778
   },
   "metrics_gbm": {
-    "accuracy": 0.979,
-    "precision": 0.9633,
-    "recall": 0.9722,
-    "f1": 0.9677,
-    "auc_roc": 0.9984,
-    "fpr": 0.0178,
-    "tp": 315,
-    "fp": 12,
-    "fn": 9,
-    "tn": 664
+    "accuracy": 0.989,
+    "precision": 0.9755,
+    "recall": 0.9707,
+    "f1": 0.9731,
+    "auc_roc": 0.9993,
+    "fpr": 0.0063,
+    "tp": 199,
+    "fp": 5,
+    "fn": 6,
+    "tn": 790
   }
 }

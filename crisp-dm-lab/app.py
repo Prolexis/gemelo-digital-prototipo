@@ -207,7 +207,7 @@ def load_dataset() -> pd.DataFrame:
     return load_real_dataset()
 
 @st.cache_resource(show_spinner="🤖 Entrenando Pipeline ML con Cross-Validation 5-Fold y análisis estadístico…")
-def get_model():
+def get_model(n_samples: int = None):
     df = load_dataset()
     return train_models(df)
 
@@ -1246,7 +1246,7 @@ Justificación: Superioridad en AUC-ROC y Recall para la prevención de colision
         }])
 
         with st.spinner("Calculando…"):
-            ml_res = get_model(n_samples)
+            ml_res = get_model()
             rf_proba, rf_pred = predict_single(ml_res["rf"], X_single)
 
         # Severidad ML basada en umbral
