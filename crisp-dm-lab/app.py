@@ -131,14 +131,36 @@ button[data-baseweb="tab"][aria-selected="true"] {{
     font-weight: 500 !important;
 }}
 
-/* ── Tablas y DataFrames ── */
-.stDataFrame, .dataframe {{
+/* ── Tablas y DataFrames Estándar MineSafe 3D ── */
+.stDataFrame, .dataframe, div[data-testid="stDataFrame"] {{
     background: {C['surface']} !important;
     color: {C['text']} !important;
     border: 1px solid {C['border']} !important;
-    border-radius: 8px !important;
+    border-radius: 6px !important;
 }}
-.stDataFrame th {{ background: {C['surface2']} !important; color: {C['text_muted']} !important; font-size: 0.75rem; }}
+.stDataFrame th, .dataframe th {{
+    background: {C['surface']} !important;
+    color: {C['text_faint']} !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    border-bottom: 1px solid {C['border']} !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding: 8px 12px !important;
+}}
+.stDataFrame td, .dataframe td {{
+    border-bottom: 1px solid {C['border']} !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    font-size: 12.5px !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    padding: 6px 12px !important;
+    color: {C['text']} !important;
+}}
 
 /* ── Expanders ── */
 details summary {{ color: {C['text']} !important; font-weight: 500 !important; font-size: 0.85rem; }}
@@ -147,28 +169,38 @@ details {{ background: {C['surface']} !important; border: 1px solid {C['border']
 /* ── Cuadros de alerta nativos ── */
 .stAlert {{ background: {C['surface']} !important; color: {C['text']} !important; border: 1px solid {C['border']} !important; border-radius: 8px !important; }}
 
-/* ── Selector de Fase (Segmented / Radio Nav) ── */
+/* ── Selector de Fase (Nav Items Idéntico al Sistema) ── */
+.stRadio div[role="radiogroup"] {{
+    gap: 3px !important;
+}}
 .stRadio div[role="radiogroup"] > label {{
-    background: transparent;
-    border: 1px solid {C['border']};
-    border-radius: 6px;
-    padding: 7px 12px;
-    margin-bottom: 4px;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-left: 3px solid transparent !important;
+    border-radius: 4px !important;
+    padding: 7px 10px !important;
+    margin-bottom: 2px !important;
     color: {C['text_muted']} !important;
-    font-size: 0.82rem;
-    font-weight: 500;
-    transition: all 120ms ease;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    transition: all 120ms ease !important;
+    cursor: pointer !important;
+}}
+/* Ocultar el círculo nativo de radio button */
+.stRadio div[role="radiogroup"] > label > div:first-child {{
+    display: none !important;
 }}
 .stRadio div[role="radiogroup"] > label:hover {{
-    background: {C['surface2']};
-    border-color: {C['border_strong']};
+    background: {C['surface2']} !important;
     color: {C['text']} !important;
 }}
-.stRadio div[role="radiogroup"] > label[data-checked="true"],
-.stRadio div[role="radiogroup"] input:checked + div {{
-    border-color: {C['accent']} !important;
+/* Estado activo del nav-item */
+.stRadio div[role="radiogroup"] > label:has(input:checked),
+.stRadio div[role="radiogroup"] > label[data-checked="true"] {{
     background: {C['accent_soft']} !important;
+    border-left: 3px solid {C['accent']} !important;
     color: {C['text']} !important;
+    font-weight: 600 !important;
 }}
 
 /* ── Spinner ── */
@@ -187,31 +219,64 @@ details {{ background: {C['surface']} !important; border: 1px solid {C['border']
 .kpi-card:hover {{
     border-color: {C['border_strong']};
 }}
-.kpi-val  {{ font-size: 1.85rem; font-weight: 700; line-height: 1.1; font-family: 'JetBrains Mono', monospace; }}
+.kpi-val  {{ font-size: 1.85rem; font-weight: 700; line-height: 1.1; font-family: 'JetBrains Mono', monospace; color: {C['text']}; }}
 .kpi-lbl  {{ font-size: 0.74rem; color: {C['text_muted']}; margin-top: 6px; letter-spacing: .04em; text-transform: uppercase; font-weight: 500; }}
+.kpi-tag  {{ display: inline-flex; align-items: center; gap: 3px; font-size: 0.7rem; font-weight: 600; padding: 1px 6px; border-radius: 3px; margin-top: 5px; }}
 
-/* ── Encabezado de Fase sobrio ── */
+/* ── Encabezado de Fase Monocromático Sobrio ── */
 .phase-hdr {{
-    background: linear-gradient(90deg, {C['surface2']} 0%, {C['surface']} 100%);
+    background: {C['surface']};
+    border: 1px solid {C['border']};
     border-left: 3px solid {C['accent']};
-    border-top: 1px solid {C['border']};
-    border-right: 1px solid {C['border']};
-    border-bottom: 1px solid {C['border']};
     padding: 12px 18px;
     border-radius: 6px;
     margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }}
-.phase-hdr h2 {{ margin: 0 !important; font-size: 1.25rem !important; font-weight: 600 !important; color: {C['text']} !important; }}
+.phase-hdr-left {{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}}
+.phase-icon-badge {{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: {C['surface2']};
+    border: 1px solid {C['border']};
+    color: {C['text_muted']};
+    font-size: 14px;
+}}
+.phase-hdr h2 {{
+    margin: 0 !important;
+    font-size: 1.15rem !important;
+    font-weight: 600 !important;
+    color: {C['text']} !important;
+    line-height: 1.2 !important;
+}}
+.phase-step-tag {{
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: {C['text_faint']};
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}}
 
 /* ── Píldoras de Metadatos neutras (.ds-pill) ── */
 .ds-pill {{
     display: inline-flex;
     align-items: center;
+    gap: 5px;
     background: {C['surface2']};
     border: 1px solid {C['border']};
     border-radius: 4px;
     padding: 3px 10px;
-    font-size: .75rem;
+    font-size: .74rem;
     color: {C['text_muted']};
     margin: 2px 4px 2px 0;
     font-family: 'JetBrains Mono', monospace;
@@ -236,12 +301,25 @@ button[kind="primary"]:hover {{
     opacity: 0.92 !important;
 }}
 
-/* ── ASCII y Bloques de código sobrios ── */
+/* ── ASCII y Bloques de código sobrios con scroll interno ── */
 pre, code {{
     font-family: 'JetBrains Mono', monospace !important;
     background: {C['surface2']} !important;
     border: 1px solid {C['border']} !important;
     color: {C['text']} !important;
+}}
+.report-scrollbox {{
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid {C['border']};
+    border-radius: 6px;
+    background: {C['surface2']};
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: {C['text']};
+    white-space: pre-wrap;
 }}
 </style>
 """, unsafe_allow_html=True)
@@ -381,14 +459,36 @@ with st.sidebar:
             """, unsafe_allow_html=True)
 
 
-def ph(title: str):
-    st.markdown(f'<div class="phase-hdr"><h2>{title}</h2></div>', unsafe_allow_html=True)
+def ph(title: str, step_num: int = 1):
+    st.markdown(f"""
+    <div class="phase-hdr">
+        <div class="phase-hdr-left">
+            <div class="phase-icon-badge">❖</div>
+            <div>
+                <h2>{title}</h2>
+                <div class="phase-step-tag">Fase CRISP-DM · Paso {step_num} de 6</div>
+            </div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:{C['text_faint']};">
+            MineSafe 3D v2.6
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-def kpi(col, val, lbl, color=None):
-    c = color or C["text"]
+def kpi(col, val, lbl, threshold_met: bool = None, threshold_text: str = None):
+    # Por defecto, todos los valores van en neutro --text
+    val_color = C["text"]
+    tag_html = ""
+    if threshold_met is True:
+        tag_html = f'<div class="kpi-tag" style="background:rgba(76,174,122,0.12);color:{C["LOW"]};border:1px solid rgba(76,174,122,0.3);">✓ {threshold_text or "Sobre umbral"}</div>'
+    elif threshold_met is False:
+        tag_html = f'<div class="kpi-tag" style="background:rgba(240,98,90,0.12);color:{C["CRITICAL"]};border:1px solid rgba(240,98,90,0.4);">✗ {threshold_text or "Bajo umbral"}</div>'
+
     col.markdown(f"""<div class="kpi-card">
-        <div class="kpi-val" style="color:{c}">{val}</div>
-        <div class="kpi-lbl">{lbl}</div></div>""", unsafe_allow_html=True)
+        <div class="kpi-val" style="color:{val_color}">{val}</div>
+        <div class="kpi-lbl">{lbl}</div>
+        {tag_html}
+    </div>""", unsafe_allow_html=True)
 
 PLOTLY_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor=C["surface"],
@@ -406,16 +506,16 @@ PLOTLY_LAYOUT = dict(
 # 1. EDA (COMPRENSIÓN DE DATOS Y DEL NEGOCIO)
 # ══════════════════════════════════════════════════════════════════════════════
 if "1." in fase:
-    ph("🔍 1. EDA (Exploratory Data Analysis) — Comprensión de Datos y Negocio")
+    ph("Comprensión de Datos y Negocio (EDA)", step_num=1)
 
-    # Dataset pills
+    # Dataset pills unificadas en estilo neutro surface-2 / text-muted
     st.markdown(f"""
     <div style='margin-bottom:18px;'>
-        <span class='ds-pill'>📁 DATASET: REAL_FIELD_BENCHMARK_2026.csv</span>
-        <span class='ds-pill'>🔢 N = {len(df_raw):,} REGISTROS REALES</span>
-        <span class='ds-pill'>📐 ESTÁNDAR: ISO 21815 / MSHA 30 CFR 56</span>
-        <span class='ds-pill'>⚙️ 9 FEATURES · 1 TARGET BINARIO</span>
-        <span class='ds-pill'>🎯 BALANCE: {df_raw['is_critical_event'].mean()*100:.1f}% CRÍTICOS</span>
+        <span class='ds-pill'>📁 REAL_FIELD_BENCHMARK_2026.csv</span>
+        <span class='ds-pill'># N = {len(df_raw):,} registros</span>
+        <span class='ds-pill'>§ ISO 21815-1:2022 / MSHA 30 CFR 56</span>
+        <span class='ds-pill'>⚲ 9 features · 1 target</span>
+        <span class='ds-pill'>% {df_raw['is_critical_event'].mean()*100:.1f}% eventos críticos</span>
     </div>
     """, unsafe_allow_html=True)
 
@@ -516,37 +616,37 @@ if "1." in fase:
 # 2. ENTRENAMIENTOS (MODELADO ML & PIPELINE)
 # ══════════════════════════════════════════════════════════════════════════════
 elif "2." in fase:
-    ph("🧠 2. Entrenamientos (Modelado ML, Pipelines Scikit-Learn y Curvas ROC)")
+    ph("Modelado Predictivo y Pipelines de Machine Learning", step_num=2)
 
     with st.spinner("🤖 Entrenando y sincronizando modelos ML…"):
         res = get_model()
         st.session_state["model_data"] = res
 
-    # Pipeline Architecture Banner (Neutro y sobrio conforme al sistema)
+    # Pipeline Architecture Banner (Bloques uniformes surface, border 1px, iconos text-muted, flechas text-faint)
     st.markdown(f"""
     <div style="background:{C['surface']};border:1px solid {C['border']};border-radius:8px;padding:16px;margin:16px 0;">
-        <h4 style="margin:0 0 10px 0;color:{C['text']};font-size:0.95rem;font-weight:600;">
-            🏗️ Pipeline Formal de Machine Learning (Scikit-Learn Pipeline)
+        <h4 style="margin:0 0 10px 0;color:{C['text']};font-size:0.92rem;font-weight:600;">
+            Pipeline de Inferencia Scikit-Learn (ISO 21815-1:2022)
         </h4>
         <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:0.82rem;color:{C['text']};">
-            <span style="background:{C['surface2']};border:1px solid {C['border']};padding:5px 10px;border-radius:4px;">
-                📡 <b>1. Ingesta Telemetría</b><br><small style="color:{C['text_muted']}">9 features (LiDAR, GNSS, PERCLOS)</small>
+            <span style="background:{C['surface2']};border:1px solid {C['border']};padding:6px 12px;border-radius:8px;">
+                <span style="color:{C['text_muted']}">[1]</span> <b>Ingesta Telemetría</b><br><small style="color:{C['text_muted']}">9 features (LiDAR, GNSS, PERCLOS)</small>
             </span>
             <span style="font-size:1rem;color:{C['text_faint']};">➔</span>
-            <span style="background:{C['surface2']};border:1px solid {C['border']};padding:5px 10px;border-radius:4px;">
-                🩹 <b>2. SimpleImputer</b><br><small style="color:{C['text_muted']}">strategy="median" (tolerancia a fallos)</small>
+            <span style="background:{C['surface2']};border:1px solid {C['border']};padding:6px 12px;border-radius:8px;">
+                <span style="color:{C['text_muted']}">[2]</span> <b>SimpleImputer</b><br><small style="color:{C['text_muted']}">strategy="median" (tolerancia a fallos)</small>
             </span>
             <span style="font-size:1rem;color:{C['text_faint']};">➔</span>
-            <span style="background:{C['surface2']};border:1px solid {C['border']};padding:5px 10px;border-radius:4px;">
-                ⚖️ <b>3. RobustScaler</b><br><small style="color:{C['text_muted']}">Resiliencia a outliers extremos</small>
+            <span style="background:{C['surface2']};border:1px solid {C['border']};padding:6px 12px;border-radius:8px;">
+                <span style="color:{C['text_muted']}">[3]</span> <b>RobustScaler</b><br><small style="color:{C['text_muted']}">Resiliencia a outliers extremos</small>
             </span>
             <span style="font-size:1rem;color:{C['text_faint']};">➔</span>
-            <span style="background:{C['surface2']};border:1px solid {C['border']};padding:5px 10px;border-radius:4px;">
-                🌲 <b>4. RandomForest / GBM</b><br><small style="color:{C['text_muted']}">Ensamble con balanced weights</small>
+            <span style="background:{C['surface2']};border:1px solid {C['accent']};padding:6px 12px;border-radius:8px;">
+                <span style="color:{C['accent']}">[4]</span> <b>RandomForest (Activo)</b><br><small style="color:{C['text_muted']}">Ensamble con balanced weights</small>
             </span>
             <span style="font-size:1rem;color:{C['text_faint']};">➔</span>
-            <span style="background:{C['surface2']};border:1px solid {C['border']};padding:5px 10px;border-radius:4px;">
-                🔍 <b>5. TreeSHAP (XAI)</b><br><small style="color:{C['text_muted']}">Explicabilidad aditiva ISO 21815</small>
+            <span style="background:{C['surface2']};border:1px solid {C['border']};padding:6px 12px;border-radius:8px;">
+                <span style="color:{C['text_muted']}">[5]</span> <b>TreeSHAP (XAI)</b><br><small style="color:{C['text_muted']}">Explicabilidad aditiva ISO 21815</small>
             </span>
         </div>
         <p style="color:{C['text_muted']};font-size:0.78rem;margin:10px 0 0 0;">
@@ -658,7 +758,7 @@ elif "2." in fase:
 # 3. SELECCIÓN DEL MEJOR MODELO (EVALUACIÓN Y MATRIZ DE CONFUSIÓN)
 # ══════════════════════════════════════════════════════════════════════════════
 elif "3." in fase:
-    ph("🏆 3. Selección del Mejor Modelo — Criterios Operacionales y Evaluación")
+    ph("Evaluación y Selección del Modelo Rector", step_num=3)
 
     with st.spinner("Cargando métricas de evaluación..."):
         res = get_model()
@@ -668,10 +768,11 @@ elif "3." in fase:
     m_gbm = res["metrics_gbm"]
 
     c1, c2, c3, c4 = st.columns(4)
-    kpi(c1, f"{m_rf['recall']:.4f}", "Recall · RF (Sensibilidad)", C["LOW"])
-    kpi(c2, f"{m_rf['auc_roc']:.4f}", "AUC-ROC · RF", C["text"])
-    kpi(c3, f"{m_gbm['recall']:.4f}", "Recall · GBM", C["LOW"])
-    kpi(c4, f"{m_gbm['auc_roc']:.4f}", "AUC-ROC · GBM", C["text"])
+    # Recall supera el umbral operacional del 90% para faena minera
+    kpi(c1, f"{m_rf['recall']:.4f}", "Recall · RF (Sensibilidad)", threshold_met=(m_rf['recall'] >= 0.90), threshold_text="Sobre umbral (≥0.90)")
+    kpi(c2, f"{m_rf['auc_roc']:.4f}", "AUC-ROC · RF")
+    kpi(c3, f"{m_gbm['recall']:.4f}", "Recall · GBM", threshold_met=(m_gbm['recall'] >= 0.90), threshold_text="Sobre umbral (≥0.90)")
+    kpi(c4, f"{m_gbm['auc_roc']:.4f}", "AUC-ROC · GBM")
 
     tab_sel1, tab_sel2 = st.tabs(["🎯 Tabla Comparativa Oficial & Criterio", "🔲 Matrices de Confusión"])
 
@@ -684,7 +785,7 @@ elif "3." in fase:
 
         st.markdown(f"""
         <div style="background:{C['surface']};border:1px solid {C['border']};border-left:3px solid {C['accent']};padding:14px;border-radius:6px;margin-top:14px;">
-            <h4 style="margin:0 0 6px 0;color:{C['text']};font-size:0.92rem;font-weight:600;">💡 Criterio Objetivo de Selección para Faenas Mineras</h4>
+            <h4 style="margin:0 0 6px 0;color:{C['text']};font-size:0.92rem;font-weight:600;">Criterio Objetivo de Selección para Faenas Mineras</h4>
             <p style="margin:0;font-size:0.84rem;color:{C['text_muted']};">
                 En operaciones mineras a tajo abierto, el costo humano y económico de un <b>Falso Negativo (accidente o colisión no advertida)</b> es infinitamente mayor que el de una falsa alarma. 
                 Por lo tanto, la métrica rectora de selección es <b>Recall (Sensibilidad)</b> combinada con <b>ROC-AUC</b> y un <b>F1-Score</b> balanceado.
@@ -731,7 +832,7 @@ elif "3." in fase:
 # 4. VALIDACIÓN CRUZADA (STRATIFIED 5-FOLD & OOF)
 # ══════════════════════════════════════════════════════════════════════════════
 elif "4." in fase:
-    ph("🔁 4. Validación Cruzada Rigurosa (Stratified 5-Fold y Predicciones Out-Of-Fold)")
+    ph("Validación Cruzada Estratificada y Predicciones OOF", step_num=4)
 
     with st.spinner("Cargando validación cruzada y predicciones OOF..."):
         res = get_model()
@@ -752,21 +853,21 @@ elif "4." in fase:
         st.dataframe(cv_data, width="stretch")
 
         fig = go.Figure()
-        fig.add_trace(go.Bar(name="Random Forest (Pipeline)",
+        # RF en --accent (azul acero) y GBM en neutral distinguible (gris medio --text-faint/border-strong)
+        fig.add_trace(go.Bar(name=f"Random Forest (Media={res['cv_rf'].mean():.4f})",
                               x=cv_data["Fold"], y=cv_data["Random Forest (AUC)"],
-                              marker_color=C["series_primary"], text=cv_data["Random Forest (AUC)"],
+                              marker_color=C["accent"], text=cv_data["Random Forest (AUC)"],
                               textposition="outside"))
-        fig.add_trace(go.Bar(name="Gradient Boosting (Pipeline)",
+        fig.add_trace(go.Bar(name=f"Gradient Boosting (Media={res['cv_gbm'].mean():.4f})",
                               x=cv_data["Fold"], y=cv_data["Gradient Boosting (AUC)"],
-                              marker_color=C["series_secondary"], text=cv_data["Gradient Boosting (AUC)"],
+                              marker_color=C["text_faint"], text=cv_data["Gradient Boosting (AUC)"],
                               textposition="outside"))
-        fig.add_hline(y=res["cv_rf"].mean(), line_dash="dash", line_color=C["series_primary"],
-                      annotation_text=f"RF Media={res['cv_rf'].mean():.4f}")
-        fig.add_hline(y=res["cv_gbm"].mean(), line_dash="dash", line_color=C["series_secondary"],
-                      annotation_text=f"GBM Media={res['cv_gbm'].mean():.4f}")
+        # Líneas de referencia sin etiquetas flotantes que colisionen con las barras
+        fig.add_hline(y=res["cv_rf"].mean(), line_dash="dash", line_color=C["accent"], line_width=1.5)
+        fig.add_hline(y=res["cv_gbm"].mean(), line_dash="dot", line_color=C["text_faint"], line_width=1.5)
         fig.update_layout(**PLOTLY_LAYOUT, barmode="group", height=380,
-                          title="5-Fold Cross-Validation — AUC-ROC por Fold (Sin Fuga de Datos)",
-                          yaxis_title="AUC-ROC", yaxis_range=[0.85, 1.0])
+                          title="Stratified 5-Fold CV — Desempeño por Fold",
+                          yaxis_title="AUC-ROC", yaxis_range=[0.85, 1.05])
         st.plotly_chart(fig, width="stretch")
 
     with tab_cv2:
@@ -786,7 +887,7 @@ elif "4." in fase:
 # 5. PRUEBAS ESTADÍSTICAS RIGUROSAS (INFERENCIA)
 # ══════════════════════════════════════════════════════════════════════════════
 elif "5." in fase:
-    ph("🧪 5. Pruebas Estadísticas Rigurosas — Inferencia y Validación Formal")
+    ph("Inferencia Estadística y Validación Formal", step_num=5)
 
     with st.spinner("Cargando contrastes de hipótesis pareadas y bootstrap..."):
         res = get_model()
@@ -805,14 +906,15 @@ elif "5." in fase:
             st.markdown(f"""
             <div style="background:{C['surface']};border:1px solid {C['border']};border-radius:8px;padding:16px;">
                 <h4 style="color:{C['text']};margin-top:0;font-size:0.92rem;font-weight:600;">1. Test de McNemar (Predicciones Pareadas)</h4>
-                <p style="font-size:0.84rem;color:{C['text_muted']};">
-                    <b>Hipótesis:</b> $H_0$: Las tasas de desacuerdo entre clasificadores son simétricas.<br>
-                    Apropiado para contrastar modelos entrenados y evaluados en el mismo benchmark.
-                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            st.latex(r"H_0: p_b = p_c \quad (\text{tasas de desacuerdo simétricas})")
+            st.markdown(f"""
+            <div style="background:{C['surface']};border:1px solid {C['border']};border-top:none;border-radius:0 0 8px 8px;padding:0 16px 16px 16px;margin-top:-10px;">
                 <table style="width:100%;font-size:0.84rem;">
-                    <tr><td style="color:{C['text_muted']}">Estadístico Chi² (Edwards):</td><td><b>{mcn.get('chi2_stat', 0.0)}</b></td></tr>
-                    <tr><td style="color:{C['text_muted']}">p-valor (Exacto Binomial):</td><td><b>{mcn.get('p_val_exact', 1.0):.5f}</b></td></tr>
-                    <tr><td style="color:{C['text_muted']}">Cohen's g (Efecto):</td><td><b>{mcn.get('cohens_g', 0.0)}</b></td></tr>
+                    <tr><td style="color:{C['text_muted']}">Estadístico Chi² (Edwards):</td><td><b style="font-family:'JetBrains Mono',monospace;">{mcn.get('chi2_stat', 0.0)}</b></td></tr>
+                    <tr><td style="color:{C['text_muted']}">p-valor (Exacto Binomial):</td><td><b style="font-family:'JetBrains Mono',monospace;">{mcn.get('p_val_exact', 1.0):.5f}</b></td></tr>
+                    <tr><td style="color:{C['text_muted']}">Cohen's g (Efecto):</td><td><b style="font-family:'JetBrains Mono',monospace;">{mcn.get('cohens_g', 0.0)}</b></td></tr>
                     <tr><td style="color:{C['text_muted']}">Significancia (α=0.05):</td><td><span class="{'badge-LOW' if mcn.get('is_significant') else 'badge-MEDIUM'}">{'Significativo' if mcn.get('is_significant') else 'No significativo'}</span></td></tr>
                 </table>
                 <div style="margin-top:10px;font-size:0.82rem;color:{C['text_muted']};">
@@ -825,14 +927,15 @@ elif "5." in fase:
             st.markdown(f"""
             <div style="background:{C['surface']};border:1px solid {C['border']};border-radius:8px;padding:16px;">
                 <h4 style="color:{C['text']};margin-top:0;font-size:0.92rem;font-weight:600;">2. Test de Wilcoxon de Rangos Signados</h4>
-                <p style="font-size:0.84rem;color:{C['text_muted']};">
-                    <b>Hipótesis:</b> $H_0$: La mediana de las diferencias de AUC por fold es cero.<br>
-                    Prueba no paramétrica pareada para validar si la superioridad en CV es consistente.
-                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            st.latex(r"H_0: \tilde{\theta}_{\text{diff}} = 0 \quad (\text{diferencia de medianas nula en CV})")
+            st.markdown(f"""
+            <div style="background:{C['surface']};border:1px solid {C['border']};border-top:none;border-radius:0 0 8px 8px;padding:0 16px 16px 16px;margin-top:-10px;">
                 <table style="width:100%;font-size:0.84rem;">
-                    <tr><td style="color:{C['text_muted']}">Estadístico W:</td><td><b>{wil.get('statistic', 0.0)}</b></td></tr>
-                    <tr><td style="color:{C['text_muted']}">p-valor pareado:</td><td><b>{wil.get('p_value', 1.0):.5f}</b></td></tr>
-                    <tr><td style="color:{C['text_muted']}">Diferencia Mediana:</td><td><b>{wil.get('median_diff', 0.0)}</b></td></tr>
+                    <tr><td style="color:{C['text_muted']}">Estadístico W:</td><td><b style="font-family:'JetBrains Mono',monospace;">{wil.get('statistic', 0.0)}</b></td></tr>
+                    <tr><td style="color:{C['text_muted']}">p-valor pareado:</td><td><b style="font-family:'JetBrains Mono',monospace;">{wil.get('p_value', 1.0):.5f}</b></td></tr>
+                    <tr><td style="color:{C['text_muted']}">Diferencia Mediana:</td><td><b style="font-family:'JetBrains Mono',monospace;">{wil.get('median_diff', 0.0)}</b></td></tr>
                     <tr><td style="color:{C['text_muted']}">Holm-Bonferroni:</td><td><span class="{'badge-LOW' if wil.get('holm_corrected', {}).get('is_significant_corrected') else 'badge-MEDIUM'}">{'Significativo' if wil.get('holm_corrected', {}).get('is_significant_corrected') else 'No significativo'}</span></td></tr>
                 </table>
                 <div style="margin-top:10px;font-size:0.82rem;color:{C['text_muted']};">
@@ -842,7 +945,7 @@ elif "5." in fase:
             """, unsafe_allow_html=True)
 
     with tab_stat2:
-        st.markdown("#### 📊 Intervalos de Confianza al 95% mediante Remuestreo Bootstrap (B = 1,000)")
+        st.markdown("#### Intervalos de Confianza al 95% mediante Remuestreo Bootstrap (B = 1,000)")
         boot_rows = []
         for metric in ["auc_roc", "recall", "precision", "f1"]:
             rf_ci = b_rf.get(metric, {})
@@ -861,7 +964,7 @@ elif "5." in fase:
 # 6. REPORTES Y DESPLIEGUE (RESULTADOS)
 # ══════════════════════════════════════════════════════════════════════════════
 elif "6." in fase or "F6" in fase:
-    ph("🚀 6. Reportes Experimentales y Despliegue en Producción")
+    ph("Resultados Experimentales y Despliegue en Producción", step_num=6)
 
     with st.spinner("Generando reporte experimental consolidado..."):
         res = get_model()
@@ -874,7 +977,7 @@ elif "6." in fase or "F6" in fase:
     ])
 
     with tab_r1:
-        st.markdown("### 📄 Reporte Técnico y Científico Consolidado")
+        st.markdown("### Reporte Técnico y Científico Consolidado")
         report_text = f"""# REPORTE EXPERIMENTAL DE MACHINE LEARNING (CRISP-DM)
 Proyecto: MineSafe 3D — Gemelo Digital Minero
 Dataset: REAL_FIELD_BENCHMARK_2026.csv (Muestras reales: {len(df_raw)})
@@ -898,14 +1001,18 @@ Fecha: 2026-09-29
 Modelo Recomendado: Random Forest Classifier Pipeline (Escalado Robusto + Imputación Mediana + Árboles Balanceados).
 Justificación: Superioridad en AUC-ROC y Recall para la prevención de colisiones en faenas mineras.
 """
-        st.download_button(
-            "📥 Descargar Reporte Experimental Completo (.md)",
-            data=report_text,
-            file_name="reporte_experimental_ml_minesafe.md",
-            mime="text/markdown",
-            type="primary"
-        )
-        st.code(report_text, language="markdown")
+        c_btn, _ = st.columns([2, 3])
+        with c_btn:
+            st.download_button(
+                "📥 Descargar Reporte Experimental (.md)",
+                data=report_text,
+                file_name="reporte_experimental_ml_minesafe.md",
+                mime="text/markdown",
+                type="primary"
+            )
+
+        with st.expander("Ver reporte técnico completo", expanded=False):
+            st.markdown(f'<div class="report-scrollbox">{report_text}</div>', unsafe_allow_html=True)
 
     with tab_r2:
         st.markdown("""
