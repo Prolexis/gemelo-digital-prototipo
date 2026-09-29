@@ -63,6 +63,17 @@ C = dict(
     series_secondary = "#4cae7a",           # verde esmeralda suave
     series_tertiary  = "#a78bfa",           # púrpura suave de datos
     series_neutral   = "#666b73",           # --text-faint / neutral
+
+    # Aliases de compatibilidad directa
+    muted           = "#9a9fa7",            # alias a text_muted
+    card            = "#131518",            # alias a surface
+    primary         = "#7ba0c4",            # alias a accent
+    success         = "#4cae7a",            # alias a LOW / success
+    warning         = "#e0a030",            # alias a MEDIUM / warning
+    orange          = "#e67e22",            # alias a HIGH / risk-high
+    danger          = "#f0625a",            # alias a CRITICAL / danger
+    purple          = "#a78bfa",            # alias a series_tertiary
+    cyan            = "#4cae7a",            # alias a series_secondary
 )
 
 # ── CSS Global Estándar MineSafe 3D ──────────────────────────────────────────
@@ -256,8 +267,8 @@ with st.sidebar:
     st.markdown(f"""
     <div style='text-align:center;padding:16px 0 8px;'>
         <div style='font-size:2.6rem;'>⛏️</div>
-        <div style='font-size:1.1rem;font-weight:800;color:{C["text"]};'>MineSafe 3D</div>
-        <div style='font-size:.75rem;color:{C["muted"]};margin-top:2px;'>Laboratorio CRISP-DM</div>
+        <div style='font-size:1.1rem;font-weight:700;color:{C["text"]};'>MineSafe 3D</div>
+        <div style='font-size:.75rem;color:{C["text_muted"]};margin-top:2px;'>Laboratorio CRISP-DM</div>
     </div>
     """, unsafe_allow_html=True)
 
