@@ -52,6 +52,10 @@ from datetime import datetime, timezone
 from data_loader import load_real_dataset, FEATURE_COLS, FEATURE_LABELS, TARGET_BINARY, TARGET_MULTI
 from statistical_engine import run_mcnemar_test, run_wilcoxon_paired, compute_bootstrap_ci, holm_bonferroni_correction
 
+# ── Rutas ────────────────────────────────────────────────────────────────────
+MODEL_DIR = Path(__file__).parent / "models"
+MODEL_DIR.mkdir(exist_ok=True)
+
 # ── Features de entrada ──────────────────────────────────────────────────────
 FEATURE_COLS = [
     "gnss_speed_kmh",          # Velocidad GNSS (km/h)
