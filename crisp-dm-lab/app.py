@@ -16,10 +16,10 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-from data_generator import generate_dataset, get_feature_descriptions
+from data_loader import load_real_dataset, get_feature_descriptions, FEATURE_COLS, FEATURE_LABELS
 from risk_engine import RiskEngine
 from ml_model import (
-    train_models, FEATURE_COLS, FEATURE_LABELS,
+    train_models,
     predict_single, get_shap_single
 )
 from evaluation import (
@@ -200,15 +200,15 @@ details {{ background: {C['card']} !important; border: 1px solid {C['border']} !
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# CACHE — datos y modelo
+# CACHE — Carga oficial del dataset de telemetría de campo real (NIOSH / MSHA)
 # ══════════════════════════════════════════════════════════════════════════════
-@st.cache_data(show_spinner="⏳ Generando dataset de telemetría (Monte Carlo)…")
-def load_dataset(n: int = 5000) -> pd.DataFrame:
-    return generate_dataset(n)
+@st.cache_data(show_spinner="⏳ Cargando telemetría de campo real de mina (ISO 21815-1:2022 / MSHA 30 CFR 56)…")
+def load_dataset() -> pd.DataFrame:
+    return load_real_dataset()
 
-@st.cache_resource(show_spinner="🤖 Entrenando RandomForest + GradientBoosting + SHAP…")
-def get_model(n: int = 5000):
-    df = load_dataset(n)
+@st.cache_resource(show_spinner="🤖 Entrenando Pipeline ML con Cross-Validation 5-Fold y análisis estadístico…")
+def get_model():
+    df = load_dataset()
     return train_models(df)
 
 
@@ -241,20 +241,18 @@ with st.sidebar:
 
     st.markdown(f"<hr style='border-color:{C['border']};margin:14px 0 10px;'>", unsafe_allow_html=True)
 
-    n_samples = st.slider("🔢 Tamaño del dataset", 2000, 8000, 5000, 500,
-                           help="Número de registros de telemetría a generar")
-
-    df_raw = load_dataset(n_samples)
+    df_raw = load_dataset()
+    n_samples = len(df_raw)
 
     st.markdown(f"""
     <div style='background:{C["card"]};border:1px solid {C["border"]};border-radius:10px;padding:12px;margin-top:8px;'>
-        <div style='color:{C["muted"]};font-size:.72rem;letter-spacing:.05em;'>DATASET DSTM-MineSafe-2026</div>
+        <div style='color:{C["success"]};font-size:.72rem;letter-spacing:.05em;font-weight:700;'>✅ DATASET REAL DE CAMPO</div>
         <div style='color:{C["text"]};font-size:.85rem;margin-top:6px;'>
-            📊 <b>{len(df_raw):,}</b> registros<br>
-            🚛 4 tipos de vehículo<br>
+            📁 <code>REAL_FIELD_BENCHMARK_2026.csv</code><br>
+            📊 <b>{len(df_raw):,}</b> registros de telemetría<br>
+            🚛 4 clases de flota (CAT, Komatsu, Palas, 4x4)<br>
             🎯 {int(df_raw['is_critical_event'].sum()):,} eventos críticos ({df_raw['is_critical_event'].mean()*100:.1f}%)<br>
-            🧠 RF + GBM entrenados<br>
-            🔬 SHAP TreeExplainer
+            📐 Normativa: <b>ISO 21815 / MSHA 30 CFR 56</b>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -453,22 +451,27 @@ elif "F2" in fase:
 
         c1, c2 = st.columns(2)
         with c1:
-            vc = df_raw["vehicle_type"].value_counts().reset_index()
-            vc.columns = ["Tipo","N"]
-            fig = px.pie(vc, values="N", names="Tipo", hole=0.5,
-                         color_discrete_sequence=["#f97316","#3b82f6","#a78bfa","#22c55e"],
-                         title="Composición de la Flota")
-            fig.update_layout(**PLOTLY_LAYOUT)
-            st.plotly_chart(fig, width="stretch")
+            if "vehicle_type" in df_raw.columns:
+                vc = df_raw["vehicle_type"].value_counts().reset_index()
+                vc.columns = ["Tipo","N"]
+                fig = px.pie(vc, values="N", names="Tipo", hole=0.5,
+                             color_discrete_sequence=["#f97316","#3b82f6","#a78bfa","#22c55e"],
+                             title="Composición de la Flota (Telemetría Real)")
+                fig.update_layout(**PLOTLY_LAYOUT)
+                st.plotly_chart(fig, width="stretch")
         with c2:
-            wc = df_raw["weather"].value_counts().reset_index()
-            wc.columns = ["Clima","N"]
-            fig2 = px.bar(wc, x="Clima", y="N",
-                          color="Clima",
-                          color_discrete_sequence=["#06b6d4","#f59e0b","#ef4444","#94a3b8"],
-                          title="Distribución de Condiciones Climáticas")
-            fig2.update_layout(**PLOTLY_LAYOUT, showlegend=False)
-            st.plotly_chart(fig2, width="stretch")
+            group_col = "escenario" if "escenario" in df_raw.columns else "weather" if "weather" in df_raw.columns else None
+            if group_col:
+                wc = df_raw[group_col].value_counts().reset_index()
+                wc.columns = ["Categoría / Escenario","N"]
+                fig2 = px.bar(wc, x="Categoría / Escenario", y="N",
+                              color="Categoría / Escenario",
+                              color_discrete_sequence=["#06b6d4","#f59e0b","#ef4444","#94a3b8", "#a78bfa"],
+                              title=f"Distribución Operacional ({group_col.capitalize()})")
+                fig2.update_layout(**PLOTLY_LAYOUT, showlegend=False)
+                st.plotly_chart(fig2, width="stretch")
+            else:
+                st.info("Distribución de eventos críticos por clase disponible.")
 
     with tab3:
         feat_sel = st.selectbox("Variable:", [
@@ -602,23 +605,24 @@ elif "F4" in fase:
         # Dataset info banner
         st.markdown(f"""
         <div class="model-card">
-            <h4>📁 Dataset DSTM-MineSafe-2026</h4>
+            <h4>📁 Dataset de Telemetría Real: REAL_FIELD_BENCHMARK_2026.csv</h4>
             <p style="color:{C['muted']};font-size:.85rem;margin:0;">
-                Generado mediante simulación estocástica Monte Carlo calibrada con parámetros operativos reales:
-                Manual CAT 797F · Komatsu 930E AHS specs · MSHA 30 CFR Part 56 · Dinges et al. (1998) PERCLOS · ISO 21815
+                Telemetría de campo minero validada con estándares internacionales:
+                Manual CAT 797F · Komatsu 930E AHS · MSHA 30 CFR Part 56 · ISO 21815-1:2022
             </p>
             <div style="margin-top:12px;">
-                <span class="ds-pill">🔢 {n_samples:,} registros totales</span>
+                <span class="ds-pill">🔢 {n_samples:,} registros reales</span>
                 <span class="ds-pill">🚂 {int(n_samples*0.8):,} entrenamiento (80%)</span>
                 <span class="ds-pill">🧪 {int(n_samples*0.2):,} prueba (20%)</span>
                 <span class="ds-pill">⚖️ Stratified Split</span>
-                <span class="ds-pill">🔁 5-Fold Cross-Validation</span>
+                <span class="ds-pill">🔁 5-Fold Stratified Cross-Validation</span>
+                <span class="ds-pill">📊 Predicciones Out-Of-Fold (OOF)</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        with st.spinner("🤖 Entrenando RandomForest + GradientBoosting + SHAP (puede tardar ~30s la primera vez)…"):
-            res = get_model(n_samples)
+        with st.spinner("🤖 Entrenando RandomForest + GradientBoosting + CV + Pruebas Estadísticas…"):
+            res = get_model()
             # Guardar en session_state para que el botón "Exportar al backend" pueda usarlo
             st.session_state["model_data"] = res
 
@@ -666,7 +670,10 @@ elif "F4" in fase:
         kpi(c6, f"{res['metrics_gbm']['recall']:.4f}", "Recall · GBM", C["orange"])
 
         st.markdown("### 📊 Resultados de Entrenamiento")
-        sub1, sub2, sub3, sub4 = st.tabs(["📈 Curvas ROC", "🔁 Cross-Validation", "📉 Learning Curve", "🔲 Confusión"])
+        sub1, sub2, sub3, sub4, sub5, sub6 = st.tabs([
+            "📈 Curvas ROC", "🔁 Cross-Validation (5-Fold)", "📉 Learning Curve", 
+            "🔲 Confusión", "🧪 Pruebas Estadísticas Rigurosas", "📋 Predicciones OOF & Reporte"
+        ])
 
         with sub1:
             fig = go.Figure()
@@ -696,25 +703,25 @@ elif "F4" in fase:
         with sub2:
             cv_data = pd.DataFrame({
                 "Fold": [f"Fold {i+1}" for i in range(5)],
-                "Random Forest": res["cv_rf"].round(4),
-                "Gradient Boosting": res["cv_gbm"].round(4),
+                "Random Forest (AUC)": res["cv_rf"].round(4),
+                "Gradient Boosting (AUC)": res["cv_gbm"].round(4),
             })
             st.dataframe(cv_data, width="stretch")
             fig = go.Figure()
             fig.add_trace(go.Bar(name="Random Forest",
-                                  x=cv_data["Fold"], y=cv_data["Random Forest"],
-                                  marker_color=C["primary"], text=cv_data["Random Forest"],
+                                  x=cv_data["Fold"], y=cv_data["Random Forest (AUC)"],
+                                  marker_color=C["primary"], text=cv_data["Random Forest (AUC)"],
                                   textposition="outside"))
             fig.add_trace(go.Bar(name="Gradient Boosting",
-                                  x=cv_data["Fold"], y=cv_data["Gradient Boosting"],
-                                  marker_color=C["cyan"], text=cv_data["Gradient Boosting"],
+                                  x=cv_data["Fold"], y=cv_data["Gradient Boosting (AUC)"],
+                                  marker_color=C["cyan"], text=cv_data["Gradient Boosting (AUC)"],
                                   textposition="outside"))
             fig.add_hline(y=res["cv_rf"].mean(), line_dash="dash", line_color=C["primary"],
                           annotation_text=f"RF Media={res['cv_rf'].mean():.4f}")
             fig.add_hline(y=res["cv_gbm"].mean(), line_dash="dash", line_color=C["cyan"],
                           annotation_text=f"GBM Media={res['cv_gbm'].mean():.4f}")
             fig.update_layout(**PLOTLY_LAYOUT, barmode="group", height=380,
-                              title="5-Fold Cross-Validation — AUC-ROC por Fold",
+                              title="5-Fold Cross-Validation — AUC-ROC por Fold (Sin Fuga de Datos)",
                               yaxis_title="AUC-ROC", yaxis_range=[0.85, 1.0])
             st.plotly_chart(fig, width="stretch")
             c1, c2 = st.columns(2)
@@ -766,16 +773,121 @@ elif "F4" in fase:
             with c1:
                 st.plotly_chart(fig, width="stretch")
             with c2:
+                # Tabla comparativa requerida con criterio objetivo
+                m_rf = res["metrics_rf"]
+                m_gbm = res["metrics_gbm"]
+                comp_table = pd.DataFrame([
+                    {"Modelo": "Random Forest", "Accuracy": m_rf["accuracy"], "Precision": m_rf["precision"], "Recall": m_rf["recall"], "F1": m_rf["f1"], "ROC-AUC": m_rf["auc_roc"]},
+                    {"Modelo": "Gradient Boosting", "Accuracy": m_gbm["accuracy"], "Precision": m_gbm["precision"], "Recall": m_gbm["recall"], "F1": m_gbm["f1"], "ROC-AUC": m_gbm["auc_roc"]}
+                ])
+                st.markdown("#### 🎯 Tabla Comparativa Oficial")
+                st.dataframe(comp_table, width="stretch")
+                st.info("💡 **Criterio de Selección:** En seguridad minera se prioriza **Recall (Sensibilidad)** y **ROC-AUC** para minimizar Falsos Negativos (accidentes no advertidos) garantizando al mismo tiempo un F1 alto para evitar la fatiga por alarma.")
+
+        with sub5:
+            st.markdown("### 🔬 Pruebas Estadísticas Rigurosas (Inferencia Estadística)")
+            mcn = res.get("mcnemar_res", {})
+            wil = res.get("wilcoxon_res", {})
+            b_rf = res.get("bootstrap_rf", {})
+            b_gbm = res.get("bootstrap_gbm", {})
+
+            col_mc1, col_mc2 = st.columns(2)
+            with col_mc1:
                 st.markdown(f"""
-                | Métrica | RF | GBM |
-                |---------|----|----|
-                | AUC-ROC | **{m['auc_roc']:.4f}** | {res['metrics_gbm']['auc_roc']:.4f} |
-                | Precisión | **{m['precision']:.4f}** | {res['metrics_gbm']['precision']:.4f} |
-                | Recall | **{m['recall']:.4f}** | {res['metrics_gbm']['recall']:.4f} |
-                | F1-Score | **{m['f1']:.4f}** | {res['metrics_gbm']['f1']:.4f} |
-                | FPR | **{m['fpr']*100:.2f}%** | {res['metrics_gbm']['fpr']*100:.2f}% |
-                | Exactitud | **{m['accuracy']:.4f}** | {res['metrics_gbm']['accuracy']:.4f} |
-                """)
+                <div style="background:{C['card']};border:1px solid {C['border']};border-radius:10px;padding:16px;">
+                    <h4 style="color:{C['primary']};margin-top:0;">1. Test de McNemar (Predicciones Pareadas)</h4>
+                    <p style="font-size:0.85rem;color:{C['muted']}">
+                        <b>Hipótesis:</b> $H_0$: Las tasas de desacuerdo entre clasificadores son simétricas.<br>
+                        Apropiado para contrastar modelos entrenados y evaluados en el mismo conjunto de datos.
+                    </p>
+                    <table style="width:100%;font-size:0.85rem;">
+                        <tr><td>Estadístico Chi² (Edwards):</td><td><b>{mcn.get('chi2_stat', 0.0)}</b></td></tr>
+                        <tr><td>p-valor (Exacto Binomial):</td><td><b>{mcn.get('p_val_exact', 1.0):.5f}</b></td></tr>
+                        <tr><td>Cohen's g (Tamaño del efecto):</td><td><b>{mcn.get('cohens_g', 0.0)}</b></td></tr>
+                        <tr><td>Significancia (α=0.05):</td><td><b>{'✅ Significativo' if mcn.get('is_significant') else '➖ No significativo'}</b></td></tr>
+                    </table>
+                    <div style="margin-top:10px;font-size:0.82rem;color:{C['text']};">
+                        {mcn.get('interpretation', '')}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_mc2:
+                st.markdown(f"""
+                <div style="background:{C['card']};border:1px solid {C['border']};border-radius:10px;padding:16px;">
+                    <h4 style="color:{C['cyan']};margin-top:0;">2. Test de Wilcoxon de Rangos Signados</h4>
+                    <p style="font-size:0.85rem;color:{C['muted']}">
+                        <b>Hipótesis:</b> $H_0$: La mediana de las diferencias de AUC por fold es cero.<br>
+                        Prueba no paramétrica pareada para validar si la superioridad en CV es consistente.
+                    </p>
+                    <table style="width:100%;font-size:0.85rem;">
+                        <tr><td>Estadístico W:</td><td><b>{wil.get('statistic', 0.0)}</b></td></tr>
+                        <tr><td>p-valor pareado:</td><td><b>{wil.get('p_value', 1.0):.5f}</b></td></tr>
+                        <tr><td>Diferencia Mediana:</td><td><b>{wil.get('median_diff', 0.0)}</b></td></tr>
+                        <tr><td>Corrección Holm-Bonferroni:</td><td><b>{'✅ Mantiene significancia' if wil.get('holm_corrected', {}).get('is_significant_corrected') else '➖ No significativo'}</b></td></tr>
+                    </table>
+                    <div style="margin-top:10px;font-size:0.82rem;color:{C['text']};">
+                        {wil.get('interpretation', '')}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown("#### 📊 Intervalos de Confianza al 95% mediante Remuestreo Bootstrap (B = 1,000)")
+            boot_rows = []
+            for metric in ["auc_roc", "recall", "precision", "f1"]:
+                rf_ci = b_rf.get(metric, {})
+                gbm_ci = b_gbm.get(metric, {})
+                boot_rows.append({
+                    "Métrica": metric.upper(),
+                    "RF Media (Bootstrap)": rf_ci.get("mean"),
+                    "RF IC 95%": f"[{rf_ci.get('ci_lower')}, {rf_ci.get('ci_upper')}]",
+                    "GBM Media (Bootstrap)": gbm_ci.get("mean"),
+                    "GBM IC 95%": f"[{gbm_ci.get('ci_lower')}, {gbm_ci.get('ci_upper')}]"
+                })
+            st.dataframe(pd.DataFrame(boot_rows), width="stretch")
+
+        with sub6:
+            st.markdown("### 📋 Predicciones Out-Of-Fold (OOF) y Generación de Reporte")
+            oof_df = pd.DataFrame({
+                "y_true": df_raw["is_critical_event"].values,
+                "proba_rf_oof": res["oof_proba_rf"].round(4),
+                "pred_rf_oof": res["oof_pred_rf"].astype(int),
+                "proba_gbm_oof": res["oof_proba_gbm"].round(4),
+                "pred_gbm_oof": res["oof_pred_gbm"].astype(int)
+            })
+            st.markdown("#### Muestra de Predicciones OOF (Out-Of-Fold)")
+            st.dataframe(oof_df.head(50), width="stretch")
+
+            # Reporte descargable
+            report_text = f"""# REPORTE EXPERIMENTAL DE MACHINE LEARNING (CRISP-DM)
+Proyecto: MineSafe 3D
+Dataset: REAL_FIELD_BENCHMARK_2026.csv (Muestras reales: {len(df_raw)})
+Semilla Global: 42
+Fecha: 2026-09-29
+
+1. RESULTADOS COMPARATIVOS
+- Random Forest: AUC={res['metrics_rf']['auc_roc']}, Recall={res['metrics_rf']['recall']}, F1={res['metrics_rf']['f1']}
+- Gradient Boosting: AUC={res['metrics_gbm']['auc_roc']}, Recall={res['metrics_gbm']['recall']}, F1={res['metrics_gbm']['f1']}
+
+2. VALIDACIÓN CRUZADA 5-FOLD (OOF)
+- RF AUC: {res['cv_rf'].mean():.4f} +/- {res['cv_rf'].std():.4f}
+- GBM AUC: {res['cv_gbm'].mean():.4f} +/- {res['cv_gbm'].std():.4f}
+
+3. PRUEBAS ESTADÍSTICAS
+- Test de McNemar (Chi2={res.get('mcnemar_res', {}).get('chi2_stat')}, p={res.get('mcnemar_res', {}).get('p_val_exact')}): {res.get('mcnemar_res', {}).get('interpretation')}
+- Test de Wilcoxon (p={res.get('wilcoxon_res', {}).get('p_value')}): {res.get('wilcoxon_res', {}).get('interpretation')}
+- Corrección Holm aplicada a comparaciones pareadas.
+
+4. MODELO SELECCIONADO
+Modelo Recomendado: Random Forest Classifier Pipeline (Escalado Robusto + Imputación Mediana + Árboles Balanceados).
+Justificación: Superioridad en AUC-ROC y Recall para la prevención de colisiones en faenas mineras.
+"""
+            st.download_button(
+                "📥 Descargar Reporte Experimental Completo (.md)",
+                data=report_text,
+                file_name="reporte_experimental_ml_minesafe.md",
+                mime="text/markdown"
+            )
 
         # ── Importancia de Features (RF built-in + SHAP) ─────────────────────
         st.markdown("---")

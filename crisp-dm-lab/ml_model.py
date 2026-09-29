@@ -49,13 +49,8 @@ from sklearn.impute import SimpleImputer
 import json
 from datetime import datetime, timezone
 
-from data_generator import generate_dataset
-
-warnings.filterwarnings("ignore")
-
-# ── Rutas ────────────────────────────────────────────────────────────────────
-MODEL_DIR = Path(__file__).parent / "models"
-MODEL_DIR.mkdir(exist_ok=True)
+from data_loader import load_real_dataset, FEATURE_COLS, FEATURE_LABELS, TARGET_BINARY, TARGET_MULTI
+from statistical_engine import run_mcnemar_test, run_wilcoxon_paired, compute_bootstrap_ci, holm_bonferroni_correction
 
 # ── Features de entrada ──────────────────────────────────────────────────────
 FEATURE_COLS = [
@@ -185,10 +180,78 @@ def train_models(df: pd.DataFrame, n_estimators_rf: int = 200) -> Dict[str, Any]
     auc_rf  = auc(fpr_rf,  tpr_rf)
     auc_gbm = auc(fpr_gbm, tpr_gbm)
 
-    # ── Cross-Validation (5-fold estratificado sobre Pipeline completo) ────────
+    # ── Cross-Validation (5-fold estratificado con Predicciones Out-Of-Fold) ───
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    cv_rf  = cross_val_score(rf_pipeline,  X, y, cv=cv, scoring="roc_auc", n_jobs=1)
-    cv_gbm = cross_val_score(gbm_pipeline, X, y, cv=cv, scoring="roc_auc", n_jobs=1)
+    oof_pred_rf = np.zeros(len(X))
+    oof_proba_rf = np.zeros(len(X))
+    oof_pred_gbm = np.zeros(len(X))
+    oof_proba_gbm = np.zeros(len(X))
+    fold_metrics_rf = []
+    fold_metrics_gbm = []
+
+    for fold_idx, (train_idx, val_idx) in enumerate(cv.split(X, y)):
+        X_tr, y_tr = X.iloc[train_idx], y.iloc[train_idx]
+        X_va, y_val = X.iloc[val_idx], y.iloc[val_idx]
+
+        # Clientes independientes para cada fold sin fuga de información
+        pipe_rf_fold = Pipeline([
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", RobustScaler()),
+            ("classifier", RandomForestClassifier(
+                n_estimators=n_estimators_rf, max_depth=12, min_samples_leaf=5,
+                max_features="sqrt", class_weight="balanced", random_state=42 + fold_idx, n_jobs=1
+            ))
+        ])
+        pipe_rf_fold.fit(X_tr, y_tr)
+        p_rf = pipe_rf_fold.predict_proba(X_va)[:, 1]
+        c_rf = pipe_rf_fold.predict(X_va)
+        oof_proba_rf[val_idx] = p_rf
+        oof_pred_rf[val_idx] = c_rf
+        fold_metrics_rf.append({
+            "fold": fold_idx + 1,
+            "auc": roc_auc_score(y_val, p_rf),
+            "recall": recall_score(y_val, c_rf, zero_division=0),
+            "precision": precision_score(y_val, c_rf, zero_division=0),
+            "f1": f1_score(y_val, c_rf, zero_division=0),
+            "accuracy": accuracy_score(y_val, c_rf)
+        })
+
+        pipe_gbm_fold = Pipeline([
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", RobustScaler()),
+            ("classifier", GradientBoostingClassifier(
+                n_estimators=150, learning_rate=0.05, max_depth=6,
+                min_samples_leaf=10, subsample=0.85, random_state=42 + fold_idx
+            ))
+        ])
+        pipe_gbm_fold.fit(X_tr, y_tr)
+        p_gbm = pipe_gbm_fold.predict_proba(X_va)[:, 1]
+        c_gbm = pipe_gbm_fold.predict(X_va)
+        oof_proba_gbm[val_idx] = p_gbm
+        oof_pred_gbm[val_idx] = c_gbm
+        fold_metrics_gbm.append({
+            "fold": fold_idx + 1,
+            "auc": roc_auc_score(y_val, p_gbm),
+            "recall": recall_score(y_val, c_gbm, zero_division=0),
+            "precision": precision_score(y_val, c_gbm, zero_division=0),
+            "f1": f1_score(y_val, c_gbm, zero_division=0),
+            "accuracy": accuracy_score(y_val, c_gbm)
+        })
+
+    cv_rf = np.array([m["auc"] for m in fold_metrics_rf])
+    cv_gbm = np.array([m["auc"] for m in fold_metrics_gbm])
+
+    # ── Pruebas Estadísticas Rigurosas (McNemar, Wilcoxon, Bootstrap IC95%) ───
+    mcnemar_res = run_mcnemar_test(y.values, oof_pred_rf, oof_pred_gbm, "Random Forest", "Gradient Boosting")
+    wilcoxon_res = run_wilcoxon_paired(cv_rf, cv_gbm, metric_name="AUC-ROC")
+    bootstrap_rf = compute_bootstrap_ci(y.values, oof_proba_rf, oof_pred_rf, n_bootstraps=1000, seed=42)
+    bootstrap_gbm = compute_bootstrap_ci(y.values, oof_proba_gbm, oof_pred_gbm, n_bootstraps=1000, seed=42)
+
+    # Corrección de comparaciones múltiples Holm
+    p_vals = [mcnemar_res["p_val_exact"], wilcoxon_res["p_value"]]
+    holm_res = holm_bonferroni_correction(p_vals, alpha=0.05)
+    mcnemar_res["holm_corrected"] = holm_res[0]
+    wilcoxon_res["holm_corrected"] = holm_res[1]
 
     # ── Curva de aprendizaje del Pipeline Random Forest ───────────────────────
     train_sizes, train_scores, val_scores = learning_curve(
@@ -197,7 +260,7 @@ def train_models(df: pd.DataFrame, n_estimators_rf: int = 200) -> Dict[str, Any]
         n_jobs=1
     )
 
-    # ── Métricas por modelo ───────────────────────────────────────────────────
+    # ── Métricas por modelo sobre test set ────────────────────────────────────
     def _metrics(y_t, y_p, y_proba):
         cm = confusion_matrix(y_t, y_p)
         tn, fp, fn, tp = cm.ravel() if cm.size == 4 else (0, 0, 0, 0)
@@ -306,6 +369,17 @@ def train_models(df: pd.DataFrame, n_estimators_rf: int = 200) -> Dict[str, Any]
             "test_pos":  int(y_test.sum()),
             "test_neg":  int((y_test == 0).sum()),
         },
+        # Artefactos estadísticos OOF y pruebas rigurosas
+        "oof_pred_rf": oof_pred_rf,
+        "oof_proba_rf": oof_proba_rf,
+        "oof_pred_gbm": oof_pred_gbm,
+        "oof_proba_gbm": oof_proba_gbm,
+        "fold_metrics_rf": fold_metrics_rf,
+        "fold_metrics_gbm": fold_metrics_gbm,
+        "mcnemar_res": mcnemar_res,
+        "wilcoxon_res": wilcoxon_res,
+        "bootstrap_rf": bootstrap_rf,
+        "bootstrap_gbm": bootstrap_gbm,
     }
 
 
