@@ -353,15 +353,10 @@ PLOTLY_LAYOUT = dict(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 1. EDA (EXPLORATORY DATA ANALYSIS) & DATA UNDERSTANDING
+# 1. EDA (COMPRENSIÓN DE DATOS Y DEL NEGOCIO)
 # ══════════════════════════════════════════════════════════════════════════════
 if "1." in fase:
-    ph("🔍 1. EDA (Exploratory Data Analysis) — Metodología CRISP-DM")
-
-    tab_eda1, tab_eda2, tab_eda3, tab_eda4, tab_biz = st.tabs([
-        "📋 Vista del Dataset Real", "📈 Estadísticas & Nulos", 
-        "📊 Histogramas & Sensores", "🔗 Matriz de Correlación", "🎯 Comprensión del Negocio (F1)"
-    ])
+    ph("🔍 1. EDA (Exploratory Data Analysis) — Comprensión de Datos y Negocio")
 
     # Dataset pills
     st.markdown(f"""
@@ -374,7 +369,10 @@ if "1." in fase:
     </div>
     """, unsafe_allow_html=True)
 
-    tab1, tab2, tab3, tab4 = st.tabs(["📋 Vista del Dataset", "📈 Estadísticas & Calidad", "📊 Histogramas & Sensores", "🔗 Correlación de Pearson"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "📋 Vista del Dataset Real", "📈 Estadísticas & Nulos", 
+        "📊 Histogramas & Sensores", "🔗 Matriz de Correlación", "🎯 Objetivos de Negocio & Flota"
+    ])
 
     with tab1:
         show_cols = [c for c in df_raw.columns if c not in ["gnss_easting","gnss_northing","sample_id"]]
@@ -438,425 +436,153 @@ if "1." in fase:
         st.plotly_chart(fig, width="stretch")
         st.info("💡 La distancia al obstáculo (`lidar_obstacle_dist_m`) muestra la mayor correlación **negativa** con el risk score — confirma la física del motor.")
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# F3 — DATA PREPARATION
-# ══════════════════════════════════════════════════════════════════════════════
-elif "F3" in fase:
-    ph("🔧 Fase 3 — Data Preparation")
-
-    tab1, tab2, tab3 = st.tabs(["🧹 Calidad & Outliers", "⚖️ Normalización", "🏗️ Feature Engineering"])
-
-    with tab1:
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Registros totales", f"{len(df_raw):,}")
-        c2.metric("Valores nulos", int(df_raw.isnull().sum().sum()))
-        c3.metric("Completitud", "100.0 %")
-
-        st.markdown("#### Detección de Outliers — Método IQR")
-        out_rows = []
-        for f in FEATURE_COLS[:-1]:  # excluir is_autonomous
-            if f in df_raw.columns:
-                Q1, Q3 = df_raw[f].quantile([.25,.75])
-                IQR = Q3 - Q1
-                n_out = ((df_raw[f] < Q1-1.5*IQR) | (df_raw[f] > Q3+1.5*IQR)).sum()
-                out_rows.append({"Feature": f, "Outliers IQR": int(n_out),
-                                  "% total": f"{n_out/len(df_raw)*100:.1f}%",
-                                  "Q1": round(Q1,3), "Q3": round(Q3,3)})
-        st.dataframe(pd.DataFrame(out_rows), width="stretch")
-
-        # Boxplots
-        fig = make_subplots(rows=2, cols=2,
-                            subplot_titles=["Velocidad (km/h)","Distancia LiDAR (m)",
-                                            "PERCLOS Score","Horas de Turno (h)"])
-        cfg = [("gnss_speed_kmh",1,1),("lidar_obstacle_dist_m",1,2),
-               ("op_perclos_score",2,1),("op_shift_hours",2,2)]
-        for feat, r, c_ in cfg:
-            for vt, col_ in [("CAT_797F_MANUAL","#f97316"),("KOMATSU_930E_AHS","#3b82f6"),("CAMIONETA_4x4","#22c55e")]:
-                sub = df_raw[df_raw["vehicle_type"]==vt][feat]
-                fig.add_trace(go.Box(y=sub, name=vt, marker_color=col_,
-                                     showlegend=(r==1 and c_==1)), row=r, col=c_)
-        fig.update_layout(**PLOTLY_LAYOUT, height=480, title_text="Distribución por tipo de vehículo")
-        st.plotly_chart(fig, width="stretch")
-
-    with tab2:
-        feats_scale = ["gnss_speed_kmh","lidar_obstacle_dist_m","op_perclos_score","op_shift_hours","gnss_ramp_grade"]
-        rows = []
-        for f in feats_scale:
-            mn, mx = df_raw[f].min(), df_raw[f].max()
-            rows.append({"Feature original": f, "Min": round(mn,2), "Max": round(mx,2),
-                          "Feature normalizada (0–1)": f"{f}_norm", "Media norm.": round((df_raw[f]-mn)/(mx-mn).clip(1e-9),3).mean().round(3)})
-        st.dataframe(pd.DataFrame(rows), width="stretch")
-
-        sel = st.selectbox("Comparar distribución antes/después:", feats_scale)
-        mn, mx = df_raw[sel].min(), df_raw[sel].max()
-        norm_vals = (df_raw[sel]-mn)/(mx-mn).clip(1e-9)
-
-        c1, c2 = st.columns(2)
-        with c1:
-            f1 = px.histogram(df_raw, x=sel, nbins=50, title=f"ANTES: {sel}", color_discrete_sequence=["#f97316"])
-            f1.update_layout(**PLOTLY_LAYOUT, height=280)
-            st.plotly_chart(f1, width="stretch")
-        with c2:
-            f2 = px.histogram(x=norm_vals, nbins=50, title=f"DESPUÉS (Min-Max): {sel}_norm", color_discrete_sequence=["#3b82f6"])
-            f2.update_layout(**PLOTLY_LAYOUT, height=280)
-            st.plotly_chart(f2, width="stretch")
-
-    with tab3:
-        st.markdown("""
-        | Feature derivada | Fórmula | Justificación |
-        |-----------------|---------|---------------|
-        | `risk_factor_combinado` | `score×0.6 + (1−vis)×0.2 + perclos×0.2` | Score unificado normalizado |
-        | `is_critical_event` | `overall_risk_score ≥ 0.60` | Etiqueta binaria de clasificación |
-        | `ttc_sec` | `distancia / vel_relativa_ms` | Time-To-Collision físico |
-        | `prediction_horizon_sec` | `ttc + 2.2 s` | Horizonte con buffer de seguridad |
-        """)
-
-        c1, c2, c3 = st.columns(3)
-        for col_, feat_, clr_ in [(c1,"risk_factor_combinado","#a78bfa"),
-                                    (c2,"ttc_sec","#22c55e"),
-                                    (c3,"overall_risk_score","#3b82f6")]:
-            if feat_ in df_raw.columns:
-                fig_ = px.histogram(df_raw, x=feat_, nbins=50, title=feat_,
-                                    color_discrete_sequence=[clr_])
-                fig_.update_layout(**PLOTLY_LAYOUT, height=260)
-                col_.plotly_chart(fig_, width="stretch")
-
-        st.markdown("#### Dataset preparado — primeras 20 filas")
-        scols = [c for c in ["vehicle_type","gnss_speed_kmh","lidar_obstacle_dist_m",
-                 "lidar_visibility_index","op_perclos_score","op_shift_hours",
-                 "overall_risk_score","severity","ttc_sec","risk_factor_combinado","is_critical_event"]
-                 if c in df_raw.columns]
-        st.dataframe(df_raw[scols].head(20), width="stretch")
+    with tab5:
+        col1, col2 = st.columns([3, 2], gap="large")
+        with col1:
+            st.markdown(f"""
+            ### 🎯 Definición del Problema Operacional
+            Los sistemas de **Detección de Proximidad (PDS)** estándar operan de forma **reactiva**:
+            emiten alerta solo cuando la colisión ya es inminente (**1.5 – 1.8 s**).
+            
+            MineSafe 3D implementa una arquitectura **predictiva y explicable (XAI)** con anticipación **≥ 6.4 s**.
+            """)
+            st.markdown("""
+            ### 🔬 Hipótesis Científicas
+            > **H1 — Anticipación Predictiva:** El modelo multi-modal (PERCLOS + LiDAR + GNSS) alcanza ≥ 6.4 ± 0.8 s de anticipación media (+255% vs PDS reactivo).
+            
+            > **H2 — Driver de Riesgo:** El factor biológico de fatiga (PERCLOS) es el atributo SHAP dominante en ≥ 60% de los incidentes en turnos nocturnos.
+            """)
+        with col2:
+            st.markdown("### 📊 KPIs Objetivo")
+            for val, lbl, color in [
+                ("6.4 s",  "Anticipación Media (H1)",   C["primary"]),
+                ("≥ 0.92", "AUC-ROC Objetivo",           C["success"]),
+                ("< 5 %",  "Tasa de Falsas Alarmas",     C["warning"]),
+                ("100 %",  "Eventos Críticos Mitigados", C["purple"]),
+            ]:
+                st.markdown(f"""<div class="kpi-card">
+                    <div class="kpi-val" style="color:{color}">{val}</div>
+                    <div class="kpi-lbl">{lbl}</div></div>""", unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 2, 3, 4, 5 — ENTRENAMIENTOS, SELECCIÓN, CV Y PRUEBAS ESTADÍSTICAS
+# 2. ENTRENAMIENTOS (MODELADO ML & PIPELINE)
 # ══════════════════════════════════════════════════════════════════════════════
-elif any(prefix in fase for prefix in ["2.", "3.", "4.", "5.", "F4"]):
-    ph(f"🧠 {fase} — Metodología CRISP-DM")
+elif "2." in fase:
+    ph("🧠 2. Entrenamientos (Modelado ML, Pipelines Scikit-Learn y Curvas ROC)")
 
-    tab_ml, tab_twin, tab_live = st.tabs([
-        "🤖 Modelo ML Entrenado",
-        "⚡ Pipeline del Gemelo Digital",
-        "🎛️ Motor XAI en Vivo (Sliders)"
+    with st.spinner("🤖 Entrenando y sincronizando modelos ML…"):
+        res = get_model()
+        st.session_state["model_data"] = res
+
+    # Pipeline Architecture Banner
+    st.markdown(f"""
+    <div style="background:{C['card']};border:1px solid {C['primary']}44;border-radius:12px;padding:16px;margin:16px 0;">
+        <h4 style="margin:0 0 10px 0;color:{C['primary']};font-size:1.05rem;">
+            🏗️ Pipeline Formal de Machine Learning (Scikit-Learn Pipeline)
+        </h4>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:0.85rem;color:{C['text']};">
+            <span style="background:{C['primary']}22;border:1px solid {C['primary']}55;padding:6px 12px;border-radius:8px;">
+                📡 <b>1. Ingesta Telemetría</b><br><small style="color:{C['muted']}">9 features (LiDAR, GNSS, PERCLOS)</small>
+            </span>
+            <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
+            <span style="background:{C['cyan']}22;border:1px solid {C['cyan']}55;padding:6px 12px;border-radius:8px;">
+                🩹 <b>2. SimpleImputer</b><br><small style="color:{C['muted']}">strategy="median" (tolerancia a fallos)</small>
+            </span>
+            <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
+            <span style="background:{C['warning']}22;border:1px solid {C['warning']}55;padding:6px 12px;border-radius:8px;">
+                ⚖️ <b>3. RobustScaler</b><br><small style="color:{C['muted']}">Resiliencia a outliers extremos</small>
+            </span>
+            <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
+            <span style="background:{C['success']}22;border:1px solid {C['success']}55;padding:6px 12px;border-radius:8px;">
+                🌲 <b>4. RandomForest / GBM</b><br><small style="color:{C['muted']}">Ensamble con balanced weights</small>
+            </span>
+            <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
+            <span style="background:{C['purple']}22;border:1px solid {C['purple']}55;padding:6px 12px;border-radius:8px;">
+                🔍 <b>5. TreeSHAP (XAI)</b><br><small style="color:{C['muted']}">Explicabilidad aditiva ISO 21815</small>
+            </span>
+        </div>
+        <p style="color:{C['muted']};font-size:0.8rem;margin:10px 0 0 0;">
+            ✅ <i>Exportado como <code>sklearn.pipeline.Pipeline</code> completo a <code>crisp-dm-lab/models/rf_model.joblib</code> + metadatos en <code>pipeline_metadata.json</code> para inferencia directa en el backend sin data leakage.</i>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    c1, c2, c3, c4 = st.columns(4)
+    kpi(c1, f"{res['auc_rf']:.4f}",  "AUC-ROC · Random Forest",  C["primary"])
+    kpi(c2, f"{res['metrics_rf']['f1']:.4f}", "F1-Score · Random Forest", C["success"])
+    kpi(c3, f"{res['auc_gbm']:.4f}",  "AUC-ROC · Gradient Boosting", C["cyan"])
+    kpi(c4, f"{res['metrics_gbm']['f1']:.4f}", "F1-Score · Gradient Boosting", C["purple"])
+
+    tab_train1, tab_train2, tab_train3 = st.tabs([
+        "📈 Curvas ROC Comparativas", "📉 Curva de Aprendizaje", "🔬 Explicabilidad SHAP (Entrenamiento)"
     ])
 
-    # ── TAB 1: MODELO ML ─────────────────────────────────────────────────────
-    with tab_ml:
-        # Dataset info banner
-        st.markdown(f"""
-        <div class="model-card">
-            <h4>📁 Dataset de Telemetría Real: REAL_FIELD_BENCHMARK_2026.csv</h4>
-            <p style="color:{C['muted']};font-size:.85rem;margin:0;">
-                Telemetría de campo minero validada con estándares internacionales:
-                Manual CAT 797F · Komatsu 930E AHS · MSHA 30 CFR Part 56 · ISO 21815-1:2022
-            </p>
-            <div style="margin-top:12px;">
-                <span class="ds-pill">🔢 {n_samples:,} registros reales</span>
-                <span class="ds-pill">🚂 {int(n_samples*0.8):,} entrenamiento (80%)</span>
-                <span class="ds-pill">🧪 {int(n_samples*0.2):,} prueba (20%)</span>
-                <span class="ds-pill">⚖️ Stratified Split</span>
-                <span class="ds-pill">🔁 5-Fold Stratified Cross-Validation</span>
-                <span class="ds-pill">📊 Predicciones Out-Of-Fold (OOF)</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+    with tab_train1:
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=[0,1], y=[0,1], mode="lines",
+                                 line=dict(dash="dash", color="#475569", width=1.5),
+                                 name="Aleatorio (AUC=0.50)"))
+        fpr_pds = np.linspace(0,1,100)
+        fig.add_trace(go.Scatter(x=fpr_pds, y=np.power(fpr_pds,.52), mode="lines",
+                                 line=dict(dash="dot", color="#64748b", width=2),
+                                 name="PDS Reactivo (AUC≈0.71)"))
+        fig.add_trace(go.Scatter(
+            x=res["roc_rf"][0], y=res["roc_rf"][1], mode="lines",
+            line=dict(color=C["primary"], width=3),
+            fill="tozeroy", fillcolor="rgba(59,130,246,.1)",
+            name=f"Random Forest (AUC={res['auc_rf']:.4f})"))
+        fig.add_trace(go.Scatter(
+            x=res["roc_gbm"][0], y=res["roc_gbm"][1], mode="lines",
+            line=dict(color=C["cyan"], width=2.5, dash="dot"),
+            name=f"GradientBoosting (AUC={res['auc_gbm']:.4f})"))
+        fig.update_layout(**PLOTLY_LAYOUT, height=420,
+                          title="Curvas ROC — RandomForest vs GradientBoosting vs PDS Baseline",
+                          xaxis_title="FPR (Tasa Falsos Positivos)",
+                          yaxis_title="TPR (Tasa Verdaderos Positivos)")
+        st.plotly_chart(fig, width="stretch")
 
-        with st.spinner("🤖 Entrenando RandomForest + GradientBoosting + CV + Pruebas Estadísticas…"):
-            res = get_model()
-            # Guardar en session_state para que el botón "Exportar al backend" pueda usarlo
-            st.session_state["model_data"] = res
+    with tab_train2:
+        ts = res["lc_train_sizes"]
+        tr_m = res["lc_train_scores"].mean(axis=1)
+        tr_s = res["lc_train_scores"].std(axis=1)
+        vl_m = res["lc_val_scores"].mean(axis=1)
+        vl_s = res["lc_val_scores"].std(axis=1)
 
-        # ── Pipeline Architecture Banner ──────────────────────────────────────
-        st.markdown(f"""
-        <div style="background:{C['card']};border:1px solid {C['primary']}44;border-radius:12px;padding:16px;margin:16px 0;">
-            <h4 style="margin:0 0 10px 0;color:{C['primary']};font-size:1.05rem;">
-                🏗️ Pipeline Formal de Machine Learning (Scikit-Learn Pipeline)
-            </h4>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:0.85rem;color:{C['text']};">
-                <span style="background:{C['primary']}22;border:1px solid {C['primary']}55;padding:6px 12px;border-radius:8px;">
-                    📡 <b>1. Ingesta Telemetría</b><br><small style="color:{C['muted']}">9 features (LiDAR, GNSS, PERCLOS)</small>
-                </span>
-                <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
-                <span style="background:{C['cyan']}22;border:1px solid {C['cyan']}55;padding:6px 12px;border-radius:8px;">
-                    🩹 <b>2. SimpleImputer</b><br><small style="color:{C['muted']}">strategy="median" (tolerancia a fallos)</small>
-                </span>
-                <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
-                <span style="background:{C['warning']}22;border:1px solid {C['warning']}55;padding:6px 12px;border-radius:8px;">
-                    ⚖️ <b>3. RobustScaler</b><br><small style="color:{C['muted']}">Resiliencia a outliers extremos</small>
-                </span>
-                <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
-                <span style="background:{C['success']}22;border:1px solid {C['success']}55;padding:6px 12px;border-radius:8px;">
-                    🌲 <b>4. RandomForest / GBM</b><br><small style="color:{C['muted']}">Ensamble con balanced weights</small>
-                </span>
-                <span style="font-size:1.2rem;color:{C['primary']};">➔</span>
-                <span style="background:{C['purple']}22;border:1px solid {C['purple']}55;padding:6px 12px;border-radius:8px;">
-                    🔍 <b>5. TreeSHAP (XAI)</b><br><small style="color:{C['muted']}">Explicabilidad aditiva ISO 21815</small>
-                </span>
-            </div>
-            <p style="color:{C['muted']};font-size:0.8rem;margin:10px 0 0 0;">
-                ✅ <i>Exportado como <code>sklearn.pipeline.Pipeline</code> completo a <code>crisp-dm-lab/models/rf_model.joblib</code> + metadatos en <code>pipeline_metadata.json</code> para inferencia directa en el backend sin data leakage.</i>
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=np.concatenate([ts, ts[::-1]]),
+                                 y=np.concatenate([tr_m+tr_s, (tr_m-tr_s)[::-1]]),
+                                 fill="toself", fillcolor=f"rgba(59,130,246,.15)",
+                                 line=dict(color="rgba(0,0,0,0)"), showlegend=False))
+        fig.add_trace(go.Scatter(x=ts, y=tr_m, mode="lines+markers",
+                                 line=dict(color=C["primary"], width=2),
+                                 name="AUC Entrenamiento"))
+        fig.add_trace(go.Scatter(x=np.concatenate([ts, ts[::-1]]),
+                                 y=np.concatenate([vl_m+vl_s, (vl_m-vl_s)[::-1]]),
+                                 fill="toself", fillcolor=f"rgba(34,197,94,.1)",
+                                 line=dict(color="rgba(0,0,0,0)"), showlegend=False))
+        fig.add_trace(go.Scatter(x=ts, y=vl_m, mode="lines+markers",
+                                 line=dict(color=C["success"], width=2),
+                                 name="AUC Validación (CV)"))
+        fig.update_layout(**PLOTLY_LAYOUT, height=380,
+                          title="Curva de Aprendizaje — Random Forest",
+                          xaxis_title="Tamaño del conjunto de entrenamiento",
+                          yaxis_title="AUC-ROC")
+        st.plotly_chart(fig, width="stretch")
 
-        # ── KPIs de ambos modelos ─────────────────────────────────────────────
-        st.markdown("### 🏆 Comparación de Modelos")
-        c1, c2, c3, c4, c5, c6 = st.columns(6)
-        kpi(c1, f"{res['auc_rf']:.4f}",  "AUC-ROC · RF",  C["primary"])
-        kpi(c2, f"{res['metrics_rf']['f1']:.4f}", "F1-Score · RF", C["success"])
-        kpi(c3, f"{res['metrics_rf']['recall']:.4f}", "Recall · RF", C["warning"])
-        kpi(c4, f"{res['auc_gbm']:.4f}",  "AUC-ROC · GBM", C["cyan"])
-        kpi(c5, f"{res['metrics_gbm']['f1']:.4f}", "F1-Score · GBM", C["purple"])
-        kpi(c6, f"{res['metrics_gbm']['recall']:.4f}", "Recall · GBM", C["orange"])
-
-        st.markdown("### 📊 Resultados de Entrenamiento")
-        sub1, sub2, sub3, sub4, sub5, sub6 = st.tabs([
-            "📈 Curvas ROC", "🔁 Cross-Validation (5-Fold)", "📉 Learning Curve", 
-            "🔲 Confusión", "🧪 Pruebas Estadísticas Rigurosas", "📋 Predicciones OOF & Reporte"
-        ])
-
-        with sub1:
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=[0,1], y=[0,1], mode="lines",
-                                     line=dict(dash="dash", color="#475569", width=1.5),
-                                     name="Aleatorio (AUC=0.50)"))
-            # PDS baseline simulado
-            fpr_pds = np.linspace(0,1,100)
-            fig.add_trace(go.Scatter(x=fpr_pds, y=np.power(fpr_pds,.52), mode="lines",
-                                     line=dict(dash="dot", color="#64748b", width=2),
-                                     name="PDS Reactivo (AUC≈0.71)"))
-            fig.add_trace(go.Scatter(
-                x=res["roc_rf"][0], y=res["roc_rf"][1], mode="lines",
-                line=dict(color=C["primary"], width=3),
-                fill="tozeroy", fillcolor="rgba(59,130,246,.1)",
-                name=f"Random Forest (AUC={res['auc_rf']:.4f})"))
-            fig.add_trace(go.Scatter(
-                x=res["roc_gbm"][0], y=res["roc_gbm"][1], mode="lines",
-                line=dict(color=C["cyan"], width=2.5, dash="dot"),
-                name=f"GradientBoosting (AUC={res['auc_gbm']:.4f})"))
-            fig.update_layout(**PLOTLY_LAYOUT, height=420,
-                              title="Curvas ROC — RandomForest vs GradientBoosting vs PDS Baseline",
-                              xaxis_title="FPR (Tasa Falsos Positivos)",
-                              yaxis_title="TPR (Tasa Verdaderos Positivos)")
-            st.plotly_chart(fig, width="stretch")
-
-        with sub2:
-            cv_data = pd.DataFrame({
-                "Fold": [f"Fold {i+1}" for i in range(5)],
-                "Random Forest (AUC)": res["cv_rf"].round(4),
-                "Gradient Boosting (AUC)": res["cv_gbm"].round(4),
-            })
-            st.dataframe(cv_data, width="stretch")
-            fig = go.Figure()
-            fig.add_trace(go.Bar(name="Random Forest",
-                                  x=cv_data["Fold"], y=cv_data["Random Forest (AUC)"],
-                                  marker_color=C["primary"], text=cv_data["Random Forest (AUC)"],
-                                  textposition="outside"))
-            fig.add_trace(go.Bar(name="Gradient Boosting",
-                                  x=cv_data["Fold"], y=cv_data["Gradient Boosting (AUC)"],
-                                  marker_color=C["cyan"], text=cv_data["Gradient Boosting (AUC)"],
-                                  textposition="outside"))
-            fig.add_hline(y=res["cv_rf"].mean(), line_dash="dash", line_color=C["primary"],
-                          annotation_text=f"RF Media={res['cv_rf'].mean():.4f}")
-            fig.add_hline(y=res["cv_gbm"].mean(), line_dash="dash", line_color=C["cyan"],
-                          annotation_text=f"GBM Media={res['cv_gbm'].mean():.4f}")
-            fig.update_layout(**PLOTLY_LAYOUT, barmode="group", height=380,
-                              title="5-Fold Cross-Validation — AUC-ROC por Fold (Sin Fuga de Datos)",
-                              yaxis_title="AUC-ROC", yaxis_range=[0.85, 1.0])
-            st.plotly_chart(fig, width="stretch")
-            c1, c2 = st.columns(2)
-            c1.metric("RF · AUC-ROC CV (μ ± σ)",
-                      f"{res['cv_rf'].mean():.4f} ± {res['cv_rf'].std():.4f}")
-            c2.metric("GBM · AUC-ROC CV (μ ± σ)",
-                      f"{res['cv_gbm'].mean():.4f} ± {res['cv_gbm'].std():.4f}")
-
-        with sub3:
-            ts = res["lc_train_sizes"]
-            tr_m = res["lc_train_scores"].mean(axis=1)
-            tr_s = res["lc_train_scores"].std(axis=1)
-            vl_m = res["lc_val_scores"].mean(axis=1)
-            vl_s = res["lc_val_scores"].std(axis=1)
-
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=np.concatenate([ts, ts[::-1]]),
-                                     y=np.concatenate([tr_m+tr_s, (tr_m-tr_s)[::-1]]),
-                                     fill="toself", fillcolor=f"rgba(59,130,246,.15)",
-                                     line=dict(color="rgba(0,0,0,0)"), showlegend=False))
-            fig.add_trace(go.Scatter(x=ts, y=tr_m, mode="lines+markers",
-                                     line=dict(color=C["primary"], width=2),
-                                     name="AUC Entrenamiento"))
-            fig.add_trace(go.Scatter(x=np.concatenate([ts, ts[::-1]]),
-                                     y=np.concatenate([vl_m+vl_s, (vl_m-vl_s)[::-1]]),
-                                     fill="toself", fillcolor=f"rgba(34,197,94,.1)",
-                                     line=dict(color="rgba(0,0,0,0)"), showlegend=False))
-            fig.add_trace(go.Scatter(x=ts, y=vl_m, mode="lines+markers",
-                                     line=dict(color=C["success"], width=2),
-                                     name="AUC Validación (CV)"))
-            fig.update_layout(**PLOTLY_LAYOUT, height=380,
-                              title="Curva de Aprendizaje — Random Forest",
-                              xaxis_title="Tamaño del conjunto de entrenamiento",
-                              yaxis_title="AUC-ROC")
-            st.plotly_chart(fig, width="stretch")
-
-        with sub4:
-            m = res["metrics_rf"]
-            cm_data = [[m["tn"], m["fp"]], [m["fn"], m["tp"]]]
-            fig = go.Figure(go.Heatmap(
-                z=cm_data,
-                x=["No Crítico (pred)","Crítico (pred)"],
-                y=["No Crítico (real)","Crítico (real)"],
-                text=[[f"VN={m['tn']}", f"FP={m['fp']}"],[f"FN={m['fn']}", f"VP={m['tp']}"]],
-                texttemplate="%{text}", textfont_size=18,
-                colorscale="Blues", showscale=False))
-            fig.update_layout(**PLOTLY_LAYOUT, height=340, title="Matriz de Confusión — Random Forest (umbral=0.50)")
-            c1, c2 = st.columns([1.2,1])
-            with c1:
-                st.plotly_chart(fig, width="stretch")
-            with c2:
-                # Tabla comparativa requerida con criterio objetivo
-                m_rf = res["metrics_rf"]
-                m_gbm = res["metrics_gbm"]
-                comp_table = pd.DataFrame([
-                    {"Modelo": "Random Forest", "Accuracy": m_rf["accuracy"], "Precision": m_rf["precision"], "Recall": m_rf["recall"], "F1": m_rf["f1"], "ROC-AUC": m_rf["auc_roc"]},
-                    {"Modelo": "Gradient Boosting", "Accuracy": m_gbm["accuracy"], "Precision": m_gbm["precision"], "Recall": m_gbm["recall"], "F1": m_gbm["f1"], "ROC-AUC": m_gbm["auc_roc"]}
-                ])
-                st.markdown("#### 🎯 Tabla Comparativa Oficial")
-                st.dataframe(comp_table, width="stretch")
-                st.info("💡 **Criterio de Selección:** En seguridad minera se prioriza **Recall (Sensibilidad)** y **ROC-AUC** para minimizar Falsos Negativos (accidentes no advertidos) garantizando al mismo tiempo un F1 alto para evitar la fatiga por alarma.")
-
-        with sub5:
-            st.markdown("### 🔬 Pruebas Estadísticas Rigurosas (Inferencia Estadística)")
-            mcn = res.get("mcnemar_res", {})
-            wil = res.get("wilcoxon_res", {})
-            b_rf = res.get("bootstrap_rf", {})
-            b_gbm = res.get("bootstrap_gbm", {})
-
-            col_mc1, col_mc2 = st.columns(2)
-            with col_mc1:
-                st.markdown(f"""
-                <div style="background:{C['card']};border:1px solid {C['border']};border-radius:10px;padding:16px;">
-                    <h4 style="color:{C['primary']};margin-top:0;">1. Test de McNemar (Predicciones Pareadas)</h4>
-                    <p style="font-size:0.85rem;color:{C['muted']}">
-                        <b>Hipótesis:</b> $H_0$: Las tasas de desacuerdo entre clasificadores son simétricas.<br>
-                        Apropiado para contrastar modelos entrenados y evaluados en el mismo conjunto de datos.
-                    </p>
-                    <table style="width:100%;font-size:0.85rem;">
-                        <tr><td>Estadístico Chi² (Edwards):</td><td><b>{mcn.get('chi2_stat', 0.0)}</b></td></tr>
-                        <tr><td>p-valor (Exacto Binomial):</td><td><b>{mcn.get('p_val_exact', 1.0):.5f}</b></td></tr>
-                        <tr><td>Cohen's g (Tamaño del efecto):</td><td><b>{mcn.get('cohens_g', 0.0)}</b></td></tr>
-                        <tr><td>Significancia (α=0.05):</td><td><b>{'✅ Significativo' if mcn.get('is_significant') else '➖ No significativo'}</b></td></tr>
-                    </table>
-                    <div style="margin-top:10px;font-size:0.82rem;color:{C['text']};">
-                        {mcn.get('interpretation', '')}
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-
-            with col_mc2:
-                st.markdown(f"""
-                <div style="background:{C['card']};border:1px solid {C['border']};border-radius:10px;padding:16px;">
-                    <h4 style="color:{C['cyan']};margin-top:0;">2. Test de Wilcoxon de Rangos Signados</h4>
-                    <p style="font-size:0.85rem;color:{C['muted']}">
-                        <b>Hipótesis:</b> $H_0$: La mediana de las diferencias de AUC por fold es cero.<br>
-                        Prueba no paramétrica pareada para validar si la superioridad en CV es consistente.
-                    </p>
-                    <table style="width:100%;font-size:0.85rem;">
-                        <tr><td>Estadístico W:</td><td><b>{wil.get('statistic', 0.0)}</b></td></tr>
-                        <tr><td>p-valor pareado:</td><td><b>{wil.get('p_value', 1.0):.5f}</b></td></tr>
-                        <tr><td>Diferencia Mediana:</td><td><b>{wil.get('median_diff', 0.0)}</b></td></tr>
-                        <tr><td>Corrección Holm-Bonferroni:</td><td><b>{'✅ Mantiene significancia' if wil.get('holm_corrected', {}).get('is_significant_corrected') else '➖ No significativo'}</b></td></tr>
-                    </table>
-                    <div style="margin-top:10px;font-size:0.82rem;color:{C['text']};">
-                        {wil.get('interpretation', '')}
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-
-            st.markdown("#### 📊 Intervalos de Confianza al 95% mediante Remuestreo Bootstrap (B = 1,000)")
-            boot_rows = []
-            for metric in ["auc_roc", "recall", "precision", "f1"]:
-                rf_ci = b_rf.get(metric, {})
-                gbm_ci = b_gbm.get(metric, {})
-                boot_rows.append({
-                    "Métrica": metric.upper(),
-                    "RF Media (Bootstrap)": rf_ci.get("mean"),
-                    "RF IC 95%": f"[{rf_ci.get('ci_lower')}, {rf_ci.get('ci_upper')}]",
-                    "GBM Media (Bootstrap)": gbm_ci.get("mean"),
-                    "GBM IC 95%": f"[{gbm_ci.get('ci_lower')}, {gbm_ci.get('ci_upper')}]"
-                })
-            st.dataframe(pd.DataFrame(boot_rows), width="stretch")
-
-        with sub6:
-            st.markdown("### 📋 Predicciones Out-Of-Fold (OOF) y Generación de Reporte")
-            oof_df = pd.DataFrame({
-                "y_true": df_raw["is_critical_event"].values,
-                "proba_rf_oof": res["oof_proba_rf"].round(4),
-                "pred_rf_oof": res["oof_pred_rf"].astype(int),
-                "proba_gbm_oof": res["oof_proba_gbm"].round(4),
-                "pred_gbm_oof": res["oof_pred_gbm"].astype(int)
-            })
-            st.markdown("#### Muestra de Predicciones OOF (Out-Of-Fold)")
-            st.dataframe(oof_df.head(50), width="stretch")
-
-            # Reporte descargable
-            report_text = f"""# REPORTE EXPERIMENTAL DE MACHINE LEARNING (CRISP-DM)
-Proyecto: MineSafe 3D
-Dataset: REAL_FIELD_BENCHMARK_2026.csv (Muestras reales: {len(df_raw)})
-Semilla Global: 42
-Fecha: 2026-09-29
-
-1. RESULTADOS COMPARATIVOS
-- Random Forest: AUC={res['metrics_rf']['auc_roc']}, Recall={res['metrics_rf']['recall']}, F1={res['metrics_rf']['f1']}
-- Gradient Boosting: AUC={res['metrics_gbm']['auc_roc']}, Recall={res['metrics_gbm']['recall']}, F1={res['metrics_gbm']['f1']}
-
-2. VALIDACIÓN CRUZADA 5-FOLD (OOF)
-- RF AUC: {res['cv_rf'].mean():.4f} +/- {res['cv_rf'].std():.4f}
-- GBM AUC: {res['cv_gbm'].mean():.4f} +/- {res['cv_gbm'].std():.4f}
-
-3. PRUEBAS ESTADÍSTICAS
-- Test de McNemar (Chi2={res.get('mcnemar_res', {}).get('chi2_stat')}, p={res.get('mcnemar_res', {}).get('p_val_exact')}): {res.get('mcnemar_res', {}).get('interpretation')}
-- Test de Wilcoxon (p={res.get('wilcoxon_res', {}).get('p_value')}): {res.get('wilcoxon_res', {}).get('interpretation')}
-- Corrección Holm aplicada a comparaciones pareadas.
-
-4. MODELO SELECCIONADO
-Modelo Recomendado: Random Forest Classifier Pipeline (Escalado Robusto + Imputación Mediana + Árboles Balanceados).
-Justificación: Superioridad en AUC-ROC y Recall para la prevención de colisiones en faenas mineras.
-"""
-            st.download_button(
-                "📥 Descargar Reporte Experimental Completo (.md)",
-                data=report_text,
-                file_name="reporte_experimental_ml_minesafe.md",
-                mime="text/markdown"
-            )
-
-        # ── Importancia de Features (RF built-in + SHAP) ─────────────────────
-        st.markdown("---")
-        st.markdown("### 🔬 Explicabilidad XAI — Valores SHAP Reales (TreeExplainer)")
-
+    with tab_train3:
         c1, c2 = st.columns(2)
         with c1:
-            # Importancia RF (Gini) — compatible con Pipeline de Scikit-Learn
             rf_obj = res["rf"]
-            if hasattr(rf_obj, "named_steps") and "classifier" in rf_obj.named_steps:
-                rf_clf = rf_obj.named_steps["classifier"]
-            else:
-                rf_clf = rf_obj
+            rf_clf = rf_obj.named_steps["classifier"] if hasattr(rf_obj, "named_steps") else rf_obj
             rf_importances = getattr(rf_clf, "feature_importances_", np.zeros(len(FEATURE_COLS)))
-
             imp_df = pd.DataFrame({
                 "Feature": [FEATURE_LABELS.get(f, f) for f in FEATURE_COLS],
                 "Importancia Gini": rf_importances
             }).sort_values("Importancia Gini")
-
-            colors_imp = [C["CRITICAL"] if v > 0.15 else C["HIGH"] if v > 0.08
-                          else C["MEDIUM"] if v > 0.04 else C["LOW"]
-                          for v in imp_df["Importancia Gini"]]
-
             fig = go.Figure(go.Bar(
                 x=imp_df["Importancia Gini"], y=imp_df["Feature"],
-                orientation="h", marker_color=colors_imp,
+                orientation="h", marker_color=C["primary"],
                 text=[f"{v:.4f}" for v in imp_df["Importancia Gini"]],
                 textposition="outside"))
             fig.update_layout(**PLOTLY_LAYOUT, height=380,
@@ -865,13 +591,11 @@ Justificación: Superioridad en AUC-ROC y Recall para la prevención de colision
             st.plotly_chart(fig, width="stretch")
 
         with c2:
-            # SHAP mean |phi_i| por feature
             shap_mean = np.abs(res["shap_rf"]).mean(axis=0)
             shap_df = pd.DataFrame({
                 "Feature": [FEATURE_LABELS.get(f, f) for f in FEATURE_COLS],
                 "|SHAP| Medio": shap_mean
             }).sort_values("|SHAP| Medio")
-
             fig = go.Figure(go.Bar(
                 x=shap_df["|SHAP| Medio"], y=shap_df["Feature"],
                 orientation="h", marker_color=C["cyan"],
@@ -882,460 +606,254 @@ Justificación: Superioridad en AUC-ROC y Recall para la prevención de colision
                               xaxis_title="|SHAP| Medio")
             st.plotly_chart(fig, width="stretch")
 
-        # SHAP Beeswarm (scatter plot de valores SHAP)
-        with st.expander("📊 SHAP Scatter — Distribución de atribuciones por feature"):
-            shap_arr = res["shap_rf"]
-            X_shap_df = res["shap_X"]
-            fig = go.Figure()
-            for i, feat in enumerate(FEATURE_COLS):
-                label = FEATURE_LABELS.get(feat, feat)
-                sv = shap_arr[:, i]
-                fv = X_shap_df[feat].values
-                fig.add_trace(go.Scatter(
-                    x=sv, y=[label]*len(sv),
-                    mode="markers",
-                    marker=dict(size=5, opacity=0.6,
-                                color=fv, colorscale="RdBu_r",
-                                showscale=(i==0)),
-                    name=label, showlegend=False
-                ))
-            fig.add_vline(x=0, line_dash="solid", line_color="#475569", line_width=1)
-            fig.update_layout(**PLOTLY_LAYOUT, height=450,
-                              title="SHAP Scatter — Distribución de Valores φᵢ por Feature",
-                              xaxis_title="Valor SHAP (φᵢ) — contribución al riesgo predicho",
-                              yaxis_title="")
-            st.plotly_chart(fig, width="stretch")
 
-    # ── TAB 2: PIPELINE DEL GEMELO DIGITAL (PRODUCCIÓN) ─────────────────────
-    with tab_twin:
+# ══════════════════════════════════════════════════════════════════════════════
+# 3. SELECCIÓN DEL MEJOR MODELO (EVALUACIÓN Y MATRIZ DE CONFUSIÓN)
+# ══════════════════════════════════════════════════════════════════════════════
+elif "3." in fase:
+    ph("🏆 3. Selección del Mejor Modelo — Criterios Operacionales y Evaluación")
+
+    with st.spinner("Cargando métricas de evaluación..."):
+        res = get_model()
+        st.session_state["model_data"] = res
+
+    m_rf = res["metrics_rf"]
+    m_gbm = res["metrics_gbm"]
+
+    c1, c2, c3, c4 = st.columns(4)
+    kpi(c1, f"{m_rf['recall']:.4f}", "Recall · RF (Sensibilidad)", C["warning"])
+    kpi(c2, f"{m_rf['auc_roc']:.4f}", "AUC-ROC · RF", C["primary"])
+    kpi(c3, f"{m_gbm['recall']:.4f}", "Recall · GBM", C["orange"])
+    kpi(c4, f"{m_gbm['auc_roc']:.4f}", "AUC-ROC · GBM", C["cyan"])
+
+    tab_sel1, tab_sel2 = st.tabs(["🎯 Tabla Comparativa Oficial & Criterio", "🔲 Matrices de Confusión"])
+
+    with tab_sel1:
+        comp_table = pd.DataFrame([
+            {"Modelo": "Random Forest (Pipeline)", "Accuracy": m_rf["accuracy"], "Precision": m_rf["precision"], "Recall": m_rf["recall"], "F1-Score": m_rf["f1"], "ROC-AUC": m_rf["auc_roc"]},
+            {"Modelo": "Gradient Boosting (Pipeline)", "Accuracy": m_gbm["accuracy"], "Precision": m_gbm["precision"], "Recall": m_gbm["recall"], "F1-Score": m_gbm["f1"], "ROC-AUC": m_gbm["auc_roc"]}
+        ])
+        st.dataframe(comp_table, width="stretch")
+
         st.markdown(f"""
-        <div style="background:{C['card']};border:1px solid {C['primary']}44;border-radius:12px;padding:16px;margin-bottom:16px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-                <div>
-                    <h3 style="margin:0;color:{C['primary']};font-size:1.2rem;">
-                        ⚡ Pipeline General del Gemelo Digital
-                    </h3>
-                    <p style="color:{C['muted']};font-size:0.85rem;margin:4px 0 0 0;">
-                        Servicio en Python (FastAPI + Scikit-Learn Pipeline + Simulación 1 Hz) • Inferencia de riesgo en caliente
-                    </p>
-                </div>
-                <div style="font-size:0.8rem;background:{C['primary']}22;border:1px solid {C['primary']}44;padding:6px 12px;border-radius:8px;color:{C['text']};">
-                    📡 Backend: <b>http://localhost:8000</b>
-                </div>
-            </div>
+        <div style="background:{C['card']};border-left:4px solid {C['primary']};padding:14px;border-radius:8px;margin-top:14px;">
+            <h4 style="margin:0 0 6px 0;color:{C['primary']};">💡 Criterio Objetivo de Selección para Faenas Mineras</h4>
+            <p style="margin:0;font-size:0.88rem;color:{C['text']};">
+                En operaciones mineras a tajo abierto, el costo humano y económico de un <b>Falso Negativo (accidente o colisión no advertida)</b> es infinitamente mayor que el de una falsa alarma. 
+                Por lo tanto, la métrica rectora de selección es <b>Recall (Sensibilidad)</b> combinada con <b>ROC-AUC</b> y un <b>F1-Score</b> balanceado.
+                El pipeline de <b>Random Forest Classifier</b> fue seleccionado formalmente como modelo rector al alcanzar un Recall de <b>{m_rf['recall']:.4f}</b> y un ROC-AUC de <b>{m_rf['auc_roc']:.4f}</b>.
+            </p>
         </div>
         """, unsafe_allow_html=True)
 
-        do_pipeline = st.button(
-            "⚡ Ejecutar Pipeline del Gemelo Digital",
-            use_container_width=True,
-            type="primary",
-            key="btn_run_gemelo_digital_pipeline",
-            help="Ejecuta el pipeline general de extremo a extremo: Sincronización del Pipeline ML + Inferencia de Riesgo + Ciclo Físico del Gemelo Digital a 1 Hz + Telemetría XAI",
-        )
+    with tab_sel2:
+        c1, c2 = st.columns(2)
+        with c1:
+            cm_data_rf = [[m_rf["tn"], m_rf["fp"]], [m_rf["fn"], m_rf["tp"]]]
+            fig_rf = go.Figure(go.Heatmap(
+                z=cm_data_rf,
+                x=["No Crítico (pred)","Crítico (pred)"],
+                y=["No Crítico (real)","Crítico (real)"],
+                text=[[f"VN={m_rf['tn']}", f"FP={m_rf['fp']}"],[f"FN={m_rf['fn']}", f"VP={m_rf['tp']}"]],
+                texttemplate="%{text}", textfont_size=16,
+                colorscale="Blues", showscale=False))
+            fig_rf.update_layout(**PLOTLY_LAYOUT, height=340, title="Matriz de Confusión — Random Forest")
+            st.plotly_chart(fig_rf, width="stretch")
 
-        if do_pipeline:
-            import urllib.request as _ur
-            import json as _jm
-            import time as _tm
-            
-            progress_bar = st.progress(0, text="🚀 Inicializando Pipeline del Gemelo Digital...")
-            status_box = st.empty()
-            
-            # Etapa 1: Ingesta y Validación de Sensores (25%)
-            status_box.info("📡 **Paso 1/4:** Ingestando telemetría de flota en rampa (GNSS-RTK, LiDAR 3D, fatiga PERCLOS)...")
-            progress_bar.progress(25, text="📡 Paso 1/4: Ingestando y validando telemetría de campo...")
-            _tm.sleep(0.4)
+        with c2:
+            cm_data_gbm = [[m_gbm["tn"], m_gbm["fp"]], [m_gbm["fn"], m_gbm["tp"]]]
+            fig_gbm = go.Figure(go.Heatmap(
+                z=cm_data_gbm,
+                x=["No Crítico (pred)","Crítico (pred)"],
+                y=["No Crítico (real)","Crítico (real)"],
+                text=[[f"VN={m_gbm['tn']}", f"FP={m_gbm['fp']}"],[f"FN={m_gbm['fn']}", f"VP={m_gbm['tp']}"]],
+                texttemplate="%{text}", textfont_size=16,
+                colorscale="Teal", showscale=False))
+            fig_gbm.update_layout(**PLOTLY_LAYOUT, height=340, title="Matriz de Confusión — Gradient Boosting")
+            st.plotly_chart(fig_gbm, width="stretch")
 
-            # Etapa 2: Sincronización con Pipeline ML Scikit-Learn (50%)
-            status_box.info("🧠 **Paso 2/4:** Sincronizando Pipeline Scikit-Learn (SimpleImputer + RobustScaler + RandomForest)...")
-            progress_bar.progress(50, text="🧠 Paso 2/4: Sincronizando Pipeline ML con backend FastAPI...")
-            _ml_sync_msg = "Pipeline verificado"
-            try:
-                _reload_req = _ur.Request(
-                    "http://localhost:8000/api/v1/ml/reload",
-                    method="POST",
-                    headers={"Content-Type": "application/json"},
-                )
-                with _ur.urlopen(_reload_req, timeout=3) as _r_resp:
-                    _r_data = _jm.loads(_r_resp.read())
-                    _clf_name = _r_data.get("status", {}).get("model_type", "RF")
-                    _ml_sync_msg = f"Pipeline ML recargado ({_clf_name})"
-            except Exception:
-                _ml_sync_msg = "Modo autónomo / fallback"
-            _tm.sleep(0.4)
 
-            # Etapa 3: Ejecución del Ciclo Físico del Motor a 1 Hz (75%)
-            status_box.info("⚡ **Paso 3/4:** Ejecutando ciclo físico del Gemelo Digital en FastAPI (Cálculo de trayectorias a 1 Hz y TTC)...")
-            progress_bar.progress(75, text="⚡ Paso 3/4: Ejecutando ciclo cinemático del Gemelo Digital a 1 Hz...")
-            _tick_ok = False
-            try:
-                _tick_req = _ur.Request(
-                    "http://localhost:8000/api/v1/simulator/tick",
-                    method="POST",
-                    headers={"Content-Type": "application/json"},
-                )
-                with _ur.urlopen(_tick_req, timeout=4) as _resp:
-                    _data = _jm.loads(_resp.read())
-                    _data["ml_sync_msg"] = _ml_sync_msg
-                    st.session_state["f4_live_engine_data"] = _data
-                    st.session_state["last_engine_tick"] = _data
-                    _tick_ok = True
-            except Exception as _ex:
-                status_box.error(f"❌ Error comunicando con el backend: {_ex}. Asegúrate de que FastAPI esté ejecutándose en http://localhost:8000")
-            _tm.sleep(0.4)
+# ══════════════════════════════════════════════════════════════════════════════
+# 4. VALIDACIÓN CRUZADA (STRATIFIED 5-FOLD & OOF)
+# ══════════════════════════════════════════════════════════════════════════════
+elif "4." in fase:
+    ph("🔁 4. Validación Cruzada Rigurosa (Stratified 5-Fold y Predicciones Out-Of-Fold)")
 
-            # Etapa 4: Inferencia XAI y Clasificación Multimodal (100%)
-            if _tick_ok:
-                status_box.info("🔬 **Paso 4/4:** Computando factores de riesgo explicables TreeSHAP y recomendaciones contrafactuales...")
-                progress_bar.progress(100, text="✅ ¡Pipeline del Gemelo Digital ejecutado exitosamente al 100%!")
-                _tm.sleep(0.5)
-                status_box.empty()
-                progress_bar.empty()
+    with st.spinner("Cargando validación cruzada y predicciones OOF..."):
+        res = get_model()
+        st.session_state["model_data"] = res
 
-        # Mostrar estado de ejecución
-        if "f4_live_engine_data" in st.session_state:
-            _edata = st.session_state["f4_live_engine_data"]
-            _flt = _edata.get("equipments", _edata.get("fleet", []))
-            _alrts = _edata.get("active_alerts", _edata.get("alerts", []))
-            _step = _edata.get("step", "N/A")
-            _ts = _edata.get("timestamp", "")[:19].replace("T", " ")
-            _sync_txt = _edata.get("ml_sync_msg", "Pipeline Activo")
+    c1, c2 = st.columns(2)
+    c1.metric("Random Forest · AUC CV (μ ± σ)", f"{res['cv_rf'].mean():.4f} ± {res['cv_rf'].std():.4f}")
+    c2.metric("Gradient Boosting · AUC CV (μ ± σ)", f"{res['cv_gbm'].mean():.4f} ± {res['cv_gbm'].std():.4f}")
 
-            st.success(f"✅ **Pipeline del Gemelo Digital Ejecutado Exitosamente** — Tick #{_step} ({_ts} UTC) | {_edata.get('message', 'Inferencia completada')}")
+    tab_cv1, tab_cv2 = st.tabs(["📊 Distribución de AUC por Fold (5 Folds)", "📋 Predicciones Out-Of-Fold (OOF)"])
 
-            # Diagrama de etapas del pipeline ejecutado
+    with tab_cv1:
+        cv_data = pd.DataFrame({
+            "Fold": [f"Fold {i+1}" for i in range(5)],
+            "Random Forest (AUC)": res["cv_rf"].round(4),
+            "Gradient Boosting (AUC)": res["cv_gbm"].round(4),
+        })
+        st.dataframe(cv_data, width="stretch")
+
+        fig = go.Figure()
+        fig.add_trace(go.Bar(name="Random Forest",
+                              x=cv_data["Fold"], y=cv_data["Random Forest (AUC)"],
+                              marker_color=C["primary"], text=cv_data["Random Forest (AUC)"],
+                              textposition="outside"))
+        fig.add_trace(go.Bar(name="Gradient Boosting",
+                              x=cv_data["Fold"], y=cv_data["Gradient Boosting (AUC)"],
+                              marker_color=C["cyan"], text=cv_data["Gradient Boosting (AUC)"],
+                              textposition="outside"))
+        fig.add_hline(y=res["cv_rf"].mean(), line_dash="dash", line_color=C["primary"],
+                      annotation_text=f"RF Media={res['cv_rf'].mean():.4f}")
+        fig.add_hline(y=res["cv_gbm"].mean(), line_dash="dash", line_color=C["cyan"],
+                      annotation_text=f"GBM Media={res['cv_gbm'].mean():.4f}")
+        fig.update_layout(**PLOTLY_LAYOUT, barmode="group", height=380,
+                          title="5-Fold Cross-Validation — AUC-ROC por Fold (Sin Fuga de Datos)",
+                          yaxis_title="AUC-ROC", yaxis_range=[0.85, 1.0])
+        st.plotly_chart(fig, width="stretch")
+
+    with tab_cv2:
+        st.markdown("#### Matriz de Predicciones Out-Of-Fold (OOF)")
+        oof_df = pd.DataFrame({
+            "sample_id": range(1, len(df_raw) + 1),
+            "y_true (Evento Real)": df_raw["is_critical_event"].values,
+            "proba_rf_oof": res["oof_proba_rf"].round(4),
+            "pred_rf_oof": res["oof_pred_rf"].astype(int),
+            "proba_gbm_oof": res["oof_proba_gbm"].round(4),
+            "pred_gbm_oof": res["oof_pred_gbm"].astype(int)
+        })
+        st.dataframe(oof_df.head(60), width="stretch", height=380)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 5. PRUEBAS ESTADÍSTICAS RIGUROSAS (INFERENCIA)
+# ══════════════════════════════════════════════════════════════════════════════
+elif "5." in fase:
+    ph("🧪 5. Pruebas Estadísticas Rigurosas — Inferencia y Validación Formal")
+
+    with st.spinner("Cargando contrastes de hipótesis pareadas y bootstrap..."):
+        res = get_model()
+        st.session_state["model_data"] = res
+
+    mcn = res.get("mcnemar_res", {})
+    wil = res.get("wilcoxon_res", {})
+    b_rf = res.get("bootstrap_rf", {})
+    b_gbm = res.get("bootstrap_gbm", {})
+
+    tab_stat1, tab_stat2 = st.tabs(["🔬 Contrastes Paramétricos & No Paramétricos", "📊 Intervalos de Confianza 95% (Bootstrap)"])
+
+    with tab_stat1:
+        col_mc1, col_mc2 = st.columns(2)
+        with col_mc1:
             st.markdown(f"""
-            <div style="background:{C['card']};border:1px solid {C['success']}44;border-radius:10px;padding:12px;margin:10px 0 16px 0;">
-                <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:0.8rem;color:{C['text']};">
-                    <span style="background:{C['success']}22;border:1px solid {C['success']}55;padding:5px 10px;border-radius:6px;">
-                        ✅ <b>1. Ingesta Telemetría</b> (GNSS + LiDAR + Fatiga)
-                    </span>
-                    <span style="color:{C['primary']};">➔</span>
-                    <span style="background:{C['success']}22;border:1px solid {C['success']}55;padding:5px 10px;border-radius:6px;">
-                        ✅ <b>2. ML Pipeline</b> ({_sync_txt})
-                    </span>
-                    <span style="color:{C['primary']};">➔</span>
-                    <span style="background:{C['success']}22;border:1px solid {C['success']}55;padding:5px 10px;border-radius:6px;">
-                        ✅ <b>3. Motor Cinemático</b> (Simulador 1 Hz)
-                    </span>
-                    <span style="color:{C['primary']};">➔</span>
-                    <span style="background:{C['success']}22;border:1px solid {C['success']}55;padding:5px 10px;border-radius:6px;">
-                        ✅ <b>4. Explicabilidad XAI</b> (SHAP + Recomendación)
-                    </span>
+            <div style="background:{C['card']};border:1px solid {C['border']};border-radius:10px;padding:16px;">
+                <h4 style="color:{C['primary']};margin-top:0;">1. Test de McNemar (Predicciones Pareadas)</h4>
+                <p style="font-size:0.85rem;color:{C['muted']}">
+                    <b>Hipótesis:</b> $H_0$: Las tasas de desacuerdo entre clasificadores son simétricas.<br>
+                    Apropiado para contrastar modelos entrenados y evaluados en el mismo benchmark.
+                </p>
+                <table style="width:100%;font-size:0.85rem;">
+                    <tr><td>Estadístico Chi² (Edwards):</td><td><b>{mcn.get('chi2_stat', 0.0)}</b></td></tr>
+                    <tr><td>p-valor (Exacto Binomial):</td><td><b>{mcn.get('p_val_exact', 1.0):.5f}</b></td></tr>
+                    <tr><td>Cohen's g (Tamaño del efecto):</td><td><b>{mcn.get('cohens_g', 0.0)}</b></td></tr>
+                    <tr><td>Significancia (α=0.05):</td><td><b>{'✅ Significativo' if mcn.get('is_significant') else '➖ No significativo'}</b></td></tr>
+                </table>
+                <div style="margin-top:10px;font-size:0.82rem;color:{C['text']};">
+                    {mcn.get('interpretation', '')}
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
-            # KPIs de ejecución del motor
-            st.markdown("#### 📊 Estado de la Flota e Inferencia en el Tick")
-            k1, k2, k3, k4 = st.columns(4)
-            k1.metric("Equipos Monitoreados", f"{len(_flt)}")
-            
-            # HT-104 metrics
-            _ht = next((e for e in _flt if e.get("code") == "HT-104"), None)
-            if _ht:
-                _pred = _ht.get("currentPrediction", {})
-                _score = _pred.get("overallRiskScore", 0.0)
-                _lvl = _pred.get("riskLevel", "LOW")
-                _ttc = _pred.get("timeToCollisionSec", 0.0)
-                _ml_act = _pred.get("ml_inference", False)
-                k2.metric("Riesgo HT-104 (ML)", f"{_score:.2f}", delta=f"{_lvl}")
-                k3.metric("TTC Proyectado", f"{_ttc} s", delta="Alerta Temprana")
-                k4.metric("Inferencia IA", "Random Forest" if _ml_act else "Fórmula", delta="Pipeline Activo")
-
-                st.markdown("---")
-                # Detalle de los vehículos en rampa
-                st.markdown("#### 🚛 Análisis de Equipos Críticos en el Tajo")
-                c_ht, c_ahs = st.columns(2)
-                with c_ht:
-                    _color_ht = C["CRITICAL"] if _score >= 0.8 else C["warning"] if _score >= 0.5 else C["success"]
-                    st.markdown(f"""
-                    <div style="background:{C['card']};border:2px solid {_color_ht};border-radius:12px;padding:16px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <h4 style="margin:0;color:{C['text']};">🚛 {_ht.get('name', 'HT-104')}</h4>
-                            <span style="background:{_color_ht}33;color:{_color_ht};font-weight:bold;padding:4px 10px;border-radius:6px;font-size:0.85rem;">
-                                {_lvl}
-                            </span>
-                        </div>
-                        <p style="color:{C['muted']};font-size:0.8rem;margin:4px 0 10px 0;">
-                            Zona: {_ht.get('currentZone', 'Rampa Este')} • Estado: {_ht.get('status')}
-                        </p>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.85rem;">
-                            <div>📍 <b>Easting:</b> {_ht.get('position', {}).get('easting', 0):.1f} m</div>
-                            <div>📍 <b>Northing:</b> {_ht.get('position', {}).get('northing', 0):.1f} m</div>
-                            <div>🏎️ <b>Velocidad:</b> {_ht.get('position', {}).get('speedKmh', 0):.1f} km/h</div>
-                            <div>🎯 <b>Dist. LiDAR:</b> {_ht.get('lidarFeatures', {}).get('nearestObstacleDistM', 0):.1f} m</div>
-                            <div>👁️ <b>PERCLOS:</b> {_ht.get('assignedOperator', {}).get('perclosScore', 0):.2f} (Fatiga)</div>
-                            <div>⏱️ <b>Turno:</b> {_ht.get('assignedOperator', {}).get('shiftHoursAccumulated', 0):.1f} h</div>
-                        </div>
-                        <div style="margin-top:12px;padding:8px 12px;background:#1e293b;border-radius:8px;font-size:0.8rem;">
-                            💡 <b>Recomendación XAI:</b> {_pred.get('counterfactualRecommendation', 'Sin incidencias.')}
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                with c_ahs:
-                    _ahs = next((e for e in _flt if e.get("code") == "AHS-02"), None)
-                    if _ahs:
-                        _apred = _ahs.get("currentPrediction", {})
-                        _ascore = _apred.get("overallRiskScore", 0.0)
-                        _alvl = _apred.get("riskLevel", "LOW")
-                        _color_ahs = C["CRITICAL"] if _ascore >= 0.8 else C["warning"] if _ascore >= 0.5 else C["success"]
-                        st.markdown(f"""
-                        <div style="background:{C['card']};border:2px solid {_color_ahs};border-radius:12px;padding:16px;">
-                            <div style="display:flex;justify-content:space-between;align-items:center;">
-                                <h4 style="margin:0;color:{C['text']};">🤖 {_ahs.get('name', 'AHS-02')}</h4>
-                                <span style="background:{_color_ahs}33;color:{_color_ahs};font-weight:bold;padding:4px 10px;border-radius:6px;font-size:0.85rem;">
-                                    {_alvl}
-                                </span>
-                            </div>
-                            <p style="color:{C['muted']};font-size:0.8rem;margin:4px 0 10px 0;">
-                                Zona: {_ahs.get('currentZone', 'Rampa Este')} • Operación Autónoma
-                            </p>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.85rem;">
-                                <div>📍 <b>Easting:</b> {_ahs.get('position', {}).get('easting', 0):.1f} m</div>
-                                <div>📍 <b>Northing:</b> {_ahs.get('position', {}).get('northing', 0):.1f} m</div>
-                                <div>🏎️ <b>Velocidad:</b> {_ahs.get('position', {}).get('speedKmh', 0):.1f} km/h</div>
-                                <div>🎯 <b>Dist. LiDAR:</b> {_ahs.get('lidarFeatures', {}).get('nearestObstacleDistM', 0):.1f} m</div>
-                                <div>📡 <b>Modo V2V:</b> Conectado (AHS Guidance)</div>
-                                <div>🛡️ <b>Riesgo ML:</b> {_ascore:.2f}</div>
-                            </div>
-                            <div style="margin-top:12px;padding:8px 12px;background:#1e293b;border-radius:8px;font-size:0.8rem;">
-                                💡 <b>Recomendación XAI:</b> {_apred.get('counterfactualRecommendation', 'Ajuste de velocidad autónoma.')}
-                            </div>
-                        </div>
-                        """, unsafe_allow_html=True)
-
-            # Tabla completa de telemetría de la flota
-            st.markdown("---")
-            st.markdown("#### 📋 Telemetría Completa de la Flota (Generada en Python)")
-            fleet_rows = []
-            for eq in _flt:
-                p = eq.get("position", {})
-                pr = eq.get("currentPrediction", {})
-                op = eq.get("assignedOperator", {}) or {}
-                fleet_rows.append({
-                    "Código": eq.get("code"),
-                    "Tipo": eq.get("type"),
-                    "Autónomo": "Sí (AHS)" if eq.get("isAutonomous") else "No (Manual)",
-                    "Velocidad (km/h)": p.get("speedKmh"),
-                    "Easting (m)": p.get("easting"),
-                    "Northing (m)": p.get("northing"),
-                    "Dist. LiDAR (m)": eq.get("lidarFeatures", {}).get("nearestObstacleDistM"),
-                    "PERCLOS": op.get("perclosScore", 0.0),
-                    "Riesgo ML": round(pr.get("overallRiskScore", 0.0), 3),
-                    "Severidad": pr.get("riskLevel", "LOW"),
-                    "Driver SHAP": pr.get("primaryRiskDriver", "N/A"),
-                })
-            st.dataframe(pd.DataFrame(fleet_rows), use_container_width=True)
-
-            if _alrts:
-                st.markdown("#### 🚨 Alertas Activas Emitidas por el Motor")
-                for al in _alrts:
-                    _acol = C["CRITICAL"] if al.get("severity") == "CRITICAL" else C["warning"]
-                    st.markdown(f"""
-                    <div style="background:{_acol}15;border-left:5px solid {_acol};padding:10px 14px;border-radius:6px;margin:6px 0;">
-                        <b>[{al.get('severity')}] {al.get('alertCode')}</b> • {al.get('zone')}<br>
-                        <span style="font-size:0.85rem;color:{C['muted']}">
-                            Origen: <b>{al.get('sourceEquipmentCode')}</b> ➔ Objetivo: <b>{al.get('targetEquipmentCode')}</b> |
-                            Factor Dominante: <b>{al.get('primaryFactor')}</b> | TTC: <b>{al.get('timeToCollision')}s</b>
-                        </span><br>
-                        <span style="font-size:0.85rem;">🛡️ {al.get('recommendedAction')}</span>
-                    </div>
-                    """, unsafe_allow_html=True)
-        else:
-            st.info("💡 Presiona **'▶️ Ejecutar 1 Ciclo del Motor'** para disparar un ciclo de telemetría e inferencia en tiempo real en FastAPI y ver los resultados aquí mismo.")
-
-    # ── TAB 3: MOTOR XAI EN VIVO ─────────────────────────────────────────────
-    with tab_live:
-        st.markdown("Ajusta los parámetros con los **sliders** para predecir el riesgo en tiempo real usando **ambos sistemas**: el Motor de Reglas físicas y el **Modelo RandomForest entrenado**.")
-
-        with st.expander("⚙️ Panel de Control", expanded=True):
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                st.markdown(f"**🚛 Cinemática GNSS**")
-                speed_kmh     = st.slider("Velocidad (km/h)",          5.0, 60.0, 30.0, 0.5, key="lv_spd")
-                obstacle_dist = st.slider("Distancia al obstáculo (m)", 5.0, 200.0, 45.0, 1.0, key="lv_dst")
-            with c2:
-                st.markdown(f"**👁️ Operador (PERCLOS)**")
-                perclos_score = st.slider("PERCLOS Score",              0.05, 0.65, 0.12, 0.01, key="lv_prc")
-                shift_hours   = st.slider("Horas de turno",             0.5, 12.0, 6.0, 0.5,   key="lv_sft")
-                steering_jerk = st.slider("Jerk de volante (°/s)",     0.1, 12.0, 1.5, 0.1,   key="lv_jrk")
-            with c3:
-                st.markdown(f"**🌫️ LiDAR / Clima**")
-                visibility_idx = st.slider("Índice de visibilidad",     0.10, 1.00, 0.80, 0.01, key="lv_vis")
-                is_auto        = st.toggle("🤖 Vehículo Autónomo (AHS)",  key="lv_aut")
-
-        # Predicción del motor de reglas
-        pred_rules = RiskEngine.predict(
-            speed_kmh=speed_kmh, obstacle_dist_m=obstacle_dist,
-            visibility_index=visibility_idx, perclos_score=perclos_score,
-            shift_hours=shift_hours, steering_jerk=steering_jerk,
-            is_autonomous=is_auto)
-
-        # Predicción del modelo ML
-        X_single = pd.DataFrame([{
-            "gnss_speed_kmh":          speed_kmh,
-            "gnss_ramp_grade":         8.5,
-            "lidar_obstacle_dist_m":   obstacle_dist,
-            "lidar_visibility_index":  visibility_idx,
-            "op_perclos_score":        perclos_score if not is_auto else 0.08,
-            "op_shift_hours":          shift_hours if not is_auto else 0.5,
-            "op_steering_jerk_stddev": steering_jerk if not is_auto else 0.2,
-            "op_harsh_braking_count":  0,
-            "is_autonomous":           int(is_auto),
-        }])
-
-        with st.spinner("Calculando…"):
-            ml_res = get_model()
-            rf_proba, rf_pred = predict_single(ml_res["rf"], X_single)
-
-        # Severidad ML basada en umbral
-        ml_sev = ("CRITICAL" if rf_proba >= 0.80 else
-                  "HIGH"     if rf_proba >= 0.60 else
-                  "MEDIUM"   if rf_proba >= 0.30 else "LOW")
-
-        sc = C.get(pred_rules.risk_level, C["primary"])
-        mc = C.get(ml_sev, C["primary"])
-
-        st.markdown("### 🆚 Comparación: Motor de Reglas vs Modelo RandomForest")
-        c1, c2 = st.columns(2)
-        with c1:
-            st.markdown(f"""<div class="model-card" style="border-color:{sc}44;">
-                <h4 style="color:{C['warning']};">⚙️ Motor de Reglas Físicas</h4>
-                <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:10px;">
-                    <div><div style="font-size:2rem;font-weight:800;color:{sc}">{pred_rules.overall_risk_score:.3f}</div>
-                    <div style="color:{C['muted']};font-size:.8rem;">RISK SCORE</div></div>
-                    <div><div style="font-size:2rem;font-weight:800;color:{sc}">{pred_rules.risk_level}</div>
-                    <div style="color:{C['muted']};font-size:.8rem;">SEVERIDAD</div></div>
-                    <div><div style="font-size:2rem;font-weight:800;color:{C['cyan']}">{pred_rules.ttc_sec}s</div>
-                    <div style="color:{C['muted']};font-size:.8rem;">TTC</div></div>
-                </div>
-                <div style="margin-top:10px;font-size:.82rem;color:{C['muted']};">
-                    {pred_rules.recommendation}
-                </div>
-            </div>""", unsafe_allow_html=True)
-
-        with c2:
-            st.markdown(f"""<div class="model-card" style="border-color:{mc}44;">
-                <h4 style="color:{C['primary']};">🌲 Random Forest (ML Entrenado)</h4>
-                <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:10px;">
-                    <div><div style="font-size:2rem;font-weight:800;color:{mc}">{rf_proba:.4f}</div>
-                    <div style="color:{C['muted']};font-size:.8rem;">PROB. CRÍTICO</div></div>
-                    <div><div style="font-size:2rem;font-weight:800;color:{mc}">{ml_sev}</div>
-                    <div style="color:{C['muted']};font-size:.8rem;">SEVERIDAD</div></div>
-                    <div><div style="font-size:2rem;font-weight:800;color:{C['success']}">94 %</div>
-                    <div style="color:{C['muted']};font-size:.8rem;">CONFIANZA</div></div>
-                </div>
-                <div style="margin-top:10px;font-size:.82rem;color:{C['muted']};">
-                    AUC-ROC CV: {ml_res['cv_rf'].mean():.4f} ± {ml_res['cv_rf'].std():.4f}
-                </div>
-            </div>""", unsafe_allow_html=True)
-
-        # SHAP de la predicción actual
-        st.markdown("#### 🔬 Atribuciones SHAP para esta predicción")
-        with st.spinner("Calculando SHAP individual…"):
-            rf_obj = ml_res["rf"]
-            rf_clf = rf_obj.named_steps["classifier"] if hasattr(rf_obj, "named_steps") else rf_obj
-            exp_rf = ml_res.get("explainer_rf")
-            if exp_rf is None:
-                exp_rf = shap.TreeExplainer(rf_clf)
-            shap_single = get_shap_single(exp_rf, X_single, model_or_pipeline=rf_obj)
-
-        shap_df_single = pd.DataFrame({
-            "Feature": [FEATURE_LABELS.get(f, f) for f in FEATURE_COLS],
-            "Valor SHAP (φ)": shap_single,
-        }).sort_values("Valor SHAP (φ)", key=abs, ascending=True)
-
-        colors_s = [C["CRITICAL"] if v > 0 else C["success"] for v in shap_df_single["Valor SHAP (φ)"]]
-        fig = go.Figure(go.Bar(
-            x=shap_df_single["Valor SHAP (φ)"], y=shap_df_single["Feature"],
-            orientation="h", marker_color=colors_s,
-            text=[f"{v:+.4f}" for v in shap_df_single["Valor SHAP (φ)"]],
-            textposition="outside"))
-        fig.add_vline(x=0, line_color="#475569", line_width=1)
-        base_val = ml_res.get("shap_expected_rf", 0.0)
-        fig.update_layout(**PLOTLY_LAYOUT, height=340,
-                          title=f"SHAP Waterfall — Predicción actual  (valor base φ₀ = {base_val:.4f})",
-                          xaxis_title="φᵢ — Contribución al riesgo (+aumenta / −reduce)")
-        st.plotly_chart(fig, width="stretch")
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# F5 — EVALUATION
-# ══════════════════════════════════════════════════════════════════════════════
-elif "F5" in fase:
-    ph("📊 Fase 5 — Evaluation")
-
-    threshold = st.slider("Umbral de clasificación (HIGH + CRITICAL)", 0.30, 0.90, 0.60, 0.01)
-    metrics = compute_all_metrics(df_raw, threshold=threshold)
-
-    c1,c2,c3,c4,c5,c6 = st.columns(6)
-    kpi(c1, f"{metrics['auc_roc']:.4f}",         "AUC-ROC",         C["primary"])
-    kpi(c2, f"{metrics['f1']:.4f}",              "F1-Score",        C["success"])
-    kpi(c3, f"{metrics['precision']:.4f}",       "Precisión",       C["purple"])
-    kpi(c4, f"{metrics['recall']:.4f}",          "Recall",          C["warning"])
-    kpi(c5, f"{metrics['fpr']*100:.1f}%",        "Tasa FP (FPR)",   C["orange"])
-    kpi(c6, f"{metrics['model_ttc_mean']}s",     "TTC Medio",       C["cyan"])
-
-    tab1,tab2,tab3,tab4,tab5 = st.tabs(["📊 Severidades","📈 Curva ROC","🔲 Confusión","⏱️ TTC vs PDS","🔍 Importancia"])
-
-    with tab1:
-        fig_sev = plot_severity_distribution(df_raw)
-        fig_sev.update_layout(**PLOTLY_LAYOUT)
-        st.plotly_chart(fig_sev, width="stretch")
-    with tab2:
-        fig_roc, auc_val = plot_roc_curve(df_raw)
-        fig_roc.update_layout(**PLOTLY_LAYOUT)
-        st.plotly_chart(fig_roc, width="stretch")
-        c1,c2,c3 = st.columns(3)
-        c1.metric("MineSafe 3D AUC-ROC", f"{auc_val:.4f}")
-        c2.metric("PDS Baseline AUC",    "0.710")
-        c3.metric("Mejora vs PDS",       f"+{(auc_val-0.71)/0.71*100:.1f}%")
-    with tab3:
-        fig_cm, cm_m = plot_confusion_matrix(df_raw, threshold=threshold)
-        fig_cm.update_layout(**PLOTLY_LAYOUT)
-        c1,c2 = st.columns([1.5,1])
-        with c1: st.plotly_chart(fig_cm, width="stretch")
-        with c2:
+        with col_mc2:
             st.markdown(f"""
-            | Métrica | Valor |
-            |---------|-------|
-            | VP (True Positives) | **{cm_m['tp']}** |
-            | FP (False Positives) | **{cm_m['fp']}** |
-            | FN (False Negatives) | **{cm_m['fn']}** |
-            | VN (True Negatives) | **{cm_m['tn']}** |
-            | Precisión | **{cm_m['precision']:.4f}** |
-            | Recall | **{cm_m['recall']:.4f}** |
-            | F1-Score | **{cm_m['f1']:.4f}** |
-            | FPR | **{cm_m['fpr']*100:.2f} %** |
-            """)
-    with tab4:
-        fig_ttc, ttc_stats = plot_ttc_comparison(df_raw)
-        fig_ttc.update_layout(**PLOTLY_LAYOUT)
-        st.plotly_chart(fig_ttc, width="stretch")
-        c1,c2,c3,c4 = st.columns(4)
-        c1.metric("TTC Medio (Modelo)", f"{ttc_stats['model_ttc_mean']}s")
-        c2.metric("PDS Baseline",       f"{ttc_stats['pds_baseline']}s")
-        c3.metric("Mejora vs PDS",      f"+{ttc_stats['mejora_pct']:.1f}%")
-        c4.metric("H1 ≥ 6.4 s",        "✅ CUMPLE" if ttc_stats["cumple_h1"] else "⚠️ Pendiente")
-    with tab5:
-        fig_imp = plot_feature_importance(df_raw)
-        fig_imp.update_layout(**PLOTLY_LAYOUT)
-        st.plotly_chart(fig_imp, width="stretch")
-        st.info("💡 La distancia LiDAR tiene la correlación negativa más fuerte — menos distancia, mayor riesgo. El PERCLOS es el principal driver en flotas manuales.")
+            <div style="background:{C['card']};border:1px solid {C['border']};border-radius:10px;padding:16px;">
+                <h4 style="color:{C['cyan']};margin-top:0;">2. Test de Wilcoxon de Rangos Signados</h4>
+                <p style="font-size:0.85rem;color:{C['muted']}">
+                    <b>Hipótesis:</b> $H_0$: La mediana de las diferencias de AUC por fold es cero.<br>
+                    Prueba no paramétrica pareada para validar si la superioridad en CV es consistente.
+                </p>
+                <table style="width:100%;font-size:0.85rem;">
+                    <tr><td>Estadístico W:</td><td><b>{wil.get('statistic', 0.0)}</b></td></tr>
+                    <tr><td>p-valor pareado:</td><td><b>{wil.get('p_value', 1.0):.5f}</b></td></tr>
+                    <tr><td>Diferencia Mediana:</td><td><b>{wil.get('median_diff', 0.0)}</b></td></tr>
+                    <tr><td>Corrección Holm-Bonferroni:</td><td><b>{'✅ Mantiene significancia' if wil.get('holm_corrected', {}).get('is_significant_corrected') else '➖ No significativo'}</b></td></tr>
+                </table>
+                <div style="margin-top:10px;font-size:0.82rem;color:{C['text']};">
+                    {wil.get('interpretation', '')}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with tab_stat2:
+        st.markdown("#### 📊 Intervalos de Confianza al 95% mediante Remuestreo Bootstrap (B = 1,000)")
+        boot_rows = []
+        for metric in ["auc_roc", "recall", "precision", "f1"]:
+            rf_ci = b_rf.get(metric, {})
+            gbm_ci = b_gbm.get(metric, {})
+            boot_rows.append({
+                "Métrica": metric.upper(),
+                "RF Media (Bootstrap)": rf_ci.get("mean"),
+                "RF IC 95%": f"[{rf_ci.get('ci_lower')}, {rf_ci.get('ci_upper')}]",
+                "GBM Media (Bootstrap)": gbm_ci.get("mean"),
+                "GBM IC 95%": f"[{gbm_ci.get('ci_lower')}, {gbm_ci.get('ci_upper')}]"
+            })
+        st.dataframe(pd.DataFrame(boot_rows), width="stretch")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 6. REPORTES Y DESPLIEGUE
+# 6. REPORTES Y DESPLIEGUE (RESULTADOS)
 # ══════════════════════════════════════════════════════════════════════════════
 elif "6." in fase or "F6" in fase:
-    ph("🚀 6. Reportes Experimentales y Despliegue — Metodología CRISP-DM")
+    ph("🚀 6. Reportes Experimentales y Despliegue en Producción")
 
-    tab1, tab2, tab3 = st.tabs(["🗺️ Arquitectura", "🔌 Integración FastAPI", "✅ Checklist"])
+    with st.spinner("Generando reporte experimental consolidado..."):
+        res = get_model()
+        st.session_state["model_data"] = res
 
-    with tab1:
+    tab_r1, tab_r2, tab_r3 = st.tabs([
+        "📄 Reporte Experimental Descargable",
+        "🗺️ Arquitectura de Despliegue Gemelo Digital",
+        "✅ Checklist CRISP-DM a Producción"
+    ])
+
+    with tab_r1:
+        st.markdown("### 📄 Reporte Técnico y Científico Consolidado")
+        report_text = f"""# REPORTE EXPERIMENTAL DE MACHINE LEARNING (CRISP-DM)
+Proyecto: MineSafe 3D — Gemelo Digital Minero
+Dataset: REAL_FIELD_BENCHMARK_2026.csv (Muestras reales: {len(df_raw)})
+Semilla Global: 42
+Fecha: 2026-09-29
+
+1. RESULTADOS COMPARATIVOS
+- Random Forest: AUC={res['metrics_rf']['auc_roc']:.4f}, Recall={res['metrics_rf']['recall']:.4f}, F1={res['metrics_rf']['f1']:.4f}
+- Gradient Boosting: AUC={res['metrics_gbm']['auc_roc']:.4f}, Recall={res['metrics_gbm']['recall']:.4f}, F1={res['metrics_gbm']['f1']:.4f}
+
+2. VALIDACIÓN CRUZADA 5-FOLD (OOF)
+- RF AUC: {res['cv_rf'].mean():.4f} +/- {res['cv_rf'].std():.4f}
+- GBM AUC: {res['cv_gbm'].mean():.4f} +/- {res['cv_gbm'].std():.4f}
+
+3. PRUEBAS ESTADÍSTICAS RIGUROSAS
+- Test de McNemar (Chi2={res.get('mcnemar_res', {}).get('chi2_stat')}, p={res.get('mcnemar_res', {}).get('p_val_exact')}): {res.get('mcnemar_res', {}).get('interpretation')}
+- Test de Wilcoxon (p={res.get('wilcoxon_res', {}).get('p_value')}): {res.get('wilcoxon_res', {}).get('interpretation')}
+- Corrección Holm-Bonferroni aplicada a comparaciones pareadas.
+
+4. MODELO SELECCIONADO
+Modelo Recomendado: Random Forest Classifier Pipeline (Escalado Robusto + Imputación Mediana + Árboles Balanceados).
+Justificación: Superioridad en AUC-ROC y Recall para la prevención de colisiones en faenas mineras.
+"""
+        st.download_button(
+            "📥 Descargar Reporte Experimental Completo (.md)",
+            data=report_text,
+            file_name="reporte_experimental_ml_minesafe.md",
+            mime="text/markdown",
+            type="primary"
+        )
+        st.code(report_text, language="markdown")
+
+    with tab_r2:
         st.markdown("""
         ### Flujo Completo: Laboratorio CRISP-DM → Producción MineSafe 3D
 
@@ -1343,94 +861,58 @@ elif "6." in fase or "F6" in fase:
         ╔══════════════════════════════════════════════════════════════╗
         ║   🧪  LABORATORIO CRISP-DM  (crisp-dm-lab/)                 ║
         ║                                                              ║
-        ║  data_generator.py  →  ml_model.py  →  evaluation.py       ║
-        ║  (Monte Carlo 5000)    (RF+GBM+SHAP)   (ROC/F1/TTC)        ║
+        ║  data_loader.py    →  ml_model.py  →  statistical_engine.py  ║
+        ║  (Real CSV 5000)      (RF+GBM+SHAP)   (McNemar/Wilcoxon/CI)  ║
         ║                             │                               ║
         ║             models/rf_model.joblib  ✅                      ║
         ║             models/gbm_model.joblib ✅                      ║
         ╚══════════════════╦═══════════════════════════════════════════╝
-                           │  Lógica + pesos exportados
+                           │  Pipeline + pesos exportados
                            ▼
         ╔══════════════════════════════════════════════════════════════╗
         ║  ⚡  BACKEND FastAPI  (backend/app/services/)               ║
         ║                                                              ║
-        ║  risk_engine_service.py   ← mismas 5 capas del motor        ║
-        ║  gemini_service.py        ← Gemini AI para explicación NLP  ║
-        ║  simulator_service.py     ← telemetría en tiempo real       ║
+        ║  risk_engine_service.py   ← 5 capas del motor                ║
+        ║  gemini_service.py        ← Gemini AI para explicación NLP   ║
+        ║  simulator_service.py     ← telemetría en tiempo real        ║
         ║       │                                                      ║
-        ║  WebSocket /ws/telemetry  ─► JSON cada 500 ms               ║
-        ║  WebSocket /ws/alerts     ─► alertas inmediatas             ║
+        ║  WebSocket /ws/telemetry  ─► JSON cada 500 ms                ║
+        ║  WebSocket /ws/alerts     ─► alertas inmediatas              ║
         ╚══════════════════╦═══════════════════════════════════════════╝
                            │  WebSocket stream
                            ▼
         ╔══════════════════════════════════════════════════════════════╗
         ║  🖥️  FRONTEND React 19 + Three.js  (src/)                   ║
         ║                                                              ║
-        ║  Mine3DViewer.tsx      ← flota 3D WebGL en tiempo real      ║
-        ║  AlertsCenter.tsx      ← alertas CRITICAL / HIGH            ║
-        ║  ShapExplanationPanel  ← gráficas SHAP interactivas         ║
-        ║  AnalyticsDashboard    ← KPIs y Recharts                    ║
-        ║  MiningAiChatbot       ← chat con Gemini AI                 ║
+        ║  Mine3DViewer.tsx      ← flota 3D WebGL en tiempo real       ║
+        ║  AlertsCenter.tsx      ← alertas CRITICAL / HIGH             ║
+        ║  ShapExplanationPanel  ← gráficas SHAP interactivas          ║
+        ║  AnalyticsDashboard    ← KPIs y Recharts                     ║
+        ║  MiningAiChatbot       ← chat con Gemini AI                  ║
         ╚══════════════════════════════════════════════════════════════╝
         ```
         """)
 
         st.markdown("""
         ### Equivalencia de Módulos
-
         | Laboratorio CRISP-DM | Producción MineSafe 3D | Tecnología |
         |---------------------|----------------------|------------|
-        | `data_generator.py` | `simulator_service.py` | NumPy / PostgreSQL |
-        | `ml_model.py` (RF+GBM) | `risk_engine_service.py` | sklearn / ONNX RT |
-        | `evaluation.py` | — (validación offline) | scikit-learn / SHAP |
-        | `app.py` (Streamlit) | React 19 + FastAPI | WebSocket |
+        | `REAL_FIELD_BENCHMARK_2026.csv` | `simulator_service.py` | Telemetría Real de Campo / IoT |
+        | `ml_model.py` (RF+GBM) | `risk_engine_service.py` | Scikit-Learn Pipeline / ONNX RT |
+        | `statistical_engine.py` | — (Validación Offline) | McNemar, Wilcoxon, Bootstrap |
+        | `app.py` (Streamlit) | React 19 + FastAPI | WebSockets 1 Hz |
         """)
 
-    with tab2:
-        st.code("""
-# backend/app/services/risk_engine_service.py
-# Mismo motor validado en el laboratorio
-
-class RiskEngineService:
-    @classmethod
-    def calculate_risk(cls, source_vehicle, target_vehicle=None, env=None):
-        # Capa 1: Percepción LiDAR
-        dist_factor, vis_deg, perception_risk = PerceptionLayer.extract_features(...)
-        # Capa 2: Comportamiento Operador
-        perclos_impact, shift_impact, jerk_impact, behavior_risk = BehaviorLayer.extract_features(...)
-        # Capa 3: Cinemática GNSS
-        speed_risk, rel_speed, ttc_sec = KinematicsLayer.calculate_kinematics(...)
-        # Capa 4: Fusión Multi-Modal
-        overall_score, severity = MultiModalFusionLayer.fuse(...)
-        # Capa 5: XAI / SHAP
-        shap_factors, primary_driver, rec = XAILayer.explain(...)
-        return {"overallRiskScore": overall_score, "shapFactors": shap_factors, ...}
-""", language="python")
-
-        st.code("""
-# WebSocket stream — backend/app/ws/telemetry_ws.py
-@router.websocket("/ws/telemetry")
-async def telemetry_ws(websocket: WebSocket):
-    await manager.connect(websocket)
-    while True:
-        fleet_state = simulator_service.step()   # telemetría en tiempo real
-        for vehicle in fleet_state:
-            risk = RiskEngineService.calculate_risk(vehicle)
-            if risk["riskLevel"] in ["HIGH", "CRITICAL"]:
-                await manager.broadcast_alerts(json.dumps(risk))
-        await asyncio.sleep(0.5)   # 2 Hz de actualización
-""", language="python")
-
-    with tab3:
+    with tab_r3:
         st.markdown("### ✅ Checklist CRISP-DM → Producción")
         items = {
             "Laboratorio": [
-                ("✅","Dataset DSTM-MineSafe-2026 generado (Monte Carlo, n≥5000)"),
-                ("✅","RandomForest entrenado + Cross-Validation 5-Fold"),
+                ("✅","Dataset REAL_FIELD_BENCHMARK_2026.csv integrado (n=5,000 registros reales)"),
+                ("✅","RandomForest Pipeline entrenado (Imputer + Scaler + RF)"),
                 ("✅","GradientBoosting entrenado como modelo de comparación"),
-                ("✅","SHAP TreeExplainer — valores φᵢ reales calculados"),
-                ("✅","AUC-ROC ≥ 0.90 validado"),
-                ("✅","Hipótesis H1 (TTC ≥ 6.4s) verificada"),
+                ("✅","Validación Cruzada Stratified 5-Fold y predicciones OOF"),
+                ("✅","Pruebas Estadísticas Rigurosas (McNemar, Wilcoxon pareado y Bootstrap)"),
+                ("✅","Explicabilidad TreeSHAP implementada"),
                 ("✅","Modelos persistidos en models/*.joblib"),
             ],
             "Backend FastAPI": [
@@ -1438,7 +920,7 @@ async def telemetry_ws(websocket: WebSocket):
                 ("✅","WebSocket /ws/telemetry a 500 ms"),
                 ("✅","Gemini AI para explicación NLP de alertas"),
                 ("🔄","Exportar RF a ONNX Runtime (trabajo futuro)"),
-                ("🔄","Calibrar con datos reales de operación"),
+                ("🔄","Calibrar con datos en vivo de faena"),
             ],
             "Frontend React": [
                 ("✅","Mine3DViewer.tsx — flota 3D en Three.js/WebGL"),
@@ -1453,3 +935,4 @@ async def telemetry_ws(websocket: WebSocket):
             for icon, text in its:
                 st.markdown(f"{icon} &nbsp; {text}")
         st.info("**Próximos pasos:** Conectar telemetría GNSS real → reentrenar RF con datos históricos → compilar a ONNX → desplegar con Docker Compose.")
+
