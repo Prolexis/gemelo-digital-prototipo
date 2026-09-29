@@ -1,7 +1,7 @@
 {
   "pipeline_name": "MineSafe 3D Predictive Risk Pipeline",
   "version": "1.0.0",
-  "trained_at": "2026-09-29T14:33:39.208006+00:00",
+  "trained_at": "2026-09-29T22:12:44.246504+00:00",
   "is_pipeline": true,
   "pipeline_steps": [
     "imputer (SimpleImputer:median)",
