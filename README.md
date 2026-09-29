@@ -121,8 +121,8 @@ gemelo-digital-prototipo/
 
 ### Paso 1: Clonar el Repositorio
 ```bash
-git clone https://github.com/Prolexis/gemelo-digital-prototipo.git
-cd gemelo-digital-prototipo
+git clone https://github.com/Prolexis/MineSafe-3D.git
+cd MineSafe-3D
 ```
 
 ### Paso 2: Configurar Variables de Entorno

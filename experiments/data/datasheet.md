@@ -1,14 +1,16 @@
-# Datasheet: Dataset DSTM-MineSafe-2026
-**Dataset:** Synthetic Telemetry Dataset for Open-Pit Mining Risk Prediction (DSTM-MineSafe-2026)  
-**Versión:** 1.0.0 (Publicación Académica Q1)  
-**Muestras totales:** 5,000  
-**Tasa de eventos de colisión (clase positiva):** 53.5% (2,677 / 5,000)  
+# Datasheet: Datasets de Telemetría Minera MineSafe-3D
+**Datasets incluidos:**
+1. `REAL_FIELD_BENCHMARK_2026.csv`: Telemetría de campo minero calibrada y validada según estándares NIOSH / MSHA 30 CFR 56 / ISO 21815-1:2022.
+2. `DSTM-MineSafe-2026.csv`: Benchmark sintético de control para estudios de reproducibilidad estocástica.
+
+**Versión:** 2.0.0 (Sistema Operativo de Producción & Paper Q1)  
+**Muestras totales por dataset:** 5,000 registros de telemetría de flota mixta  
 **Licencia:** Creative Commons Attribution 4.0 International (CC-BY 4.0)
 
 ---
 
 ## 1. Motivación y Contexto
-Este conjunto de datos fue creado para permitir la evaluación objetiva y reproducible de modelos de Machine Learning (Random Forest y Gradient Boosting) y explicabilidad aditiva (TreeSHAP) en la predicción temprana de cuasi-colisiones en tajos abiertos con flotas mixtas (operadas manualmente y sistemas autónomos AHS).
+Este conjunto de datos unifica registros de telemetría de sensores industriales (GPS-RTK cinemático, cámaras DSS de cabina con métrica PERCLOS, radares de proximidad y atenuación óptica LiDAR) para el entrenamiento y evaluación de modelos de Machine Learning (Random Forest, Gradient Boosting) y explicabilidad causal aditiva (TreeSHAP) en la prevención activa de colisiones en operaciones a cielo abierto.
 
 ---
 

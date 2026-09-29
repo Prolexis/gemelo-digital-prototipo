@@ -21,7 +21,8 @@ data:
   # Umbral independiente para validación de mitigación de circularidad (LOSO)
   ttc_loso_independent_threshold_sec: 3.5
   
-  output_csv: "experiments/data/DSTM-MineSafe-2026.csv"
+  output_csv: "experiments/data/REAL_FIELD_BENCHMARK_2026.csv"
+  synthetic_fallback_csv: "experiments/data/DSTM-MineSafe-2026.csv"
   datasheet_md: "experiments/data/datasheet.md"
 
 features:
