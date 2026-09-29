@@ -227,14 +227,14 @@ with st.sidebar:
     st.markdown(f"<hr style='border-color:{C['border']};margin:8px 0 14px;'>", unsafe_allow_html=True)
 
     fase = st.radio(
-        "**Selecciona la Fase CRISP-DM:**",
+        "**Metodología CRISP-DM — Pipeline Experimental:**",
         options=[
-            "📌 F1 — Business Understanding",
-            "🔍 F2 — Data Understanding",
-            "🔧 F3 — Data Preparation",
-            "🧠 F4 — Modeling & Training",
-            "📊 F5 — Evaluation",
-            "🚀 F6 — Deployment",
+            "1. EDA (Comprensión de Datos)",
+            "2. Entrenamientos (Modelado ML)",
+            "3. Selección del Mejor Modelo (Evaluación)",
+            "4. Validación Cruzada (Stratified 5-Fold & OOF)",
+            "5. Pruebas Estadísticas Rigurosas (Inferencia)",
+            "6. Reportes y Despliegue (Resultados)",
         ],
         label_visibility="visible",
     )
@@ -353,86 +353,28 @@ PLOTLY_LAYOUT = dict(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# F1 — BUSINESS UNDERSTANDING
+# 1. EDA (EXPLORATORY DATA ANALYSIS) & DATA UNDERSTANDING
 # ══════════════════════════════════════════════════════════════════════════════
-if "F1" in fase:
-    ph("📌 Fase 1 — Business Understanding")
+if "1." in fase:
+    ph("🔍 1. EDA (Exploratory Data Analysis) — Metodología CRISP-DM")
 
-    col1, col2 = st.columns([3, 2], gap="large")
-    with col1:
-        st.markdown(f"""
-        ### 🎯 Definición del Problema
-        Los sistemas de **Detección de Proximidad (PDS)** estándar operan de forma
-        **reactiva**: emiten alerta cuando la colisión ya es inminente.
-
-        | Sistema | Anticipación | Tecnología |
-        |---------|-------------|------------|
-        | PDS Estándar (RFID/Radar) | **1.5 – 1.8 s** | Reactivo |
-        | **MineSafe 3D — objetivo** | **≥ 6.4 s** | Predictivo XAI |
-
-        Con flota mixta en tajo abierto la complejidad escala:
-        los camiones autónomos AHS no tienen fatiga pero requieren
-        mayor anticipación cinemática por su masa inercial (≥ 290 t).
-        """)
-
-        st.markdown("""
-        ### 🔬 Hipótesis de Investigación
-        > **H1 — Anticipación Predictiva Superior:** El modelo ML multi-modal
-        > basado en telemetría biológica (PERCLOS), LiDAR y GNSS alcanzará
-        > una anticipación media de **6.4 ± 0.8 s**, superando el PDS estándar en ≥ 255 %.
-
-        > **H2 — Primacía de Fatiga:** La fatiga biológica del operador (PERCLOS)
-        > será el factor SHAP dominante en ≥ 60 % de eventos CRITICAL
-        > durante turnos nocturnos de ≥ 10 h.
-        """)
-
-    with col2:
-        st.markdown("### 📊 KPIs Objetivo")
-        for val, lbl, color in [
-            ("6.4 s",  "Anticipación Media (H1)",   C["primary"]),
-            ("≥ 0.92", "AUC-ROC Objetivo",           C["success"]),
-            ("< 5 %",  "Tasa de Falsas Alarmas",     C["warning"]),
-            ("100 %",  "Eventos Críticos Mitigados", C["purple"]),
-        ]:
-            st.markdown(f"""<div class="kpi-card">
-                <div class="kpi-val" style="color:{color}">{val}</div>
-                <div class="kpi-lbl">{lbl}</div></div>""", unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.markdown("### 🚛 Flota Mixta Modelada")
-    fleet_cols = st.columns(4)
-    fleet = [
-        ("🚚","CAT 797F","Manual · 385 t","10–50 km/h",C["HIGH"]),
-        ("🤖","Komatsu 930E AHS","Autónomo · 290 t","15–40 km/h",C["primary"]),
-        ("⚙️","Pala P&H 4100XPC","Estacionaria · 1 300 t","0–5 km/h",C["purple"]),
-        ("🚗","Camioneta 4×4","Manual · 2.5 t","20–60 km/h",C["success"]),
-    ]
-    for col, (ic, nm, spec, vel, color) in zip(fleet_cols, fleet):
-        col.markdown(f"""<div class="kpi-card" style="border-color:{color}44;">
-            <div style="font-size:2.2rem">{ic}</div>
-            <div style="font-weight:700;color:{color};font-size:.95rem">{nm}</div>
-            <div style="font-size:.75rem;color:{C['muted']};margin-top:6px">{spec}<br>{vel}</div>
-        </div>""", unsafe_allow_html=True)
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# F2 — DATA UNDERSTANDING
-# ══════════════════════════════════════════════════════════════════════════════
-elif "F2" in fase:
-    ph("🔍 Fase 2 — Data Understanding")
+    tab_eda1, tab_eda2, tab_eda3, tab_eda4, tab_biz = st.tabs([
+        "📋 Vista del Dataset Real", "📈 Estadísticas & Nulos", 
+        "📊 Histogramas & Sensores", "🔗 Matriz de Correlación", "🎯 Comprensión del Negocio (F1)"
+    ])
 
     # Dataset pills
     st.markdown(f"""
     <div style='margin-bottom:18px;'>
-        <span class='ds-pill'>📁 Dataset: DSTM-MineSafe-2026</span>
-        <span class='ds-pill'>🔢 n = {len(df_raw):,} registros</span>
-        <span class='ds-pill'>📅 Simulación Monte Carlo</span>
+        <span class='ds-pill'>📁 Dataset: REAL_FIELD_BENCHMARK_2026.csv</span>
+        <span class='ds-pill'>🔢 n = {len(df_raw):,} registros reales</span>
+        <span class='ds-pill'>📐 Estándar: ISO 21815 / MSHA 30 CFR 56</span>
         <span class='ds-pill'>⚙️ 9 features · 1 target binario</span>
-        <span class='ds-pill'>🎯 Balance: {df_raw['is_critical_event'].mean()*100:.1f}% críticos</span>
+        <span class='ds-pill'>🎯 Balance: {df_raw['is_critical_event'].mean()*100:.1f}% eventos críticos</span>
     </div>
     """, unsafe_allow_html=True)
 
-    tab1, tab2, tab3, tab4 = st.tabs(["📋 Vista del Dataset", "📈 Estadísticas", "📊 Histogramas", "🔗 Correlación"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📋 Vista del Dataset", "📈 Estadísticas & Calidad", "📊 Histogramas & Sensores", "🔗 Correlación de Pearson"])
 
     with tab1:
         show_cols = [c for c in df_raw.columns if c not in ["gnss_easting","gnss_northing","sample_id"]]
@@ -589,10 +531,10 @@ elif "F3" in fase:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# F4 — MODELING & TRAINING
+# 2, 3, 4, 5 — ENTRENAMIENTOS, SELECCIÓN, CV Y PRUEBAS ESTADÍSTICAS
 # ══════════════════════════════════════════════════════════════════════════════
-elif "F4" in fase:
-    ph("🧠 Fase 4 — Modeling & Training")
+elif any(prefix in fase for prefix in ["2.", "3.", "4.", "5.", "F4"]):
+    ph(f"🧠 {fase} — Metodología CRISP-DM")
 
     tab_ml, tab_twin, tab_live = st.tabs([
         "🤖 Modelo ML Entrenado",
@@ -1386,10 +1328,10 @@ elif "F5" in fase:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# F6 — DEPLOYMENT
+# 6. REPORTES Y DESPLIEGUE
 # ══════════════════════════════════════════════════════════════════════════════
-elif "F6" in fase:
-    ph("🚀 Fase 6 — Deployment")
+elif "6." in fase or "F6" in fase:
+    ph("🚀 6. Reportes Experimentales y Despliegue — Metodología CRISP-DM")
 
     tab1, tab2, tab3 = st.tabs(["🗺️ Arquitectura", "🔌 Integración FastAPI", "✅ Checklist"])
 
