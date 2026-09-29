@@ -19,7 +19,7 @@ warnings.filterwarnings("ignore")
 from data_loader import load_real_dataset, get_feature_descriptions, FEATURE_COLS, FEATURE_LABELS
 from risk_engine import RiskEngine
 from ml_model import (
-    train_models,
+    train_models, MODEL_DIR,
     predict_single, get_shap_single
 )
 from evaluation import (

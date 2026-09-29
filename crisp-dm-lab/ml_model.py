@@ -308,8 +308,10 @@ def train_models(df: pd.DataFrame, n_estimators_rf: int = 200) -> Dict[str, Any]
     shap_gbm = _pos(sv_gbm)
 
     # ── Guardar Pipelines completos y metadatos ──────────────────────────────
-    joblib.dump(rf_pipeline,  MODEL_DIR / "rf_model.joblib")
-    joblib.dump(gbm_pipeline, MODEL_DIR / "gbm_model.joblib")
+    target_dir = MODEL_DIR if "MODEL_DIR" in globals() and MODEL_DIR is not None else Path(__file__).parent / "models"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    joblib.dump(rf_pipeline,  target_dir / "rf_model.joblib")
+    joblib.dump(gbm_pipeline, target_dir / "gbm_model.joblib")
 
     pipeline_metadata = {
         "pipeline_name": "MineSafe 3D Predictive Risk Pipeline",
@@ -324,7 +326,7 @@ def train_models(df: pd.DataFrame, n_estimators_rf: int = 200) -> Dict[str, Any]
         "metrics_rf": metrics_rf,
         "metrics_gbm": metrics_gbm,
     }
-    with open(MODEL_DIR / "pipeline_metadata.json", "w", encoding="utf-8") as f_meta:
+    with open(target_dir / "pipeline_metadata.json", "w", encoding="utf-8") as f_meta:
         json.dump(pipeline_metadata, f_meta, indent=2, ensure_ascii=False)
 
     return {
