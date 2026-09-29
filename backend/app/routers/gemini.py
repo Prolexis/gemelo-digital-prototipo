@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
 from app.services.gemini_service import gemini_service
 from config import settings
@@ -7,17 +7,118 @@ from config import settings
 router = APIRouter(prefix="/api/gemini", tags=["Gemini Engine"])
 
 class RiskAnalysisRequest(BaseModel):
-    equipment_id: str
-    alert_data: Dict[str, Any]
-    shap_factors: List[Dict[str, Any]] = []
+    equipment_id: str = Field(
+        default="eq-ht-104", 
+        description="ID del equipo minero a analizar"
+    )
+    alert_data: Dict[str, Any] = Field(
+        default={
+            "severity": "CRITICAL",
+            "time_to_collision": 6.2,
+            "zone": "RAMPA_ESTE_SECTOR_4"
+        },
+        description="Datos de la alerta activa"
+    )
+    shap_factors: List[Dict[str, Any]] = Field(
+        default=[
+            {"feature": "Fatiga Biológica (PERCLOS)", "impact": 0.42},
+            {"feature": "Punto Ciego Ángulo Muerto", "impact": 0.28}
+        ],
+        description="Factores de atribución SHAP"
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "equipment_id": "eq-ht-104",
+                "alert_data": {
+                    "severity": "CRITICAL",
+                    "time_to_collision": 6.2,
+                    "zone": "RAMPA_ESTE_SECTOR_4"
+                },
+                "shap_factors": [
+                    {"feature": "Fatiga Biológica (PERCLOS)", "impact": 0.42},
+                    {"feature": "Punto Ciego Ángulo Muerto", "impact": 0.28}
+                ]
+            }
+        }
+    }
 
 class SafetyReportSummaryRequest(BaseModel):
-    shift_info: Dict[str, Any]
-    alerts_summary: List[Dict[str, Any]] = []
+    shift_info: Dict[str, Any] = Field(
+        default={
+            "shift_name": "Guardia A - Turno Día",
+            "supervisor": "Ing. Carlos Mendoza",
+            "date": "2026-09-28",
+            "total_equipment": 28
+        },
+        description="Metadatos del turno de guardia"
+    )
+    alerts_summary: List[Dict[str, Any]] = Field(
+        default=[
+            {
+                "severity": "CRITICAL",
+                "type": "Colisión Inminente",
+                "equipment": "CAEX-104",
+                "count": 1
+            },
+            {
+                "severity": "WARNING",
+                "type": "Somnolencia PERCLOS > 0.35",
+                "equipment": "CAEX-108",
+                "count": 3
+            }
+        ],
+        description="Resumen de alertas del turno"
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "shift_info": {
+                    "shift_name": "Guardia A - Turno Día",
+                    "supervisor": "Ing. Carlos Mendoza",
+                    "date": "2026-09-28",
+                    "total_equipment": 28
+                },
+                "alerts_summary": [
+                    {
+                        "severity": "CRITICAL",
+                        "type": "Colisión Inminente",
+                        "equipment": "CAEX-104",
+                        "count": 1
+                    }
+                ]
+            }
+        }
+    }
 
 class ChatRequest(BaseModel):
-    message: str
-    context: Optional[Dict[str, Any]] = None
+    message: str = Field(
+        default="¿Cuál es el protocolo de seguridad ante una alerta de colisión crítica en la rampa sur?",
+        description="Pregunta o mensaje para el asistente"
+    )
+    context: Optional[Dict[str, Any]] = Field(
+        default={
+            "shift": "Noche",
+            "active_trucks": 12,
+            "last_alert": "CRITICAL"
+        },
+        description="Contexto opcional de la mina"
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "message": "¿Cuál es el protocolo de seguridad ante una alerta de colisión crítica en la rampa sur?",
+                "context": {
+                    "shift": "Noche",
+                    "active_trucks": 12,
+                    "last_alert": "CRITICAL"
+                }
+            }
+        }
+    }
 
 @router.get("/health")
 async def check_gemini_status():

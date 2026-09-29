@@ -26,9 +26,66 @@ export const AlertsCenter: React.FC<AlertsCenterProps> = ({
   theme = 'dark',
 }) => {
   const [filterSeverity, setFilterSeverity] = useState<'ALL' | 'CRITICAL' | 'WARNING'>('ALL');
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(false);
 
   const isDark = theme === 'dark';
+
+  // Función para reproducir tono de alarma minera industrial usando Web Audio API
+  const playMineAlarmSound = (type: 'beep' | 'toggle') => {
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      
+      if (type === 'toggle') {
+        // Tono de confirmación de activación (Chime agradable)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); // E5
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.22);
+      } else {
+        // Alerta de Proximidad Minera Industrial Norma ISO 21815 / CAS Level 9 (PDS Proximity Chime)
+        // Triple pulso nítido armónico (no chillón, profesional)
+        const now = ctx.currentTime;
+        const freqs = [784, 987.77, 1174.66]; // G5, B5, D6 (Acorde mayor de advertencia)
+        
+        freqs.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          
+          // Onda tipo triangular/seno para sonido de display industrial de cabina (estilo Caterpillar/Hexagon)
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + (idx * 0.09));
+          
+          gain.gain.setValueAtTime(0.18, now + (idx * 0.09));
+          gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.09) + 0.16);
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.start(now + (idx * 0.09));
+          osc.stop(now + (idx * 0.09) + 0.16);
+        });
+      }
+    } catch {
+      // Ignorar restricciones de audio del navegador si no hay interacción
+    }
+  };
+
+  const handleToggleSound = () => {
+    const nextState = !soundEnabled;
+    setSoundEnabled(nextState);
+    if (nextState) {
+      playMineAlarmSound('beep');
+    }
+  };
 
   const filteredAlerts = alerts.filter(alert => {
     if (filterSeverity === 'ALL') return true;
@@ -60,13 +117,17 @@ export const AlertsCenter: React.FC<AlertsCenterProps> = ({
         {/* Audio Toggle */}
         <button
           id="btn-toggle-sound"
-          onClick={() => setSoundEnabled(!soundEnabled)}
+          onClick={handleToggleSound}
           aria-pressed={soundEnabled}
-          className="ms-button-neutral px-2.5 py-1 text-xs flex items-center gap-1.5 cursor-pointer"
-          title={soundEnabled ? 'Silenciar avisos sonoros' : 'Activar avisos sonoros'}
+          className={`px-2.5 py-1 text-xs flex items-center gap-1.5 cursor-pointer rounded-control transition-colors ${
+            soundEnabled
+              ? 'bg-[var(--accent)] text-white shadow-xs'
+              : 'ms-button-neutral'
+          }`}
+          title={soundEnabled ? 'Silenciar avisos sonoros' : 'Activar avisos sonoros de alarma'}
         >
           {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-          <span>{soundEnabled ? 'Audio' : 'Silenciado'}</span>
+          <span>{soundEnabled ? 'Audio activado' : 'Audio desactivado'}</span>
         </button>
       </div>
 

@@ -924,30 +924,40 @@ export default function App() {
           {activeTab === '3D_TWIN' && canAccessTab('3D_TWIN') && (
             <div className="space-y-3">
               {/* Slim High-Density Alert Strip (Solo si hay alerta crítica activa) */}
-              {hasCriticalAlert && (
-                <div className="px-3.5 py-2 rounded-control flex items-center justify-between gap-3 text-xs border border-[var(--border)] border-l-[3px] border-l-[var(--danger)] bg-[var(--danger-soft)] text-[var(--text)]">
-                  <div className="flex items-center gap-2 truncate">
-                    <span className="w-2 h-2 rounded-full bg-[var(--danger)] ms-pulse-active flex-shrink-0" />
-                    <span className="font-semibold text-[var(--danger)] flex-shrink-0">Colisión inminente:</span>
-                    <span className="truncate text-[var(--text-muted)]">HT-104 vs AHS-02 • Rampa Este • Anticipación: <span className="font-mono">6.2s</span></span>
-                  </div>
+              {hasCriticalAlert && (() => {
+                const activeCritical = alerts.find((a) => a.severity === 'CRITICAL' && a.status === 'ACTIVE') || alerts[0];
+                return (
+                  <div className="px-3.5 py-2 rounded-control flex items-center justify-between gap-3 text-xs border border-[var(--border)] border-l-[3px] border-l-[var(--danger)] bg-[var(--danger-soft)] text-[var(--text)]">
+                    <div className="flex items-center gap-2 truncate">
+                      <span className="w-2 h-2 rounded-full bg-[var(--danger)] ms-pulse-active flex-shrink-0" />
+                      <span className="font-semibold text-[var(--danger)] flex-shrink-0">Colisión inminente:</span>
+                      <span className="truncate text-[var(--text-muted)]">
+                        {activeCritical?.sourceEquipmentCode || 'HT-104'} vs {activeCritical?.targetEquipmentCode || 'AHS-02'} • {activeCritical?.zone || 'Rampa Este'} • Anticipación: <span className="font-mono">{activeCritical?.earlyWarningAnticipationSec || 6.2}s</span>
+                      </span>
+                    </div>
 
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => handleAcknowledgeAlert(alerts[0].id, currentUser.name)}
-                      className="ms-button-primary text-xs px-3 py-1 cursor-pointer"
-                    >
-                      Reconocer
-                    </button>
-                    <button
-                      onClick={() => setSelectedEquipmentId('eq-ht-104')}
-                      className="ms-button-neutral text-xs px-3 py-1 cursor-pointer"
-                    >
-                      Inspeccionar SHAP
-                    </button>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        id="btn-banner-acknowledge"
+                        onClick={() => {
+                          if (activeCritical) {
+                            handleAcknowledgeAlert(activeCritical.id, currentUser.name);
+                          }
+                        }}
+                        className="ms-button-primary text-xs px-3 py-1 cursor-pointer font-medium"
+                      >
+                        Reconocer
+                      </button>
+                      <button
+                        onClick={() => setSelectedEquipmentId(activeCritical?.sourceEquipmentId || 'eq-ht-104')}
+                        className="ms-button-neutral text-xs px-3 py-1 cursor-pointer"
+                      >
+                        Inspeccionar SHAP
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Split View: 3D Twin Viewport + XAI SHAP Explanation Panel (7/5 Cols) */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-[580px] lg:h-[calc(100vh-125px)]">
