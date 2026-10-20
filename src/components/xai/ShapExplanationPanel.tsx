@@ -10,8 +10,11 @@ import {
   ShieldAlert,
   ArrowUpRight,
   ArrowDownRight,
-  ChevronDown
+  ChevronDown,
+  FileSpreadsheet
 } from 'lucide-react';
+import { TableExportMenu } from '../common/TableExportMenu';
+import { XaiInterpretationFooter } from './XaiInterpretationFooter';
 
 interface ShapExplanationPanelProps {
   equipment: Equipment | null;
@@ -185,15 +188,37 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
         </div>
 
         {/* TreeSHAP Causal Breakdown */}
-        <details className="rounded-control border border-[var(--border)] bg-[var(--surface-2)]">
+        <details className="rounded-control border border-[var(--border)] bg-[var(--surface-2)]" open>
           <summary className="flex items-center justify-between gap-2 px-3 py-2.5 list-none cursor-pointer">
-            <span className="text-xs font-medium text-[var(--text)]">
+            <span className="text-xs font-semibold text-[var(--text)]">
               Desglose causal · TreeSHAP
             </span>
-            <span className="flex items-center gap-1.5 text-[10px] text-[var(--text-faint)]">
-              {prediction.shapFactors.length} factores
-              <ChevronDown className="w-3 h-3" />
-            </span>
+            <div className="flex items-center gap-2">
+              <TableExportMenu
+                buttonLabel="Grabar Factores"
+                payload={{
+                  title: `Atribución Causal TreeSHAP - Equipo ${equipment.code}`,
+                  subtitle: `Zona: ${equipment.currentZone} | Modelo: ${equipment.model} | Operador: ${equipment.assignedOperator?.operatorName || 'AHS'}`,
+                  headers: ['Factor de Riesgo', 'Valor Sensorial', 'Impacto SHAP (%)', 'Dirección del Riesgo'],
+                  rows: prediction.shapFactors.map(f => [
+                    f.featureName,
+                    f.unitValueString,
+                    `${f.attributionValue >= 0 ? '+' : ''}${f.percentageWeight}%`,
+                    f.attributionValue >= 0 ? 'INCREMENTA RIESGO' : 'MITIGA RIESGO'
+                  ]),
+                  filename: `treeshap_${equipment.code}_${Date.now()}`,
+                  xaiNotes: [
+                    `El score de riesgo del ${equipment.code} es ${(riskScore * 100).toFixed(0)}% con nivel ${prediction.riskLevel}.`,
+                    `Recomendación contrafáctica: ${prediction.counterfactualRecommendation}`,
+                    `TTC estimado: ${prediction.timeToCollisionSec}s con anticipación H1 de ${prediction.predictionHorizonSec}s.`
+                  ]
+                }}
+              />
+              <span className="flex items-center gap-1 text-[10px] text-[var(--text-faint)]">
+                {prediction.shapFactors.length} factores
+                <ChevronDown className="w-3 h-3" />
+              </span>
+            </div>
           </summary>
           <div className="px-3 pb-3 space-y-2 border-t border-[var(--border)] pt-2.5">
             <div className="flex items-center gap-3 text-[10px] text-[var(--text-faint)]">
@@ -253,9 +278,9 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
 
         {/* Action Recommendation */}
         <div className="p-3 rounded-control border border-[var(--border)] bg-[var(--surface-2)] flex items-start gap-2.5">
-          <CheckCircle2 className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0 mt-0.5" />
+          <CheckCircle2 className="w-4 h-4 text-[var(--accent)] flex-shrink-0 mt-0.5" />
           <div className="text-xs leading-relaxed">
-            <span className="font-semibold text-[var(--text)]">Recomendación: </span>
+            <span className="font-semibold text-[var(--text)]">Recomendación Contrafáctica: </span>
             <span className="text-[var(--text-muted)]">{prediction.counterfactualRecommendation}</span>
           </div>
         </div>
@@ -282,6 +307,18 @@ export const ShapExplanationPanel: React.FC<ShapExplanationPanelProps> = ({
             </button>
           )}
         </div>
+
+        {/* Bloque XAI de Interpretabilidad para el Equipo */}
+        <XaiInterpretationFooter
+          compact={true}
+          diagnosticText={`Para el equipo ${equipment.code}, la reducción de ${prediction.shapFactors[0]?.featureName || 'velocidad'} eliminaría la condición de alerta según la simulación contrafáctica.`}
+          glossary={[
+            { term: 'Recomendación Contrafáctica', definition: 'El cambio mínimo en las variables operativas que revertiría la clasificación de riesgo.' },
+            { term: 'Horizonte H1', unit: 'segundos', definition: 'Tiempo de anticipación garantizado antes de una aproximación crítica.' }
+          ]}
+          riskThreshold={`Límite de parada inmediata: TTC < 5s (Actual: ${prediction.timeToCollisionSec}s)`}
+          regulatoryStandard="Estándar MSHA Prevención de Colisiones de Equipos Pesados"
+        />
       </div>
     </div>
   );

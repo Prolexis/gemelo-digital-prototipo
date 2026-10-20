@@ -12,8 +12,10 @@ import {
   Crosshair,
   CloudSun,
   Video,
-  Navigation
+  Navigation,
+  Camera
 } from 'lucide-react';
+import { exportThreeJsCanvasHd } from '../../utils/exportVisuals';
 
 const getSceneColor = (token: string): THREE.Color =>
   new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue(token).trim());
@@ -100,8 +102,13 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
     updateCameraPosition(camera, sphericalCoordsRef.current, cameraTargetRef.current);
     cameraRef.current = camera;
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
+    // Renderer con preserveDrawingBuffer para permitir captura HD en alta calidad
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true, 
+      alpha: false, 
+      powerPreference: 'high-performance',
+      preserveDrawingBuffer: true 
+    });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(getSceneColor('--scene-bg'));
@@ -690,6 +697,16 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
     }
   };
 
+  const handleCapture3d = () => {
+    if (rendererRef.current) {
+      exportThreeJsCanvasHd(
+        rendererRef.current.domElement,
+        `captura_tajo_3d_${Date.now()}.png`,
+        'MINESAFE 3D — CAPTURA ESPACIAL DEL TAJO Y FLOTA MIXTA'
+      );
+    }
+  };
+
   return (
     <div className="relative w-full h-full min-h-[480px] rounded-card overflow-hidden border border-[var(--border)] flex flex-col bg-[var(--surface)]">
       {/* 3D WebGL Canvas Container */}
@@ -705,7 +722,7 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
           <span className="font-mono text-[11px]">{equipments.length} equipos</span>
         </div>
 
-        {/* Camera Segmented Control */}
+        {/* Camera Segmented Control & HD Capture Button */}
         <div className="flex items-center gap-1 p-1 rounded-control border border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-sm pointer-events-auto shadow-xs">
           <button
             id="btn-cam-orbit"
@@ -738,6 +755,18 @@ export const Mine3DViewer: React.FC<Mine3DViewerProps> = ({
           >
             <ShieldAlert className="w-3.5 h-3.5" />
             <span>Foco</span>
+          </button>
+
+          <span className="text-[var(--border-strong)] mx-0.5">|</span>
+
+          <button
+            id="btn-cam-capture-hd"
+            onClick={handleCapture3d}
+            className="px-2 py-1 rounded-control text-xs font-semibold flex items-center gap-1.5 cursor-pointer border border-sky-500/30 bg-sky-500/10 text-sky-300 hover:bg-sky-500/20 transition-all shadow-xs"
+            title="Grabar Captura HD del Tajo 3D en PNG de Alta Resolución"
+          >
+            <Camera className="w-3.5 h-3.5 text-sky-400" />
+            <span>Captura HD</span>
           </button>
         </div>
       </div>

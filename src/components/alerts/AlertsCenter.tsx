@@ -7,8 +7,11 @@ import {
   Volume2, 
   VolumeX, 
   ChevronRight,
-  Activity
+  Activity,
+  FileSpreadsheet
 } from 'lucide-react';
+import { TableExportMenu } from '../common/TableExportMenu';
+import { XaiInterpretationFooter } from '../xai/XaiInterpretationFooter';
 
 interface AlertsCenterProps {
   alerts: CollisionAlert[];
@@ -114,21 +117,48 @@ export const AlertsCenter: React.FC<AlertsCenterProps> = ({
           </div>
         </div>
 
-        {/* Audio Toggle */}
-        <button
-          id="btn-toggle-sound"
-          onClick={handleToggleSound}
-          aria-pressed={soundEnabled}
-          className={`px-2.5 py-1 text-xs flex items-center gap-1.5 cursor-pointer rounded-control transition-colors ${
-            soundEnabled
-              ? 'bg-[var(--accent)] text-white shadow-xs'
-              : 'ms-button-neutral'
-          }`}
-          title={soundEnabled ? 'Silenciar avisos sonoros' : 'Activar avisos sonoros de alarma'}
-        >
-          {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-          <span>{soundEnabled ? 'Audio activado' : 'Audio desactivado'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Menú de exportación de tabla de alertas */}
+          <TableExportMenu
+            buttonLabel="Grabar Alertas (Excel / CSV / PDF)"
+            payload={{
+              title: 'Registro Oficial de Alertas de Proximidad y Explicabilidad SHAP',
+              subtitle: 'Minera Esperanza • Tajo Abierto Banco 3200',
+              headers: ['Código', 'Severidad', 'Zona', 'Equipos', 'Riesgo', 'Anticipación H1', 'Atribución SHAP', 'Acción Mitigación'],
+              rows: alerts.map(a => [
+                a.alertCode,
+                a.severity,
+                a.zone,
+                `${a.sourceEquipmentCode} ${a.targetEquipmentCode ? `vs ${a.targetEquipmentCode}` : ''}`,
+                `${(a.riskScore * 100).toFixed(0)}%`,
+                `+${a.earlyWarningAnticipationSec}s (vs 1.8s PDS)`,
+                a.shapExplanationSummary,
+                a.recommendedAction
+              ]),
+              filename: 'registro_alertas_minesafe_xai',
+              xaiNotes: [
+                'La atribución causal SHAP identifica las variables de mayor gradiente de riesgo en tiempo real.',
+                'Toda alerta con severidad CRITICAL debe ser confirmada por el operador antes de 3.0 segundos según protocolo MSHA.'
+              ]
+            }}
+          />
+
+          {/* Audio Toggle */}
+          <button
+            id="btn-toggle-sound"
+            onClick={handleToggleSound}
+            aria-pressed={soundEnabled}
+            className={`px-2.5 py-1 text-xs flex items-center gap-1.5 cursor-pointer rounded-control transition-colors ${
+              soundEnabled
+                ? 'bg-[var(--accent)] text-white shadow-xs'
+                : 'ms-button-neutral'
+            }`}
+            title={soundEnabled ? 'Silenciar avisos sonoros' : 'Activar avisos sonoros de alarma'}
+          >
+            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">{soundEnabled ? 'Audio activado' : 'Audio desactivado'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter Bar as Segmented Control */}
@@ -261,6 +291,18 @@ export const AlertsCenter: React.FC<AlertsCenterProps> = ({
           })
         )}
       </div>
+
+      {/* Bloque XAI de Interpretabilidad Operacional de Alertas */}
+      <XaiInterpretationFooter
+        diagnosticText="Las alertas de severidad CRITICAL activan el protocolo de despeje de rampa cuando la combinación de TTC < 5s y PERCLOS > 40% proyecta riesgo de colisión inminente."
+        glossary={[
+          { term: 'TTC', unit: 's', definition: 'Time-To-Collision; tiempo restante antes de que las trayectorias de dos equipos colisionen.' },
+          { term: 'TreeSHAP', definition: 'Valor de atribución que cuantifica el aporte específico de cada sensor en el incremento del score de colisión.' },
+          { term: 'Acción Contrafáctica', definition: 'Condición mínima requerida para desactivar la alarma (ej. frenar a < 25 km/h).' }
+        ]}
+        riskThreshold="Protocolo CAS Nivel 9: Advertencia predictiva y desaceleración preventiva"
+        regulatoryStandard="MSHA Title 30 CFR / Estándar ICMM Cero Fatalidades"
+      />
     </div>
   );
 };

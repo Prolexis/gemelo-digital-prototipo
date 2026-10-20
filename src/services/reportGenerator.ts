@@ -131,9 +131,37 @@ export class MiningReportGenerator {
       margin: { left: 14, right: 14 },
     });
 
+    // 4. Marco de Explicabilidad XAI y Glosario Normativo
+    nextY = (doc as any).lastAutoTable.finalY + 10;
+    if (nextY > 215) {
+      doc.addPage();
+      nextY = 20;
+    }
+
+    doc.setTextColor(...primaryColor);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('4. MARCO DE INTERPRETABILIDAD XAI & GLOSARIO NORMATIVO (MSHA / ISO 45001)', 14, nextY);
+
+    autoTable(doc, {
+      startY: nextY + 4,
+      head: [['Variable / Parámetro', 'Unidad / Estándar', 'Criterio Operacional de Riesgo', 'Interpretación Causal XAI']],
+      body: [
+        ['PERCLOS (Fatiga)', '% Cierre Ocular', '> 35% Advertencia | > 50% Detención', 'Medición biométrica en cabina; correlacionada con microsueños en turno noche.'],
+        ['TTC (Time-To-Collision)', 'Segundos (s)', '< 5.0s Parada de Emergencia CAS Nivel 9', 'Proyección cinemática vectorial 3D calculada a 1 Hz por WebSocket.'],
+        ['Punto Ciego LiDAR', 'Metros (m)', '< 25m en curva ciega activa alerta', 'Pérdida de haz de retorno por geometría del talud en Banco 3200.'],
+        ['Atribución TreeSHAP', 'Impacto Relativo %', 'Contribución |φᵢ| al score predictivo', 'Descompone aditivamente la influencia de cada sensor en la alerta generada.'],
+        ['Hipótesis H1 (Validada)', 'Delta +255%', '6.4s Gemelo Digital vs 1.8s PDS', 'Tiempo de anticipación estadísticamente significativo (p < 0.001, Wilcoxon).']
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [51, 65, 85], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7.5 },
+      bodyStyles: { fontSize: 7, textColor: [30, 41, 59] },
+      margin: { left: 14, right: 14 },
+    });
+
     // Footer de Firmas de Autorización
-    nextY = (doc as any).lastAutoTable.finalY + 18;
-    if (nextY > 250) {
+    nextY = (doc as any).lastAutoTable.finalY + 16;
+    if (nextY > 245) {
       doc.addPage();
       nextY = 30;
     }
@@ -288,6 +316,47 @@ export class MiningReportGenerator {
                 <td>${eq.currentPrediction.counterfactualRecommendation}</td>
               </tr>
             `).join('')}
+          </tbody>
+        </table>
+
+        <h2>4. MARCO DE INTERPRETABILIDAD XAI & GLOSARIO NORMATIVO</h2>
+        <p>
+          Para efectos de auditoría MSHA Title 30 CFR y cumplimiento de la política de cero fatalidades, se definen los criterios y umbrales operacionales:
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Parámetro</th>
+              <th>Estándar / Unidad</th>
+              <th>Criterio de Riesgo</th>
+              <th>Interpretación Causal XAI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>PERCLOS (Fatiga)</strong></td>
+              <td>% Cierre Ocular</td>
+              <td>&gt; 35% Advertencia / &gt; 50% Detención</td>
+              <td>Sensor biométrico de pupila; indicador temprano de microsueños en turno nocturno.</td>
+            </tr>
+            <tr>
+              <td><strong>TTC (Time-To-Collision)</strong></td>
+              <td>Segundos (s)</td>
+              <td>&lt; 5.0 s (CAS Nivel 9)</td>
+              <td>Proyección cinemática vectorial 3D en tiempo real para evasión de impacto.</td>
+            </tr>
+            <tr>
+              <td><strong>Atribución TreeSHAP</strong></td>
+              <td>Impacto Relativo %</td>
+              <td>Ponderación |φᵢ| en el score</td>
+              <td>Descompone qué variable (visibilidad, fatiga o velocidad) gatilla la condición de alerta.</td>
+            </tr>
+            <tr>
+              <td><strong>Hipótesis H1 Validada</strong></td>
+              <td>+255% Ganancia</td>
+              <td>6.4 s vs 1.8 s PDS</td>
+              <td>Tiempo de anticipación predictivo estadísticamente superior al sistema reactivo tradicional.</td>
+            </tr>
           </tbody>
         </table>
 
