@@ -1,0 +1,12 @@
+metric,delta_abs,delta_pct,diff_positive_samples_N2677,p_b_conditional_at_psi_obs,odds_ratio_discordant,power_conditional_exact_nd50,power_unconditional_psi_0187_obs,power_unconditional_psi_0350,power_unconditional_psi_0500
+"Recall / Sensibilidad (N_pos=2,677)",0.002,0.2,5.4,0.5535,1.2398,0.0859,0.1178,0.0857,0.0749
+"Recall / Sensibilidad (N_pos=2,677)",0.003736,0.374,10.0,0.6,1.5001,0.2371,0.293,0.1784,0.139
+"Recall / Sensibilidad (N_pos=2,677)",0.005,0.5,13.4,0.6338,1.7311,0.4113,0.4733,0.2823,0.2118
+"Recall / Sensibilidad (N_pos=2,677)",0.006,0.6,16.1,0.6606,1.9465,0.5691,0.6224,0.3819,0.2841
+"Recall / Sensibilidad (N_pos=2,677)",0.0075,0.75,20.1,0.7008,2.3419,0.7858,0.8108,0.5455,0.4112
+"Recall / Sensibilidad (N_pos=2,677)",0.0081,0.81,21.7,0.7168,2.5315,0.8526,0.8662,0.6104,0.4659
+"Recall / Sensibilidad (N_pos=2,677)",0.0093,0.93,24.9,0.749,2.9834,0.9429,0.9411,0.73,0.5762
+"Recall / Sensibilidad (N_pos=2,677)",0.01,1.0,26.8,0.7677,3.3047,0.9716,0.9664,0.7901,0.6384
+"Recall / Sensibilidad (N_pos=2,677)",0.0125,1.25,33.5,0.8346,5.0466,0.9993,0.9973,0.9332,0.8248
+"Recall / Sensibilidad (N_pos=2,677)",0.015,1.5,40.2,0.9015,9.1566,1.0,0.9999,0.9859,0.935
+"Recall / Sensibilidad (N_pos=2,677)",0.02,2.0,53.5,1.0,inf,1.0,1.0,0.9998,0.9963

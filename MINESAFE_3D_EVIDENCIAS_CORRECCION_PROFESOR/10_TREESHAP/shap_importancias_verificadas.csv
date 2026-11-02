@@ -1,0 +1,10 @@
+feature,rf_mean_abs_shap_prob_scale,rf_sd_abs_shap_prob_scale,rf_share_pct,gbm_mean_abs_shap_logodds_scale,gbm_sd_abs_shap_logodds_scale,gbm_share_pct,rf_rank,gbm_rank
+lidar_obstacle_dist_m,0.336574,0.15224,61.87,3.848574,2.002984,62.02,1,1
+gnss_speed_kmh,0.120022,0.1159,22.06,1.594481,1.4378,25.7,2,2
+gnss_ramp_grade,0.019756,0.017135,3.63,0.092098,0.084476,1.48,3,6
+is_autonomous,0.019497,0.019446,3.58,0.277529,0.275374,4.47,4,3
+op_steering_jerk_stddev,0.018461,0.018518,3.39,0.071848,0.079167,1.16,5,7
+op_perclos_score,0.011628,0.00978,2.14,0.146938,0.119153,2.37,6,4
+lidar_visibility_index,0.010785,0.009151,1.98,0.108298,0.131076,1.75,7,5
+turno_horas_acumuladas,0.004289,0.004232,0.79,0.040855,0.045938,0.66,8,8
+op_harsh_braking_count,0.002971,0.002776,0.55,0.024691,0.026438,0.4,9,9

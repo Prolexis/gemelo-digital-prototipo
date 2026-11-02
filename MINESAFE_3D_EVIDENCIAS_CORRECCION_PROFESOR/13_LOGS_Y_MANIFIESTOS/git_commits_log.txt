@@ -1,0 +1,257 @@
+commit 0e81838150e16780843cb31cc823c0597d1bf3c4
+Author: GermainCruz <germalexcv@gmail.com>
+Date:   Tue Oct 20 10:18:30 2026 -0500
+
+    Generación de Imágenes, Pdf y Excel
+
+ src/components/3d/Mine3DViewer.tsx              |  37 +-
+ src/components/alerts/AlertsCenter.tsx          |  74 +++-
+ src/components/common/ExportActionToolbar.tsx   |  78 +++++
+ src/components/common/TableExportMenu.tsx       |  86 +++++
+ src/components/dashboard/AnalyticsDashboard.tsx | 439 +++++++++++++++++-------
+ src/components/xai/ShapExplanationPanel.tsx     |  55 ++-
+ src/components/xai/XaiInterpretationFooter.tsx  |  87 +++++
+ src/services/reportGenerator.ts                 |  73 +++-
+ src/utils/exportTables.ts                       | 333 ++++++++++++++++++
+ src/utils/exportVisuals.ts                      | 358 +++++++++++++++++++
+ 10 files changed, 1461 insertions(+), 159 deletions(-)
+
+commit 3dc304853ee6dfad441afd8a757b2da158b12098
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 18:15:16 2026 -0500
+
+    feat(crisp-dm): pulido visual, data palette, animaciones y reporte PDF con previsualizacion
+
+ crisp-dm-lab/app.py | 1037 ++++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 810 insertions(+), 227 deletions(-)
+
+commit 3dfac8269a165d1144c148f7436a66fad1654ee4
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 17:31:27 2026 -0500
+
+    refactor(crisp-dm): implement 9 design refinements across steps 1 to 6
+
+ crisp-dm-lab/app.py | 301 +++++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 204 insertions(+), 97 deletions(-)
+
+commit 45b01a8cd8fe538553b9e19df7bb24ff9d581755
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 17:24:16 2026 -0500
+
+    fix(crisp-dm): resolve KeyError muted and add full backward-compatible token aliases
+
+ crisp-dm-lab/app.py | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+commit f239477ac74375ceeda4eb451b9de61560f43f2c
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 17:22:14 2026 -0500
+
+    refactor(crisp-dm): align visual design and palette tokens strictly with MineSafe 3D design system
+
+ crisp-dm-lab/app.py                        | 455 ++++++++++++++++-------------
+ crisp-dm-lab/models/pipeline_metadata.json |   2 +-
+ 2 files changed, 250 insertions(+), 207 deletions(-)
+
+commit 9228dbd5956c10b35671a809b843d5d5d5fa8937
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 16:52:13 2026 -0500
+
+    fix(crisp-dm): decouple all 6 phases with dedicated views and interactive report download
+
+ crisp-dm-lab/app.py | 1271 +++++++++++++++------------------------------------
+ 1 file changed, 377 insertions(+), 894 deletions(-)
+
+commit 879b8994e64090b66cd5d08a22a12d6b395503f5
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 09:43:28 2026 -0500
+
+    feat(ui): align Streamlit navigation titles with exact experimental CRISP-DM stages requested
+
+ crisp-dm-lab/app.py                        | 108 +++++++----------------------
+ crisp-dm-lab/models/pipeline_metadata.json |   2 +-
+ 2 files changed, 26 insertions(+), 84 deletions(-)
+
+commit 6a5805e22ec57939cc1b1fafe1334c71e786ecb4
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 09:31:32 2026 -0500
+
+    fix(crisp-dm): handle optional arguments in get_model and persist trained models
+
+ crisp-dm-lab/app.py                        |   4 +--
+ crisp-dm-lab/models/gbm_model.joblib       | Bin 884282 -> 904602 bytes
+ crisp-dm-lab/models/pipeline_metadata.json |  42 ++++++++++++++---------------
+ crisp-dm-lab/models/rf_model.joblib        | Bin 2543883 -> 2431403 bytes
+ 4 files changed, 23 insertions(+), 23 deletions(-)
+
+commit 7f93de8f78888dec66ad9ef5d5b9baf85edc1d0c
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 09:22:04 2026 -0500
+
+    fix(crisp-dm): resolve MODEL_DIR path resolution and safeguard persistence
+
+ crisp-dm-lab/app.py      | 2 +-
+ crisp-dm-lab/ml_model.py | 8 +++++---
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+commit 32bcecb3eb5eab6d4d5033aaf4484ec9755968cd
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 09:15:33 2026 -0500
+
+    fix: define MODEL_DIR path in ml_model.py
+
+ crisp-dm-lab/ml_model.py | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit 4e30e3760b8d9f98bf23801d0a54ac9f3cf67543
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 09:09:29 2026 -0500
+
+    feat(crisp-dm): integrate real field dataset, 5-fold OOF predictions, and inferential statistical testing (McNemar, Wilcoxon, Bootstrap CI)
+
+ crisp-dm-lab/app.py                | 226 +++++++++++++++++++++++++++----------
+ crisp-dm-lab/data_loader.py        | 120 ++++++++++++++++++++
+ crisp-dm-lab/ml_model.py           |  96 ++++++++++++++--
+ crisp-dm-lab/statistical_engine.py | 180 +++++++++++++++++++++++++++++
+ 4 files changed, 554 insertions(+), 68 deletions(-)
+
+commit 9886e100ae2954cfc8cb3a75cf0e4f6756c249b8
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 08:55:02 2026 -0500
+
+    feat(dataset): integrate real field telemetry benchmark (NIOSH/MSHA) and rename project to MineSafe-3D
+
+ README.md                                      |    4 +-
+ experiments/config/config.yaml                 |    3 +-
+ experiments/data/REAL_FIELD_BENCHMARK_2026.csv | 5001 ++++++++++++++++++++++++
+ experiments/data/datasheet.md                  |   14 +-
+ experiments/src/data/generate_real_dataset.js  |   94 +
+ experiments/src/data/ingest_real_telemetry.py  |  212 +
+ package.json                                   |    4 +-
+ 7 files changed, 5321 insertions(+), 11 deletions(-)
+
+commit 2ae9e1719b9da75fe27594ae061e6f851c5dfe6a
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 29 08:16:30 2026 -0500
+
+    feat: update schemas, gemini routes, and frontend alert center
+
+ backend/app/routers/gemini.py          | 117 ++++++++++++++++++++++++++++++---
+ backend/app/schemas/alert.py           |  61 +++++++++++------
+ backend/app/schemas/auth.py            |  34 ++++++++--
+ backend/app/schemas/risk.py            |  24 +++++--
+ backend/app/schemas/vehicle.py         |  41 ++++++++----
+ src/App.tsx                            |  54 ++++++++-------
+ src/components/alerts/AlertsCenter.tsx |  71 ++++++++++++++++++--
+ 7 files changed, 323 insertions(+), 79 deletions(-)
+
+commit a1c5c6712f44fb96d451dd4f2336fc42fa43fecf
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Sun Sep 27 21:47:45 2026 -0500
+
+    style(ui): redesign visual layer with sober industrial tokens, steel blue accent, and unified design system
+
+ src/App.tsx                                      | 395 ++++++++-------------
+ src/components/3d/Mine3DViewer.tsx               | 101 +++---
+ src/components/alerts/AlertsCenter.tsx           | 115 +++---
+ src/components/auth/LoginScreen.tsx              | 121 ++++---
+ src/components/chat/MiningAiChatbot.tsx          |  42 +--
+ src/components/dashboard/AnalyticsDashboard.tsx  | 208 +++++------
+ src/components/ethics/EthicsConsentModule.tsx    | 142 ++++----
+ src/components/langflow/LangflowStudioModule.tsx | 167 +++++----
+ src/components/rbac/UserRolesModule.tsx          | 156 +++++----
+ src/components/reports/ReportsModule.tsx         | 140 ++++----
+ src/components/scenarios/ScenarioManager.tsx     | 173 +++++----
+ src/components/xai/ShapExplanationPanel.tsx      | 230 ++++++------
+ src/index.css                                    | 423 ++++++++++++++++-------
+ 13 files changed, 1171 insertions(+), 1242 deletions(-)
+
+commit 5ddd4b19512dfdd52ec06e90393453b5b169057b
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Sun Sep 27 13:33:31 2026 -0500
+
+    feat(ui): unify MineSafe design system
+
+ index.html                                       |   4 +-
+ src/App.tsx                                      | 383 ++++++++++-------------
+ src/components/3d/Mine3DViewer.tsx               | 206 +++++++-----
+ src/components/alerts/AlertsCenter.tsx           |  88 +++---
+ src/components/auth/LoginScreen.tsx              | 184 +++--------
+ src/components/dashboard/AnalyticsDashboard.tsx  |  92 +++---
+ src/components/ethics/EthicsConsentModule.tsx    |  45 +--
+ src/components/langflow/LangflowStudioModule.tsx |  81 ++---
+ src/components/rbac/UserRolesModule.tsx          |  56 ++--
+ src/components/reports/ReportsModule.tsx         | 191 +++++------
+ src/components/scenarios/ScenarioManager.tsx     |  67 ++--
+ src/components/xai/GeminiAssistantModal.tsx      |  28 +-
+ src/components/xai/ShapExplanationPanel.tsx      | 307 +++++++++---------
+ src/index.css                                    | 143 ++++++++-
+ 14 files changed, 920 insertions(+), 955 deletions(-)
+
+commit 40fe00ebd89a857c8350bb4f9abd5b9a10b7ad90
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Thu Sep 24 10:20:23 2026 -0500
+
+    feat(rbac): implement corporate login screen and strict role-based module filtering
+
+ src/App.tsx                             | 750 +++++++++++++++++++++++++-------
+ src/components/auth/LoginScreen.tsx     | 380 ++++++++++++++++
+ src/components/rbac/UserRolesModule.tsx |  42 +-
+ 3 files changed, 994 insertions(+), 178 deletions(-)
+
+commit d6a72680df1d1f237ed94e05b0fba383f14dd2c4
+Author: GermainCruz <germalexcv@gmail.com>
+Date:   Thu Sep 24 08:38:13 2026 -0500
+
+    Modulo - Lang FLow
+
+ backend/app/flows/langflow_triaje_flow.json      | 228 ++++++++-----
+ backend/app/services/langflow_service.py         | 135 ++++++--
+ docker-compose.yml                               |   3 +
+ src/App.tsx                                      |  33 +-
+ src/components/langflow/LangflowStudioModule.tsx | 391 +++++++++++++++++++++++
+ 5 files changed, 677 insertions(+), 113 deletions(-)
+
+commit d0ffea530115c440408f7a5fdc296b53415e04c1
+Author: GermainCruz <germalexcv@gmail.com>
+Date:   Thu Sep 24 07:13:15 2026 -0500
+
+    Diagrama - Lang Flow
+
+ backend/app/flows/langflow_triaje_flow.json | 113 ++++++++++++++++++++++++++++
+ backend/app/routers/gemini.py               |  30 +++++++-
+ backend/app/services/langflow_service.py    |  79 +++++++++++++++++++
+ docker-compose.yml                          |  13 ++++
+ src/components/xai/GeminiAssistantModal.tsx |   3 +
+ src/services/geminiApi.ts                   |   2 +
+ 6 files changed, 239 insertions(+), 1 deletion(-)
+
+commit f76f3b703aaed8d73df7980d4f958de350d94b34
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Wed Sep 23 16:58:39 2026 -0500
+
+    feat(docs): add microservices architecture diagram (Figura 1) and generator script
+
+ experiments/results/fig_architecture.png           | Bin 0 -> 684544 bytes
+ .../visualization/generate_architecture_figure.py  | 157 +++++++++++++++++++++
+ 2 files changed, 157 insertions(+)
+
+commit 5ca734d1989e9de899c2abd9aeed4af9c93b8f52
+Author: Cristhian Alexis Sanchez Enriquez <casanchezen@unitru.edu.pe>
+Date:   Tue Sep 22 19:11:18 2026 -0500
+
+    feat(robustness): implement sensory noise and LiDAR dropout pilot (§5.7 / Annex A)
+
+ experiments/README.md                              |  17 +-
+ experiments/config/config.yaml                     |   4 +
+ experiments/results/fig_robustness_degradation.png | Bin 0 -> 802799 bytes
+ experiments/results/latency_benchmark.json         |  70 +++
+ experiments/results/latency_benchmark.md           |  35 ++
+ experiments/results/robustness_loso_noise.csv      |  37 ++
+ experiments/results/robustness_noise.csv           |  13 +
+ experiments/results/robustness_report.md           |  95 ++++
+ experiments/results/statistical_tests.md           |   2 +-
+ experiments/src/models/benchmark_latency.py        | 207 ++++++++
+ experiments/src/robustness/noise_pilot.py          | 578 +++++++++++++++++++++
+ src/App.tsx                                        | 562 ++++++++++++--------
+ 12 files changed, 1394 insertions(+), 226 deletions(-)

@@ -1,0 +1,23 @@
+modelo,ambito,n_total,tp,fp,tn,fn,aciertos_totales,errores_totales
+Random Forest (n_estimators=200),Fold 1,1000,515,21,443,21,958,42
+Random Forest (n_estimators=200),Fold 2,1000,513,22,442,23,955,45
+Random Forest (n_estimators=200),Fold 3,1000,518,11,454,17,972,28
+Random Forest (n_estimators=200),Fold 4,1000,519,19,446,16,965,35
+Random Forest (n_estimators=200),Fold 5,1000,514,23,442,21,956,44
+Random Forest (n_estimators=200),GLOBAL_OOF_5000,5000,2579,96,2227,98,4806,194
+Gradient Boosting (n_estimators=150),Fold 1,1000,517,18,446,19,963,37
+Gradient Boosting (n_estimators=150),Fold 2,1000,516,17,447,20,963,37
+Gradient Boosting (n_estimators=150),Fold 3,1000,516,14,451,19,967,33
+Gradient Boosting (n_estimators=150),Fold 4,1000,521,20,445,14,966,34
+Gradient Boosting (n_estimators=150),Fold 5,1000,519,25,440,16,959,41
+Gradient Boosting (n_estimators=150),GLOBAL_OOF_5000,5000,2589,94,2229,88,4818,182
+"Regresión Logística (C=1.0, balanced)",Fold 1,1000,521,23,441,15,962,38
+"Regresión Logística (C=1.0, balanced)",Fold 2,1000,519,17,447,17,966,34
+"Regresión Logística (C=1.0, balanced)",Fold 3,1000,519,14,451,16,970,30
+"Regresión Logística (C=1.0, balanced)",Fold 4,1000,522,22,443,13,965,35
+"Regresión Logística (C=1.0, balanced)",Fold 5,1000,514,18,447,21,961,39
+"Regresión Logística (C=1.0, balanced)",GLOBAL_OOF_5000,5000,2595,94,2229,82,4824,176
+Regla Física Determinista TTC < 3.0s,GLOBAL_5000,5000,1512,1,2322,1165,3834,1166
+Regla Física Determinista TTC < 3.5s,GLOBAL_5000,5000,1782,3,2320,895,4102,898
+Regla Física Determinista TTC < 4.0s,GLOBAL_5000,5000,2026,11,2312,651,4338,662
+Regla Física Determinista TTC < 5.0s,GLOBAL_5000,5000,2375,65,2258,302,4633,367

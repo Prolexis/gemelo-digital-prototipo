@@ -1,0 +1,19 @@
+margin_delta,margin_pct,estimate_delta,se_wald,ci90_low,ci90_high,ci95_low,ci95_high,z_lower,p_lower,z_upper,p_upper,p_tost_wald,p_tost_cc,equivalent_at_alpha_05,equivalent_cc_at_alpha_05,metric,method
+0.0025,0.25,-0.0024,0.001918,-0.005555,0.000755,-0.006159,0.001359,0.0521,0.47921,2.5547,0.005314,0.47921,0.5,False,False,"Accuracy (N=5,000)",Wald_Paired_Proportions
+0.005,0.5,-0.0024,0.001918,-0.005555,0.000755,-0.006159,0.001359,1.3556,0.08762,3.8581,5.7e-05,0.08762,0.096216,False,False,"Accuracy (N=5,000)",Wald_Paired_Proportions
+0.0075,0.75,-0.0024,0.001918,-0.005555,0.000755,-0.006159,0.001359,2.659,0.003919,5.1615,0.0,0.003919,0.004569,True,True,"Accuracy (N=5,000)",Wald_Paired_Proportions
+0.01,1.0,-0.0024,0.001918,-0.005555,0.000755,-0.006159,0.001359,3.9624,3.7e-05,6.465,0.0,3.7e-05,4.6e-05,True,True,"Accuracy (N=5,000)",Wald_Paired_Proportions
+0.015,1.5,-0.0024,0.001918,-0.005555,0.000755,-0.006159,0.001359,6.5692,0.0,9.0718,0.0,0.0,0.0,True,True,"Accuracy (N=5,000)",Wald_Paired_Proportions
+0.02,2.0,-0.0024,0.001918,-0.005555,0.000755,-0.006159,0.001359,9.1761,0.0,11.6786,0.0,0.0,0.0,True,True,"Accuracy (N=5,000)",Wald_Paired_Proportions
+0.0025,0.25,-0.003736,0.00264,-0.008079,0.000608,-0.008911,0.00144,-0.4679,0.680081,2.3616,0.009099,0.680081,0.680081,False,False,"Recall / Sensibilidad (N_pos=2,677)",Wald_Paired_Proportions
+0.005,0.5,-0.003736,0.00264,-0.008079,0.000608,-0.008911,0.00144,0.4789,0.316008,3.3084,0.000469,0.316008,0.341581,False,False,"Recall / Sensibilidad (N_pos=2,677)",Wald_Paired_Proportions
+0.0075,0.75,-0.003736,0.00264,-0.008079,0.000608,-0.008911,0.00144,1.4257,0.076977,4.2552,1e-05,0.076977,0.087714,False,False,"Recall / Sensibilidad (N_pos=2,677)",Wald_Paired_Proportions
+0.01,1.0,-0.003736,0.00264,-0.008079,0.000608,-0.008911,0.00144,2.3725,0.008834,5.202,0.0,0.008834,0.010674,True,True,"Recall / Sensibilidad (N_pos=2,677)",Wald_Paired_Proportions
+0.015,1.5,-0.003736,0.00264,-0.008079,0.000608,-0.008911,0.00144,4.2662,1e-05,7.0956,0.0,1e-05,1.4e-05,True,True,"Recall / Sensibilidad (N_pos=2,677)",Wald_Paired_Proportions
+0.02,2.0,-0.003736,0.00264,-0.008079,0.000608,-0.008911,0.00144,6.1598,0.0,8.9893,0.0,0.0,0.0,True,True,"Recall / Sensibilidad (N_pos=2,677)",Wald_Paired_Proportions
+0.0025,0.25,-0.000861,0.00279,-0.00545,0.003728,-0.006329,0.004607,0.5875,0.278427,1.2047,0.11415,0.278427,0.304897,False,False,"Specificity / Especificidad (N_neg=2,323)",Wald_Paired_Proportions
+0.005,0.5,-0.000861,0.00279,-0.00545,0.003728,-0.006329,0.004607,1.4837,0.06895,2.1009,0.017826,0.06895,0.079787,False,False,"Specificity / Especificidad (N_neg=2,323)",Wald_Paired_Proportions
+0.0075,0.75,-0.000861,0.00279,-0.00545,0.003728,-0.006329,0.004607,2.3798,0.008661,2.997,0.001363,0.008661,0.01065,True,True,"Specificity / Especificidad (N_neg=2,323)",Wald_Paired_Proportions
+0.01,1.0,-0.000861,0.00279,-0.00545,0.003728,-0.006329,0.004607,3.2759,0.000527,3.8932,4.9e-05,0.000527,0.00069,True,True,"Specificity / Especificidad (N_neg=2,323)",Wald_Paired_Proportions
+0.015,1.5,-0.000861,0.00279,-0.00545,0.003728,-0.006329,0.004607,5.0682,0.0,5.6854,0.0,0.0,0.0,True,True,"Specificity / Especificidad (N_neg=2,323)",Wald_Paired_Proportions
+0.02,2.0,-0.000861,0.00279,-0.00545,0.003728,-0.006329,0.004607,6.8605,0.0,7.4777,0.0,0.0,0.0,True,True,"Specificity / Especificidad (N_neg=2,323)",Wald_Paired_Proportions

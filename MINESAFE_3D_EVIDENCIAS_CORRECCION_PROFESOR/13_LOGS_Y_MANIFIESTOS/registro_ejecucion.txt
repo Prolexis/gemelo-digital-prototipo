@@ -1,0 +1,43 @@
+==========================================================================================
+EJECUCIÓN MAESTRA DE AUDITORÍA Y REPRODUCIBILIDAD — MINESAFE 3D (GRUPO 26)
+Timestamp UTC: 2026-11-02T04:19:56.241864+00:00
+==========================================================================================
+
+[FASE I] Ejecutando inventario recursivo de artefactos del repositorio...
+  -> Inventario exportado: 54 ítems (52 LOCALIZADOS, 2 NO LOCALIZADOS)
+
+[FASE II] Verificando trazabilidad de hiperparámetros (FON-01: 200/150 vs 300/250)...
+  -> final_rf_pipeline.joblib n_estimators=200, max_depth=12, min_samples_leaf=4, min_samples_split=2
+  -> Comparación de configuraciones completada. Opción B (200/150) tiene 0 discrepancias en 5,000 filas (max_diff = 0.00000000).
+     Opción A (300/250) produce RF AUC=0.9939, F1=0.9641 (32 discrepancias RF, 30 discrepancias GBM).
+
+[FASE III] Validando dataset primario y reproduciendo RF, GBM, Regresión Logística y Baselines TTC...
+  -> Modelos reproducidos: RF AUC=0.993844 (F1=0.963752), GBM AUC=0.994251 (F1=0.966045), RL AUC=0.995651 (F1=0.967201)
+
+[FASE IV] Calculando McNemar exacto y conciliando discrepancia p=0.251283 vs p=0.251322 (FON-03)...
+  -> McNemar GLOBAL: a=4766, b=40, c=52, d=142 (Total=5000)
+     p_exacto_binomial = 0.25132210 (6 dec: 0.251322, 4 dec: 0.2513)
+     chi2_edwards_cc   = 1.315217 (p = 0.25145219)
+     chi2_sin_corr     = 1.565217 (p = 0.21090293)
+
+[FASE V] Calculando potencia estadística, TOST exploratorio y corrección Holm-Bonferroni (FON-05)...
+
+[FASE VI] Auditando circularidad de constructo y ejecutando estudio de ablación A-H (FON-02)...
+  -> Concordancia de etiqueta real con (effective_ttc_sec < 4.0s pre-ruido): 4959/5000 (99.18%; 41 casos adicionales por regla dist<15m/8m)
+  -> Concordancia de etiqueta real con regla reconstruida desde variables observadas post-ruido: 4835/5000 (96.70%)
+  -> Concordancia de etiqueta real con (ttc_raw_sec < 4.0s): 4348/5000 (86.96%)
+  -> Concordancia de etiqueta real con (pure_ttc_obs < 4.0s): 4338/5000 (86.76%)
+  -> Estudio de ablación A-H exportado (24 combinaciones modelo x subconjunto).
+
+[FASE VII] Ejecutando validación LOSO y análisis de falsas alarmas por escenario (FON-06)...
+  -> Validación LOSO verificada: RF Macro Recall(Indep)=1.0000, Spec(Indep)=0.6440, Escenario B Spec(Indep)=0.3850 (FPR=61.50%, FDR=63.31%).
+
+[FASE VIII] Evaluando robustez sensorial bajo Protocolo P1 (reentrenado) y Protocolo P2 (entrenado limpio) en 10 semillas (FON-07, FON-08)...
+  -> Robustez P1 vs P2 verificada en 10 semillas. RF 10% ruido: P1=0.8510 (seed42=0.8506), P2=0.8226 (seed42=0.8211); Combinado: P1=0.8338 (seed42=0.8334), P2=0.8069 (seed42=0.8061).
+
+[FASE IX] Calculando atribuciones TreeSHAP sobre n=1,000 muestras (seed=42)...
+  -> TreeSHAP verificado: Top-1=lidar_obstacle_dist_m (0.3366, 61.87%), Top-2=gnss_speed_kmh (0.1200, 22.06%).
+
+[FASE X] Generando tabla de auditoría de referencias, DOIs y estándares normativos...
+
+[OK] Cálculos experimentales completados en 908.54 s.

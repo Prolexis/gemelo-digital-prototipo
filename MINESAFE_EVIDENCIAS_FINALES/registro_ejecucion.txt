@@ -1,0 +1,35 @@
+﻿=====================================================================================
+AUDITOR├ìA CIENT├ìFICA FINAL ÔÇö PROYECTO MINESAFE 3D (ACTA MONTANISTICA SLOVACA)
+Fecha ejecuci├│n UTC: 2026-10-30T02:32:50.792179+00:00
+=====================================================================================
+
+[TAREA 1] Verificando predicciones OOF y alineaci├│n sobre los 5,000 registros...
+  - Ruta dataset original: C:\Users\Usuario\Documents\ghitub\gemelo-digital-prototipo\experiments\data\DSTM-MineSafe-2026.csv (5000 filas, SHA-256=d0ed1d7ca0a9a0c7...)
+  - Ruta predicciones OOF original: C:\Users\Usuario\Documents\ghitub\gemelo-digital-prototipo\experiments\results\predictions_fold_level.csv (5000 filas, SHA-256=5d19af32f6a99df8...)
+  - Diferencia m├íxima entre DSTM-MineSafe-2026.csv y generate_dataset.py (seed=42): 0.0000000000
+  - Alineaci├│n index 0..4999 exacto: True
+  - Alineaci├│n etiqueta_real vs DSTM-MineSafe-2026.csv: True
+  - Alineaci├│n escenario vs DSTM-MineSafe-2026.csv: True
+  - Coincidencia prediccion_RF (archivo existente vs re-ejecuci├│n): True (0 discrepancias en 5,000 filas)
+  - Coincidencia prediccion_GBM (archivo existente vs re-ejecuci├│n): True (0 discrepancias en 5,000 filas)
+  - Diferencia m├íx. probabilidad_RF / probabilidad_GBM: 0.00000000 / 0.00000000
+[+] Exportado predicciones_oof.csv (5000 filas, columnas=['id_registro', 'fold', 'etiqueta_real', 'prediccion_RF', 'prediccion_GBM', 'probabilidad_RF', 'probabilidad_GBM'])
+[+] Exportado mcnemar_verificado.csv (13 filas)
+    -> GLOBAL: a=4766, b=40, c=52, d=142
+    -> POSITIVOS (y=1): a_pos=2559, b_pos=20, c_pos=30, d_pos=68
+    -> NEGATIVOS (y=0): a_neg=2207, b_neg=20, c_neg=22, d_neg=74
+    -> McNemar exacto=0.251322, Chi2_Edwards=1.315217 (p=0.251452), Chi2_uncorr=1.565217 (p=0.210903)
+
+[TAREA 2.1] Calculando curvas de potencia estad├¡stica y sensibilidad para McNemar...
+  - MDE Accuracy (N=5,000, psi=1.84%): Potencia 80% -> 0.54% (incond) / 0.53% (cond exacta); Potencia 90% -> 0.62% (incond) / 0.61% (cond exacta)
+  - MDE Recall (N_pos=2,677, psi=2.17%): Potencia 80% -> 0.74% (incond) / 0.76% (cond exacta); Potencia 90% -> 0.86% (incond) / 0.86% (cond exacta)
+
+[TAREA 2.3-2.5] Ejecutando pruebas de equivalencia TOST (proporciones pareadas y Bootstrap B=10,000)...
+
+[TAREA 3] Consolidando tabla comparativa resultados_reproducidos.csv y copiando artefactos...
+[+] Exportado resultados_reproducidos.csv (16 filas)
+[+] Exportado configuracion_entorno.txt
+
+=====================================================================================
+VERIFICACI├ôN ESTAD├ìSTICA Y EXPERIMENTAL COMPLETADA EN 169.61 s
+=====================================================================================

@@ -1,0 +1,87 @@
+﻿================================================================================
+INICIANDO AUDITOR├ìA CIENT├ìFICA Y EXPERIMENTAL DE MINESAFE 3D
+Timestamp UTC: 2026-10-30T01:16:01.463388+00:00
+Python: 3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]
+Platform: Windows-10-10.0.26200-SP0
+================================================================================
+
+[FASE 2.1] Auditando datasets en experiments/data/...
+  - DSTM-MineSafe-2026.csv: shape=(5000, 15), nulls=0, dups=0, dups_without_id=0
+    Positivos=2677 (53.5400%), Escenarios={'A': 1287, 'B': 997, 'C': 999, 'D': 972, 'E': 745}
+    Coincidencia exacta con generate_dataset.py (seed=42): True (max_diff=0.0)
+  - REAL_FIELD_BENCHMARK_2026.csv: shape=(5000, 15), nulls=0, dups=0, dups_without_id=0
+    Positivos=1023 (20.4600%), Escenarios={'A': 1367, 'B': 529, 'C': 687, 'D': 968, 'E': 1449}
+  - Concordancia entre (effective_ttc_sec < 4.0) pre-ruido y collision_risk_label en DSTM: 99.1800%
+
+[FASE 2.2] Ejecutando 5-Fold Stratified CV sobre DSTM-MineSafe-2026.csv...
+[FASE 2.3] Ejecutando 5-Fold Stratified CV sobre REAL_FIELD_BENCHMARK_2026.csv (config.yaml actual)...
+[+] Guardado 03_METRICAS_MODELOS.csv (26 filas)
+  - McNemar DSTM (RF vs GBM): a=4766, b=40, c=52, d=142, chi2=1.3152, p_exact=0.2513, p_asymp=0.2515
+  - Wilcoxon Recall (5 folds): W=2.0000, p=0.1875
+  - Wilcoxon AUC-ROC (5 folds): W=4.0000, p=0.4375
+  - Bootstrap IC95% DSTM: {"auc_rf": {"mean": 0.9939, "ci95_low": 0.9926, "ci95_high": 0.995}, "auc_gbm": {"mean": 0.9943, "ci95_low": 0.9929, "ci95_high": 0.9955}, "pr_rf": {"mean": 0.9948, "ci95_low": 0.9936, "ci95_high": 0.9958}, "pr_gbm": {"mean": 0.9953, "ci95_low": 0.9941, "ci95_high": 0.9962}, "rec_rf": {"mean": 0.9633, "ci95_low": 0.9558, "ci95_high": 0.9706}, "rec_gbm": {"mean": 0.967, "ci95_low": 0.9604, "ci95_high": 0.9733}, "prec_rf": {"mean": 0.9641, "ci95_low": 0.9569, "ci95_high": 0.9709}, "prec_gbm": {"mean": 0.965, "ci95_low": 0.9579, "ci95_high": 0.9716}, "f1_rf": {"mean": 0.9637, "ci95_low": 0.9586, "ci95_high": 0.9688}, "f1_gbm": {"mean": 0.966, "ci95_low": 0.9612, "ci95_high": 0.9706}, "delta_rec": {"mean": -0.0037, "ci95_low": -0.0087, "ci95_high": 0.0015}, "delta_auc": {"mean": -0.0004, "ci95_low": -0.0011, "ci95_high": 0.0005}, "delta_f1": {"mean": -0.0023, "ci95_low": -0.0056, "ci95_high": 0.0013}}
+
+[FASE 3] Ejecutando experimentos de circularidad y ablaci├│n (A a G) en 5-Fold CV...
+  - F_Baseline_TTC_3.0s [Physical Rule (TTC < 3.0s)]: AUC=0.9868, F1=0.7217, Rec=0.5648, Prec=0.9993
+  - F_Baseline_TTC_3.5s [Physical Rule (TTC < 3.5s)]: AUC=0.9868, F1=0.7987, Rec=0.6657, Prec=0.9983
+  - F_Baseline_TTC_4.0s [Physical Rule (TTC < 4.0s)]: AUC=0.9868, F1=0.8596, Rec=0.7568, Prec=0.9946
+  - F_Baseline_TTC_5.0s [Physical Rule (TTC < 5.0s)]: AUC=0.9868, F1=0.9283, Rec=0.8872, Prec=0.9734
+  - F_Oraculo_Formula_Generador_Ruidosa [Oracle Generator Formula (Noisy Inputs)]: AUC=0.9918, F1=0.9691, Rec=0.9656, Prec=0.9725
+  - A_Modelo_Completo_9_Vars [Random Forest]: AUC=0.9938, F1=0.9638, Rec=0.9634, Prec=0.9641
+  - A_Modelo_Completo_9_Vars [Gradient Boosting]: AUC=0.9943, F1=0.9660, Rec=0.9671, Prec=0.9650
+  - G_A_Modelo_Completo_9_Vars_LogReg [Logistic Regression]: AUC=0.9957, F1=0.9672, Rec=0.9694, Prec=0.9650
+  - B_Sin_Distancia_LiDAR [Random Forest]: AUC=0.6412, F1=0.6643, Rec=0.7075, Prec=0.6261
+  - B_Sin_Distancia_LiDAR [Gradient Boosting]: AUC=0.6352, F1=0.6704, Rec=0.7385, Prec=0.6138
+  - G_B_Sin_Distancia_LiDAR_LogReg [Logistic Regression]: AUC=0.6542, F1=0.6612, Rec=0.6959, Prec=0.6298
+  - C_Sin_Velocidad_GNSS [Random Forest]: AUC=0.9585, F1=0.8964, Rec=0.9062, Prec=0.8867
+  - C_Sin_Velocidad_GNSS [Gradient Boosting]: AUC=0.9595, F1=0.8969, Rec=0.9096, Prec=0.8845
+  - G_C_Sin_Velocidad_GNSS_LogReg [Logistic Regression]: AUC=0.9437, F1=0.8801, Rec=0.9006, Prec=0.8605
+  - D_Sin_Distancia_Ni_Velocidad [Random Forest]: AUC=0.5800, F1=0.5998, Rec=0.6089, Prec=0.5910
+  - D_Sin_Distancia_Ni_Velocidad [Gradient Boosting]: AUC=0.5723, F1=0.6205, Rec=0.6638, Prec=0.5824
+  - G_D_Sin_Distancia_Ni_Velocidad_LogReg [Logistic Regression]: AUC=0.6002, F1=0.6464, Rec=0.7068, Prec=0.5955
+  - E1_Solo_Comportamiento_Operador_4_Vars [Random Forest]: AUC=0.5541, F1=0.5850, Rec=0.6029, Prec=0.5681
+  - E1_Solo_Comportamiento_Operador_4_Vars [Gradient Boosting]: AUC=0.5484, F1=0.6219, Rec=0.6892, Prec=0.5666
+  - G_E1_Solo_Comportamiento_Operador_4_Vars_LogReg [Logistic Regression]: AUC=0.5606, F1=0.6517, Rec=0.7594, Prec=0.5707
+  - E2_Comportamiento_Mas_Autonomo_5_Vars [Random Forest]: AUC=0.5533, F1=0.5848, Rec=0.6070, Prec=0.5642
+  - E2_Comportamiento_Mas_Autonomo_5_Vars [Gradient Boosting]: AUC=0.5451, F1=0.6153, Rec=0.6821, Prec=0.5605
+  - G_E2_Comportamiento_Mas_Autonomo_5_Vars_LogReg [Logistic Regression]: AUC=0.5625, F1=0.6748, Rec=0.8282, Prec=0.5693
+  - H_Solo_Distancia_Y_Velocidad_2_Vars [Random Forest]: AUC=0.9892, F1=0.9451, Rec=0.9451, Prec=0.9451
+  - H_Solo_Distancia_Y_Velocidad_2_Vars [Gradient Boosting]: AUC=0.9898, F1=0.9471, Rec=0.9503, Prec=0.9440
+  - G_H_Solo_Distancia_Y_Velocidad_2_Vars_LogReg [Logistic Regression]: AUC=0.9901, F1=0.9465, Rec=0.9511, Prec=0.9419
+[+] Verificado 05_ANALISIS_CIRCULARIDAD.csv (26 filas)
+
+[FASE 4] Ejecutando Validaci├│n Leave-One-Scenario-Out (LOSO) exhaustiva...
+[+] Verificado 04_RESULTADOS_LOSO.csv (28 filas)
+
+[FASE 5] Ejecutando auditor├¡a de robustez sensorial (Reentrenado vs Solo Evaluaci├│n + 10 semillas)...
+  - Seed 42 Dropout LiDAR: 181 eventos, 430 muestras alteradas (8.60%)
+  - Ejecutando 10 repeticiones con semillas 42..51 para estimar desviaci├│n est├índar...
+[+] Guardado 06_ROBUSTEZ_SENSORES.csv (36 filas)
+
+[FASE 6] Ejecutando Auditor├¡a TreeSHAP para Random Forest y Gradient Boosting...
+[+] Guardado 07_IMPORTANCIA_SHAP.csv (9 filas)
+ rf_rank  gbm_rank                 feature  rf_mean_abs_shap  rf_std_abs_shap  rf_pct_share_shap  rf_gini_importance  gbm_mean_abs_shap_log_odds  gbm_std_abs_shap_log_odds  gbm_pct_share_shap  gbm_gini_importance
+       1         1   lidar_obstacle_dist_m            0.3366           0.1522              61.87              0.6926                      3.8486                     2.0020               62.02               0.6581
+       2         2          gnss_speed_kmh            0.1200           0.1158              22.06              0.1810                      1.5945                     1.4371               25.70               0.2795
+       3         6         gnss_ramp_grade            0.0198           0.0171               3.63              0.0372                      0.0921                     0.0844                1.48               0.0049
+       4         3           is_autonomous            0.0195           0.0194               3.58              0.0115                      0.2775                     0.2752                4.47               0.0296
+       5         7 op_steering_jerk_stddev            0.0185           0.0185               3.39              0.0216                      0.0718                     0.0791                1.16               0.0094
+       6         4        op_perclos_score            0.0116           0.0098               2.14              0.0176                      0.1469                     0.1191                2.37               0.0103
+       7         5  lidar_visibility_index            0.0108           0.0091               1.98              0.0209                      0.1083                     0.1310                1.75               0.0046
+       8         8  turno_horas_acumuladas            0.0043           0.0042               0.79              0.0135                      0.0409                     0.0459                0.66               0.0024
+       9         9  op_harsh_braking_count            0.0030           0.0028               0.55              0.0041                      0.0247                     0.0264                0.40               0.0014
+python : c:\Users\Usuario\Documents\ghitub\gemelo-digital-prototipo\MINESAFE_3D_AUDITORIA_PUBLICACION\scripts_auditoria
+\run_audit_experiments.py:897: FutureWarning: The NumPy global RNG was seeded by calling `np.random.seed`. In a future 
+version this function will no longer use the global RNG. Pass `rng` explicitly to opt-in to the new behaviour and 
+silence this warning.
+En línea: 1 Carácter: 32
++ ... NG="utf-8"; python "c:\Users\Usuario\Documents\ghitub\gemelo-digital- ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (c:\Users\Usuari...e this warning.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  shap.summary_plot(sv_rf_pos, X_dstm.iloc[sample_idx], feature_names=FEATURE_COLS, show=False)
+
+================================================================================
+AUDITOR├ìA EXPERIMENTAL COMPLETADA EN 225.2 SEGUNDOS
+================================================================================

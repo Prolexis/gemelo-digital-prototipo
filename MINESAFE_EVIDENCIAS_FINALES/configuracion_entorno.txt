@@ -1,0 +1,222 @@
+================================================================================
+CONFIGURACIÓN DEL ENTORNO DE AUDITORÍA Y REPRODUCCIÓN (MINESAFE 3D)
+================================================================================
+Fecha UTC:          2026-10-30T02:35:40.369069+00:00
+Sistema Operativo:  Windows-10-10.0.26200-SP0
+Arquitectura:       AMD64 / AMD64 Family 23 Model 104 Stepping 1, AuthenticAMD
+Python ejecutable:  C:\Users\Usuario\AppData\Local\Programs\Python\Python311\python.exe
+Versión Python:     3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]
+
+Versiones de librerías científicas núcleo:
+- numpy:            2.4.6
+- pandas:           3.0.5
+- scikit-learn:     1.9.0
+- scipy:            1.17.1
+- shap:             0.51.0
+- joblib:           1.5.3
+- PyYAML:           6.0.3
+- matplotlib:       3.11.0
+
+Semilla aleatoria global (experiments/config/config.yaml):
+- seed:             42
+- StratifiedKFold:  n_splits=5, shuffle=True, random_state=42
+- Semillas por fold (RF y GBM): 42, 43, 44, 45, 46 (seed + fold)
+- Bootstrap:        np.random.default_rng(42), B=1,000 (original) y B=2,000 (TOST extendido)
+
+Hashes SHA-256 de los archivos de datos originales:
+- experiments/data/DSTM-MineSafe-2026.csv:          d0ed1d7ca0a9a0c7b2225ba44fee3d16fd92ad8dbfc37a46c85d93ed5b9095c2
+- experiments/results/predictions_fold_level.csv:   5d19af32f6a99df8461763248de8dad38e8ccb42ec059dd3cb693ba6ba1b6348
+- experiments/config/config.yaml:                   f6a75152de5285bb5cb7c16a93287773f5d459f30a678838514338a54fdee84b
+
+================================================================================
+SALIDA COMPLETA DE `pip freeze` EN EL ENTORNO DE EJECUCIÓN:
+================================================================================
+absl-py==2.5.0
+aiohappyeyeballs==2.7.1
+aiohttp==3.14.3
+aiosignal==1.4.0
+aiosqlite==0.22.1
+alembic==1.20.0
+altair==5.5.0
+annotated-doc==0.0.5
+annotated-types==0.7.0
+anyio==4.15.1
+argon2-cffi==25.1.0
+argon2-cffi-bindings==26.1.0
+astunparse==1.6.3
+asyncpg==0.31.0
+attrs==26.1.0
+bcrypt==4.0.1
+blinker==1.9.0
+cachetools==5.5.2
+certifi==2026.2.25
+cffi==2.0.0
+chardet==7.4.3
+charset-normalizer==3.4.7
+click==8.3.2
+cloudpickle==3.1.2
+colorama==0.4.6
+contourpy==1.3.3
+cryptography==47.0.0
+cycler==0.12.1
+defusedxml==0.7.1
+Deprecated==1.3.1
+distro==1.9.0
+dnspython==2.8.0
+ecdsa==0.19.2
+email-validator==2.1.0
+et_xmlfile==2.0.0
+fastapi==0.141.1
+filetype==1.2.0
+flatbuffers==25.12.19
+fonttools==4.63.0
+fpdf2==2.8.7
+frozenlist==1.8.0
+gast==0.7.0
+gitdb==4.0.12
+GitPython==3.1.46
+google-ai-generativelanguage==0.6.15
+google-api-core==2.33.0
+google-api-python-client==2.200.0
+google-auth==2.57.1
+google-auth-httplib2==0.4.2
+google-genai==2.22.0
+google-generativeai==0.8.6
+google-pasta==0.2.0
+googleapis-common-protos==1.75.0
+greenlet==3.4.0
+grpcio==1.82.1
+grpcio-status==1.71.2
+h11==0.16.0
+h5py==3.16.0
+httpcore==1.0.9
+httpcore2==2.12.0
+httplib2==0.32.0
+httptools==0.8.0
+httpx==0.28.1
+httpx2==2.12.0
+idna==3.19
+importlib-metadata==6.11.0
+iniconfig==2.3.0
+itsdangerous==2.2.0
+Jinja2==3.1.6
+joblib==1.5.3
+jsonpatch==1.33
+jsonpointer==3.1.1
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+keras==3.15.0
+kiwisolver==1.5.0
+langchain==1.4.0
+langchain-core==1.6.2
+langchain-google-genai==4.4.0
+langchain-protocol==0.0.19
+langgraph==1.2.11
+langgraph-checkpoint==4.2.0
+langgraph-prebuilt==1.1.0
+langgraph-sdk==0.4.4
+langsmith==0.12.2
+libclang==18.1.1
+limits==5.8.0
+llvmlite==0.49.0
+lxml==6.1.1
+Mako==1.3.11
+Markdown==3.10.2
+markdown-it-py==4.0.0
+MarkupSafe==3.0.3
+matplotlib==3.11.0
+mdurl==0.1.2
+ml_dtypes==0.5.4
+multidict==6.7.1
+namex==0.1.0
+narwhals==2.19.0
+numba==0.67.0
+numpy==2.4.6
+opencv-python==4.11.0.86
+openpyxl==3.1.5
+opt_einsum==3.4.0
+optree==0.19.1
+orjson==3.12.0
+ormsgpack==1.12.2
+packaging==23.2
+pandas==3.0.5
+passlib==1.7.4
+patsy==1.0.2
+pillow==10.2.0
+plotly==7.0.0
+pluggy==1.6.0
+propcache==0.5.2
+proto-plus==1.28.2
+protobuf==5.29.6
+psycopg2-binary==2.9.9
+pyarrow==23.0.1
+pyasn1==0.6.3
+pyasn1_modules==0.4.2
+pycparser==3.0
+pydantic==2.13.5
+pydantic-settings==2.15.0
+pydantic_core==2.46.5
+pydeck==0.9.2
+Pygments==2.20.0
+PyJWT==2.13.0
+pyparsing==3.3.2
+pypdf==5.0.1
+pytest==8.0.0
+python-dateutil==2.9.0.post0
+python-docx==1.1.2
+python-dotenv==1.0.1
+python-jose==3.3.0
+python-multipart==0.0.32
+pytz==2026.1.post1
+PyYAML==6.0.3
+redis==8.1.0
+referencing==0.37.0
+reportlab==4.2.5
+requests==2.34.2
+requests-toolbelt==1.0.0
+rich==13.9.4
+rpds-py==0.30.0
+rsa==4.9.1
+scikit-learn==1.9.0
+scipy==1.17.1
+seaborn==0.13.2
+shap==0.51.0
+six==1.17.0
+slicer==0.0.8
+slowapi==0.1.9
+smmap==5.0.3
+sniffio==1.3.1
+SQLAlchemy==2.0.54
+starlette==1.6.0
+statsmodels==0.14.6
+streamlit==1.63.0
+tenacity==8.5.0
+tensorboard==2.19.0
+tensorboard-data-server==0.7.2
+tensorflow==2.19.1
+tensorflow-io-gcs-filesystem==0.31.0
+termcolor==3.3.0
+threadpoolctl==3.6.0
+toml==0.10.2
+tornado==6.5.5
+tqdm==4.70.0
+truststore==0.10.4
+typing-inspection==0.4.4
+typing_extensions==4.16.0
+tzdata==2026.1
+tzlocal==5.3.1
+uritemplate==4.2.0
+urllib3==2.6.3
+uuid_utils==0.17.0
+uvicorn==0.52.4
+validators==0.35.0
+watchdog==4.0.2
+watchfiles==1.1.1
+websockets==16.0
+Werkzeug==3.1.8
+wrapt==2.1.2
+xxhash==4.0.1
+yarl==1.24.5
+zipp==3.23.1
+zstandard==0.25.0
+
